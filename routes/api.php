@@ -14,8 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('auth')->group(function() {
+    Route::get('login', function () {
+        return response()->json(['message' => 'Unauthorized.'], 401);
+    })->name('login');
+    
+    Route::post('register', [\App\Http\Controllers\Auth\AuthController::class, 'register']);
+    Route::post('login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->group(function() {
+        Route::get('me', [\App\Http\Controllers\Auth\AuthController::class, 'me']);
+        Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout']);
+    });
 });
 
 Route::prefix('fleet')->group(function() {

@@ -11,33 +11,26 @@ use Illuminate\Http\Request;
 
 class FleetCarrierController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:sanctum', 'has.cmdr'], [
+            'only' => ['store', 'update', 'destroy']
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(SearchFleetCarrierRequest $request)
     {
         $validated = $request->validated();
-        $carriers = FleetCarrier::with('schedule')->filter($validated);
+        $carriers = FleetCarrier::with(['commander', 'schedule'])->filter($validated);
 
         return FleetCarrierResource::collection(
             $carriers->paginate($request->get('limit', config('app.pagination.limit')))
         );
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFleetCarrierRequest $request)
-    {
-        $validated = $request->validated();
-        $carrier = FleetCarrier::create($validated);
-
-        return response()->json(
-            new FleetCarrierResource($carrier),
-            JsonResponse::HTTP_CREATED
-        );
-    }
-
+    
     /**
      * Display the specified resource.
      */
@@ -50,16 +43,30 @@ class FleetCarrierController extends Controller
         }
 
         return response()->json(
-            new FleetCarrierResource($carrier->load('schedule'))
+            new FleetCarrierResource($carrier->load(['commander', 'schedule']))
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreFleetCarrierRequest $request)
+    {
+        $validated = $request->validated();
+        $carrier = $request->user()->commander->carriers()->create($validated);
+
+        return response()->json(
+            new FleetCarrierResource($carrier),
+            JsonResponse::HTTP_CREATED
         );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(string $id, Request $request)
     {
-        $carrier = FleetCarrier::find($id);
+        $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
@@ -75,9 +82,9 @@ class FleetCarrierController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
-        $carrier = FleetCarrier::find($id);
+        $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

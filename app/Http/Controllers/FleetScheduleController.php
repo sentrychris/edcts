@@ -25,20 +25,6 @@ class FleetScheduleController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFleetScheduleRequest $request)
-    {
-        $validated = $request->validated();
-        $schedule = FleetSchedule::create($validated);
-
-        return response()->json(
-            new FleetScheduleResource($schedule->load('carrier')),
-            JsonResponse::HTTP_CREATED
-        );
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(string $id)
@@ -51,6 +37,20 @@ class FleetScheduleController extends Controller
 
         return response()->json(
             new FleetScheduleResource($schedule->load('carrier'))
+        );
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreFleetScheduleRequest $request)
+    {
+        $validated = $request->validated();
+        $schedule = FleetSchedule::create($validated);
+
+        return response()->json(
+            new FleetScheduleResource($schedule->load('carrier')),
+            JsonResponse::HTTP_CREATED
         );
     }
 

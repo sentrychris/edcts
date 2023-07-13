@@ -1,6 +1,6 @@
 version: '3'
 services:
-    fcs.web:
+    web:
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
@@ -23,8 +23,8 @@ services:
         networks:
             - sail
         depends_on:
-            - fcs.db
-    fcs.db:
+            - mariadb
+    mariadb:
         image: 'mariadb:10'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'

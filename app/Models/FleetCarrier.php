@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\HasQueryFilter;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FleetCarrier extends Model
 {
@@ -22,6 +23,11 @@ class FleetCarrier extends Model
         static::deleting(function(FleetCarrier $carrier) {
             $carrier->schedule()->delete();
         });
+    }
+
+    public function commander(): BelongsTo
+    {
+        return $this->belongsTo(Commander::class);
     }
 
     public function schedule(): HasMany

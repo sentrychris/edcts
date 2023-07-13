@@ -15,10 +15,11 @@ class FleetScheduleResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'schedule_id' => $this->id,
+            'id' => $this->id,
             'departure' => $this->departure,
             'destination' => $this->destination,
             'title' => $this->title,
+            'description' => $this->description,
             'departs_at' => $this->departs_at,
             'arrives_at' => $this->arrives_at,
             'carrier' => new FleetCarrierResource($this->whenLoaded('carrier')),

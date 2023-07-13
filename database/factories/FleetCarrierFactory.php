@@ -18,6 +18,7 @@ class FleetCarrierFactory extends Factory
     {
         return [
             'name' => 'SJEF ' . ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
+            'commander_id' => 1,
             'identifier' => $this->generateIdentifier(),
             'has_refuel' => rand(0,1),
             'has_repair' => rand(0,1),
