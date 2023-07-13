@@ -44,9 +44,7 @@ class FleetScheduleFactory extends Factory
         $departure = $departureSystems[array_rand($departureSystems)];
         $destination = $arrivalSystems[array_rand($arrivalSystems)];
 
-        $departsAt = Carbon::today()->addDays(rand(1, 90))
-            ->addHours(rand(0, 23))
-            ->addMinutes(rand(0, 59));
+        $departsAt = Carbon::today()->addDays(rand(1, 90))->addHours(rand(0, 23))->addMinutes(rand(0, 59));
 
         return [
             'fleet_carrier_id' => $carrier,
@@ -54,7 +52,8 @@ class FleetScheduleFactory extends Factory
             'destination' => $destination,
             'title' => $departure . ' > ' . $destination . ' | ' . $departsAt->format('d F \'y H:i') . ' UTC',
             'description' => fake()->paragraphs(2, true),
-            'departs_at' => $departsAt->toDateTimeString()
+            'departs_at' => $departsAt->toDateTimeString(),
+            'is_boarding' => $departsAt->diffInDays(now()) <= 2
         ];
     }
 }

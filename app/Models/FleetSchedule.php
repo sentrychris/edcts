@@ -12,6 +12,8 @@ class FleetSchedule extends Model
 
     protected $table = 'fleet_schedule';
 
+    protected $guarded = [];
+
     public $timestamps = false;
 
     public function carrier(): BelongsTo

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFleetScheduleRequest;
 use App\Models\FleetCarrier;
+use App\Models\FleetSchedule;
 use Illuminate\Http\Request;
 
 class FleetScheduleController extends Controller
@@ -19,9 +21,12 @@ class FleetScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFleetScheduleRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $schedule = FleetSchedule::create($validated);
+
+        return response()->json($schedule);
     }
 
     /**
