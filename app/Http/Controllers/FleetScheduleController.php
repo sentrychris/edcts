@@ -11,13 +11,20 @@ use Illuminate\Http\Request;
 
 class FleetScheduleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['auth:sanctum', 'has.cmdr'], [
+            'only' => ['store', 'update', 'destroy']
+        ]);
+    }
+    
     /**
      * Display a listing of the resource.
      */
     public function index(SearchFleetScheduleRequest $request )
     {
         $validated = $request->validated();
-        $schedule = FleetSchedule::with('carrier')->filter($validated);
+        $schedule = FleetSchedule::with('carrier.commander')->filter($validated);
 
         return FleetScheduleResource::collection(
             $schedule->paginate($request->get('limit', config('app.pagination.limit')))
@@ -36,7 +43,7 @@ class FleetScheduleController extends Controller
         }
 
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier'))
+            new FleetScheduleResource($schedule->load('carrier.commander'))
         );
     }
 
@@ -49,7 +56,7 @@ class FleetScheduleController extends Controller
         $schedule = FleetSchedule::create($validated);
 
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier')),
+            new FleetScheduleResource($schedule->load('carrier.commander')),
             JsonResponse::HTTP_CREATED
         );
     }
@@ -57,17 +64,27 @@ class FleetScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(string $id, Request $request)
     {
-        // TODO
+        $schedule = $request->user()->commander->schedule()->find($id);
+
+        if (!$schedule) {
+            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $schedule->update($request->toArray());
+
+        return response()->json(
+            new FleetScheduleResource($schedule->load('carrier.commander'))
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, Request $request)
     {
-        $schedule = FleetSchedule::find($id);
+        $schedule = $request->user()->commander->schedule()->find($id);
 
         if (!$schedule) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

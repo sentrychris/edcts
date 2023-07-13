@@ -30,7 +30,7 @@ class FleetCarrierController extends Controller
             $carriers->paginate($request->get('limit', config('app.pagination.limit')))
         );
     }
-    
+
     /**
      * Display the specified resource.
      */
