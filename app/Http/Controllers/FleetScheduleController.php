@@ -24,6 +24,9 @@ class FleetScheduleController extends Controller
     
     /**
      * Display a listing of the resource.
+     * 
+     * @param SearchFleetScheduleRequest $request
+     * @return AnonymousResourceCollection
      */
     public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
     {
@@ -37,8 +40,11 @@ class FleetScheduleController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * @param string $id
+     * @return JsonResponse
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $schedule = FleetSchedule::find($id);
 
@@ -53,6 +59,9 @@ class FleetScheduleController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * @param StoreFleetScheduleRequest $request
+     * @return JsonResponse
      */
     public function store(StoreFleetScheduleRequest $request): JsonResponse
     {
@@ -67,6 +76,10 @@ class FleetScheduleController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @param string $id
+     * @param Request $request
+     * @return JsonResponse
      */
     public function update(string $id, Request $request): JsonResponse
     {
@@ -85,6 +98,10 @@ class FleetScheduleController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param string $id
+     * @param Request $request
+     * @return JsonResponse
      */
     public function destroy(string $id, Request $request): JsonResponse
     {

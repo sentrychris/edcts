@@ -15,6 +15,9 @@ class AuthController extends Controller
 {
     /**
      * Register users
+     * 
+     * @param RegistrationRequest $request
+     * @return JsonResponse
      */
     public function register(RegistrationRequest $request): JsonResponse
     {
@@ -38,6 +41,9 @@ class AuthController extends Controller
 
     /**
      * Login users
+     * 
+     * @param Request $request
+     * @return JsonResponse
      */
     public function login(Request $request): JsonResponse
     {
@@ -65,6 +71,9 @@ class AuthController extends Controller
 
     /**
      * Logout users
+     * 
+     * @param Request $request
+     * @return JsonResponse
      */
     public function logout(Request $request): JsonResponse
     {
@@ -77,8 +86,11 @@ class AuthController extends Controller
 
     /**
      * Fetch authenticated user
+     * 
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function me(Request $request)
+    public function me(Request $request): JsonResponse
     {
         if ($request->user()) {
             return response()->json(

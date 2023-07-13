@@ -24,6 +24,9 @@ class FleetCarrierController extends Controller
 
     /**
      * Display a listing of the resource.
+     * 
+     * @param SearchFleetCarrierRequest $request
+     * @return AnonymousResourceCollection
      */
     public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
     {
@@ -37,6 +40,9 @@ class FleetCarrierController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * @param string $id
+     * @return JsonResponse
      */
     public function show(string $id): JsonResponse
     {
@@ -53,6 +59,9 @@ class FleetCarrierController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * 
+     * @param StoreFleetCarrierRequest $request
+     * @return JsonResponse
      */
     public function store(StoreFleetCarrierRequest $request): JsonResponse
     {
@@ -67,6 +76,10 @@ class FleetCarrierController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * 
+     * @param string $id
+     * @param Request $request
+     * @return JsonResponse
      */
     public function update(string $id, Request $request): JsonResponse
     {
@@ -85,6 +98,10 @@ class FleetCarrierController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param string $id
+     * @param Request $request
+     * @return JsonResponse
      */
     public function destroy(string $id, Request $request): JsonResponse
     {
