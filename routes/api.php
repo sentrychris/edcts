@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('fleet')->group(function() {
+    Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);
     Route::resource('schedule', App\Http\Controllers\FleetScheduleController::class);
 });

@@ -185,4 +185,8 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+
+    'pagination' => [
+        'limit' => 10
+    ],
 ];

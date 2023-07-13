@@ -17,7 +17,8 @@ class FleetCarrierFactory extends Factory
     public function definition(): array
     {
         return [
-            'carrier_name' => 'SJEF ' . ucfirst(fake()->firstName()) . ' [VBK-'.rand(100,999).']',
+            'name' => 'SJEF ' . ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
+            'identifier' => $this->generateIdentifier(),
             'has_refuel' => rand(0,1),
             'has_repair' => rand(0,1),
             'has_armory' => rand(0,1),
@@ -25,5 +26,17 @@ class FleetCarrierFactory extends Factory
             'has_outfitting' => rand(0,1),
             'has_cartographics' => rand(0,1),
         ];
+    }
+
+    private function generateIdentifier()
+    {
+        $rand = '';
+        $seed = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        shuffle($seed);
+        foreach (array_rand($seed, 3) as $k) {
+            $rand .= $seed[$k];
+        }
+
+        return $rand . '-' . rand(100,999);
     }
 }

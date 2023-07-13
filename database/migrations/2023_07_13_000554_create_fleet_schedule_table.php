@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamp('arrives_at')->nullable();
             $table->timestamp('arrived_at')->nullable();
             $table->boolean('is_boarding')->default(false);
+            $table->boolean('is_cancelled')->default(false);
             $table->boolean('has_departed')->default(false);
             $table->boolean('has_arrived')->default(false);
         });
