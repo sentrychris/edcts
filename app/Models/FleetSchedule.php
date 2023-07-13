@@ -25,7 +25,7 @@ class FleetSchedule extends Model
     {
         parent::boot();
         static::addGlobalScope('order', function(Builder $builder) {
-            $builder->orderBy('departs_at', 'desc');
+            $builder->orderBy('departs_at', 'asc');
         });
     }
 
