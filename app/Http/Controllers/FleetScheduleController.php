@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchFleetScheduleRequest;
 use App\Http\Requests\StoreFleetScheduleRequest;
 use App\Http\Resources\FleetScheduleResource;
-use App\Models\FleetCarrier;
 use App\Models\FleetSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,8 +30,7 @@ class FleetScheduleController extends Controller
     public function store(StoreFleetScheduleRequest $request)
     {
         $validated = $request->validated();
-        $carrier = FleetCarrier::find($validated['fleet_carrier_id']);
-        $schedule = $carrier->schedule()->create($validated);
+        $schedule = FleetSchedule::create($validated);
 
         return response()->json(
             new FleetScheduleResource($schedule->load('carrier')),
@@ -69,6 +67,16 @@ class FleetScheduleController extends Controller
      */
     public function destroy(string $id)
     {
-        // TODO
+        $schedule = FleetSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $schedule->delete();
+
+        return response()->json([
+            'message' => 'Scheduled carrier trip has been deleted'
+        ]);
     }
 }

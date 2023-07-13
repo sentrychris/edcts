@@ -15,6 +15,7 @@ class FleetCarrierResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'carrier_id' => $this->id,
             'name' => $this->name,
             'identifier' => $this->identifier,
             'services' => [

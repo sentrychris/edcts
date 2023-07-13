@@ -15,6 +15,7 @@ class FleetScheduleResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'schedule_id' => $this->id,
             'departure' => $this->departure,
             'destination' => $this->destination,
             'title' => $this->title,

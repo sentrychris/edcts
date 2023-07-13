@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchFleetCarrierRequest;
 use App\Http\Requests\StoreFleetCarrierRequest;
 use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
@@ -13,10 +14,10 @@ class FleetCarrierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(SearchFleetCarrierRequest $request)
     {
-        $carriers = FleetCarrier::with('schedule')
-            ->filter($request->toArray());
+        $validated = $request->validated();
+        $carriers = FleetCarrier::with('schedule')->filter($validated);
 
         return FleetCarrierResource::collection(
             $carriers->paginate($request->get('limit', config('app.pagination.limit')))
@@ -58,7 +59,17 @@ class FleetCarrierController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $carrier = FleetCarrier::find($id);
+
+        if (!$carrier) {
+            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $carrier->update($request->toArray());
+
+        return response()->json(
+            new FleetCarrierResource($carrier->load('schedule'))
+        );
     }
 
     /**
@@ -66,6 +77,16 @@ class FleetCarrierController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $carrier = FleetCarrier::find($id);
+
+        if (!$carrier) {
+            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $carrier->delete();
+
+        return response()->json([
+            'message' => 'Fleet carrier and associated schedule has been deleted'
+        ]);
     }
 }
