@@ -7,9 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommanderResource extends JsonResource
 {
+    /**
+     * @var bool
+     */
     private bool $includeAuth = false;
 
-    public function __construct($resource, $includeAuth = false)
+    /**
+     * Constructor
+     */
+    public function __construct(mixed $resource, bool $includeAuth = false)
     {
         if ($includeAuth) {
             $this->includeAuth = true;

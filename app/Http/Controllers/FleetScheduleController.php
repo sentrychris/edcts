@@ -8,9 +8,13 @@ use App\Http\Resources\FleetScheduleResource;
 use App\Models\FleetSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FleetScheduleController extends Controller
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->middleware(['auth:sanctum', 'has.cmdr'], [
@@ -21,7 +25,7 @@ class FleetScheduleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(SearchFleetScheduleRequest $request )
+    public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
     {
         $validated = $request->validated();
         $schedule = FleetSchedule::with('carrier.commander')->filter($validated);
@@ -50,7 +54,7 @@ class FleetScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFleetScheduleRequest $request)
+    public function store(StoreFleetScheduleRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $schedule = FleetSchedule::create($validated);
@@ -64,7 +68,7 @@ class FleetScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(string $id, Request $request)
+    public function update(string $id, Request $request): JsonResponse
     {
         $schedule = $request->user()->commander->schedule()->find($id);
 
@@ -82,7 +86,7 @@ class FleetScheduleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(string $id, Request $request): JsonResponse
     {
         $schedule = $request->user()->commander->schedule()->find($id);
 

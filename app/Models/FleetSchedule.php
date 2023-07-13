@@ -18,12 +18,29 @@ class FleetSchedule extends Model
 
     public $timestamps = false;
 
+    /**
+     * Boot model
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+        static::addGlobalScope('order', function(Builder $builder) {
+            $builder->orderBy('departs_at', 'desc');
+        });
+    }
+
+    /**
+     * Carrier relation
+     */
     public function carrier(): BelongsTo
     {
         return $this->belongsTo(FleetCarrier::class, 'fleet_carrier_id');
     }
 
-    public function scopeFilter(Builder $builder, array $options)
+    /**
+     * Filter scope
+     */
+    public function scopeFilter(Builder $builder, array $options): Builder
     {
         if (!empty($options['search'])) {
             $builder->search($options['search']);

@@ -16,16 +16,25 @@ class Commander extends Model
 
     protected $guarded = [];
 
+    /**
+     * User relation
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Carriers relation
+     */
     public function carriers(): HasMany
     {
         return $this->hasMany(FleetCarrier::class);
     }
 
+    /**
+     * Schedule relation
+     */
     public function schedule(): HasManyThrough
     {
         return $this->hasManyThrough(FleetSchedule::class, FleetCarrier::class);

@@ -34,6 +34,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    /**
+     * Load commander relation
+     */
     protected $with = ['commander'];
 
     /**

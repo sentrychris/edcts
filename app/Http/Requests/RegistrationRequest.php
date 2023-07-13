@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\UniqueEncryptedUser;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Pure;
-
 class RegistrationRequest extends BaseRequest
 {
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     */
     public function rules(): array
     {
         return [

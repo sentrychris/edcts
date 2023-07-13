@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Register users
+     */
     public function register(RegistrationRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -33,6 +36,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Login users
+     */
     public function login(Request $request): JsonResponse
     {
         if ($request->user()) {
@@ -57,6 +63,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Logout users
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
@@ -66,6 +75,9 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Fetch authenticated user
+     */
     public function me(Request $request)
     {
         if ($request->user()) {

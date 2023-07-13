@@ -18,24 +18,36 @@ class FleetCarrier extends Model
 
     protected $guarded = [];
 
-    protected static function booted()
+    /**
+     * Boot model
+     */
+    protected static function booted(): void
     {
         static::deleting(function(FleetCarrier $carrier) {
             $carrier->schedule()->delete();
         });
     }
 
+    /**
+     * Commander relation
+     */
     public function commander(): BelongsTo
     {
         return $this->belongsTo(Commander::class);
     }
 
+    /**
+     * Schedule relation
+     */
     public function schedule(): HasMany
     {
         return $this->hasMany(FleetSchedule::class);
     }
     
-    public function scopeFilter(Builder $builder, array $options)
+    /**
+     * Filter scope
+     */
+    public function scopeFilter(Builder $builder, array $options): Builder
     {
         if (!empty($options['search'])) {
             $builder->search($options['search']);

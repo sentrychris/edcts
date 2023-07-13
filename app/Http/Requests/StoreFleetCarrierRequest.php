@@ -13,7 +13,13 @@ class StoreFleetCarrierRequest extends BaseRequest
     {
         return [
             'name' => 'required|string|max:25',
-            'identifier' => 'required|string|unique:fleet_carriers|max:7'
+            'identifier' => 'required|string|unique:fleet_carriers|max:7',
+            'has_refuel' => 'sometimes|boolean',
+            'has_repair' => 'sometimes|boolean',
+            'has_armory' => 'sometimes|boolean',
+            'has_shipyard' => 'sometimes|boolean',
+            'has_outfitting' => 'sometimes|boolean',
+            'has_cartographics' => 'sometimes|boolean',
         ];
     }
 }

@@ -8,9 +8,13 @@ use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FleetCarrierController extends Controller
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->middleware(['auth:sanctum', 'has.cmdr'], [
@@ -21,7 +25,7 @@ class FleetCarrierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(SearchFleetCarrierRequest $request)
+    public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
         $carriers = FleetCarrier::with(['commander', 'schedule'])->filter($validated);
@@ -34,7 +38,7 @@ class FleetCarrierController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): JsonResponse
     {
         $carrier = FleetCarrier::find($id);
 
@@ -50,13 +54,13 @@ class FleetCarrierController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFleetCarrierRequest $request)
+    public function store(StoreFleetCarrierRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $carrier = $request->user()->commander->carriers()->create($validated);
 
         return response()->json(
-            new FleetCarrierResource($carrier),
+            new FleetCarrierResource($carrier->load('commander')),
             JsonResponse::HTTP_CREATED
         );
     }
@@ -64,7 +68,7 @@ class FleetCarrierController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(string $id, Request $request)
+    public function update(string $id, Request $request): JsonResponse
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
@@ -75,14 +79,14 @@ class FleetCarrierController extends Controller
         $carrier->update($request->toArray());
 
         return response()->json(
-            new FleetCarrierResource($carrier->load('schedule'))
+            new FleetCarrierResource($carrier->load(['commander', 'schedule']))
         );
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(string $id, Request $request): JsonResponse
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
