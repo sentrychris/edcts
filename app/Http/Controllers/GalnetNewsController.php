@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\GalnetRSSParser;
+use App\Http\Resources\GalnetNewsResource;
 use App\Models\GalnetNews;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,9 +24,9 @@ class GalnetNewsController extends Controller
      */
     public function index(Request $request)
     {        
-        $news = GalnetNews::paginate($request->get('limit', config('app.pagination.limit')));
-
-        return response()->json($news);
+        return GalnetNewsResource::collection(
+            GalnetNews::paginate($request->get('limit', config('app.pagination.limit')))
+        );
     }
 
     /**
