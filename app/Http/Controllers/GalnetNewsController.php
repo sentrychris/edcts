@@ -40,23 +40,9 @@ class GalnetNewsController extends Controller
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        return response()->json($article);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        return response()->json(
+            new GalnetNewsResource($article)
+        );
     }
 
     /**

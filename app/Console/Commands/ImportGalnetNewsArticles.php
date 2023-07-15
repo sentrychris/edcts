@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\GalnetJSONParser;
 use App\Libraries\GalnetRSSParser;
 use Illuminate\Console\Command;
 
@@ -12,7 +13,7 @@ class ImportGalnetNewsArticles extends Command
      *
      * @var string
      */
-    protected $signature = 'elite:import-galnet-news';
+    protected $signature = 'elite:import-galnet-news {--format=}';
 
     /**
      * The console command description.
@@ -24,12 +25,23 @@ class ImportGalnetNewsArticles extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
+        $format = $this->option('format');
+        
+        if (!in_array($format, ['rss', 'json'])) {
+            $this->output->error('format must either be rss or json');
+            return false;
+        }
+
         $this->output->info('Importing GalNet news articles, please wait...');
+        
+        $parser = $format === 'rss'
+            ? new GalnetRSSParser(config('elite.urls.galnet.rss'))
+            : new GalnetJSONParser(config('elite.urls.galnet.json'));
 
         $progress = $this->output->createProgressBar();
-        $parser = new GalnetRSSParser(config('elite.urls.galnet'));
+
         $parser->import($progress);
 
         $this->output->info('Importing complete.');
