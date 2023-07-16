@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Commander;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,9 +17,11 @@ class FleetCarrierFactory extends Factory
      */
     public function definition(): array
     {
+        $commanderIds = Commander::all()->pluck('id')->toArray();
+
         return [
-            'name' => 'SJEF ' . ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
-            'commander_id' => rand(1,2),
+            'name' => ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
+            'commander_id' => $commanderIds[array_rand($commanderIds)],
             'identifier' => $this->generateIdentifier(),
             'has_refuel' => rand(0,1),
             'has_repair' => rand(0,1),

@@ -18,9 +18,7 @@ class FleetScheduleFactory extends Factory
      */
     public function definition(): array
     {
-        $fleetCarrierIds = FleetCarrier::all()
-            ->pluck('id')
-            ->toArray();
+        $fleetCarrierIds = FleetCarrier::all()->pluck('id')->toArray();
 
         $departureSystems = [
             'Merope',
