@@ -13,14 +13,15 @@ class ImportGalnetNewsArticles extends Command
      *
      * @var string
      */
-    protected $signature = 'elite:import-galnet-news {--format=}';
+    protected $signature = 'elite:import-galnet-news
+        {--f|--format= : The format to use (rss or json)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Imports galnet news articles from elite RSS feed';
+    protected $description = 'Import galnet news articles from elite RSS feed';
 
     /**
      * Execute the console command.
@@ -37,8 +38,8 @@ class ImportGalnetNewsArticles extends Command
         $this->output->info('Importing GalNet news articles, please wait...');
         
         $parser = $format === 'rss'
-            ? new GalnetRSSParser(config('elite.urls.galnet.rss'))
-            : new GalnetJSONParser(config('elite.urls.galnet.json'));
+            ? new GalnetRSSParser(config('elite.galnet.rss'))
+            : new GalnetJSONParser(config('elite.galnet.json'));
 
         $progress = $this->output->createProgressBar();
 

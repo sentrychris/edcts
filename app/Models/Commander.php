@@ -25,6 +25,14 @@ class Commander extends Model
     }
 
     /**
+     * Flight log relation
+     */
+    public function flightLog(): HasMany
+    {
+      return $this->hasMany(FlightLog::class);
+    }
+
+    /**
      * Carriers relation
      */
     public function carriers(): HasMany

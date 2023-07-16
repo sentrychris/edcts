@@ -13,6 +13,8 @@ class GalnetNews extends Model
 
     protected $table = 'galnet_news';
 
+    protected $guarded = [];
+
     public $timestamps = false;
 
     /**
