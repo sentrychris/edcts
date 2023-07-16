@@ -40,7 +40,7 @@ class FleetSchedule extends Model
     /**
      * Filter scope
      */
-    public function scopeFilter(Builder $builder, array $options): Builder
+    public function scopeFilter(Builder $builder, array $options, string $operand): Builder
     {
         if (!empty($options['search'])) {
             $builder->search($options['search']);
@@ -50,6 +50,6 @@ class FleetSchedule extends Model
             'departure',
             'destination',
             'departs_at'
-        ]);
+        ], $operand);
     }
 }

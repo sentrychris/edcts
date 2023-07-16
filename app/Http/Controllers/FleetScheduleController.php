@@ -31,10 +31,12 @@ class FleetScheduleController extends Controller
     public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $schedule = FleetSchedule::with('carrier.commander')->filter($validated);
+        $schedule = FleetSchedule::with('carrier.commander')
+            ->filter($validated, $request->get('operand', 'in'));
 
         return FleetScheduleResource::collection(
             $schedule->paginate($request->get('limit', config('app.pagination.limit')))
+                ->appends($request->all())
         );
     }
 

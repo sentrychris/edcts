@@ -31,10 +31,12 @@ class FleetCarrierController extends Controller
     public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $carriers = FleetCarrier::with(['commander', 'schedule'])->filter($validated);
+        $carriers = FleetCarrier::with(['commander', 'schedule'])
+            ->filter($validated, $request->get('operand', 'in'));
 
         return FleetCarrierResource::collection(
             $carriers->paginate($request->get('limit', config('app.pagination.limit')))
+                ->appends($request->all())
         );
     }
 
