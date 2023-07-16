@@ -21,7 +21,7 @@ class ImportGalnetNewsArticles extends Command
      *
      * @var string
      */
-    protected $description = 'Import galnet news articles from elite RSS feed';
+    protected $description = 'Import galnet news articles from RSS or JSON sources';
 
     /**
      * Execute the console command.

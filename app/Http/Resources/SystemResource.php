@@ -15,11 +15,12 @@ class SystemResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
+            'id64'=> $this->id64,
             'name' => $this->name,
             'coords' => json_decode($this->coords),
-            'main_star' => $this->main_star,
-            'updated_at' => $this->updated_at,
-            'information' => $this->whenLoaded('information')
+            'information' => new SystemInformationResource($this->whenLoaded('information')),
+            'updated_at' => $this->updated_at
         ];
     }
 }

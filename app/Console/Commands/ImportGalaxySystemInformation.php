@@ -5,9 +5,6 @@ namespace App\Console\Commands;
 use App\Libraries\EliteAPIManager;
 use App\Models\System;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use JsonMachine\Items;
-use stdClass;
 
 class ImportGalaxySystemInformation extends Command
 {
@@ -31,7 +28,7 @@ class ImportGalaxySystemInformation extends Command
     *
     * @var string
     */
-    protected $signature = 'elite:import-galaxy-system-information
+    protected $signature = 'elite:import-galaxy-system-info
     {--f|--from= : The service to import the data from (edsm or inara)}
     {--s|--system= : The system}';
     
@@ -40,7 +37,7 @@ class ImportGalaxySystemInformation extends Command
     *
     * @var string
     */
-    protected $description = 'Import galaxy system information from a 3rd party service';
+    protected $description = 'Import galaxy system information from 3rd party services';
     
     /**
     * Execute the console command.

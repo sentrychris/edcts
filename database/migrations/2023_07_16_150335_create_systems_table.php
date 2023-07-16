@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('systems', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id64');
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('main_star')->nullable();
             $table->json('coords');
             $table->timestamp('updated_at');
 
-            $table->index(['name', 'updated_at']);
+            $table->index(['name', 'id64', 'updated_at']);
         });
     }
 

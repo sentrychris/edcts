@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('systems_information', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(System::class)->constrained();
+            $table->foreignIdFor(System::class)->unique()->constrained();
             $table->string('allegiance')->nullable();
             $table->string('government')->nullable();
             $table->string('faction')->nullable();

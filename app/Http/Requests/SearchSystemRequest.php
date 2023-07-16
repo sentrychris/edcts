@@ -12,7 +12,7 @@ class SearchSystemRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|exists:systems,name',
+            'name' => 'sometimes|string',
             'main_star' => 'sometimes|string|max:50',
         ];
     }
