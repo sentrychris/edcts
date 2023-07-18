@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GalnetNews extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Sluggable;
 
     protected $table = 'galnet_news';
 
@@ -26,5 +27,18 @@ class GalnetNews extends Model
         static::addGlobalScope('order', function(Builder $builder) {
             $builder->orderBy('id', 'asc');
         });
+    }
+
+    /**
+     * Configure slug
+     */
+    public function sluggable(): array
+    {
+        return [
+            'title' => [
+                'source' => 'title',
+                'separator' => '-'
+            ]
+        ];
     }
 }

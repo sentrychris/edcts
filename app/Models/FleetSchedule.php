@@ -30,6 +30,22 @@ class FleetSchedule extends Model
     }
 
     /**
+     * Departure system relation
+     */
+    public function departure(): BelongsTo
+    {
+        return $this->belongsTo(System::class, 'departure_system_id');
+    }
+
+    /**
+     * Destination system relation
+     */
+    public function destination(): BelongsTo
+    {
+        return $this->belongsTo(System::class, 'destination_system_id');
+    }
+
+    /**
      * Carrier relation
      */
     public function carrier(): BelongsTo

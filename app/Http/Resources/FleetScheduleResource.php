@@ -16,10 +16,10 @@ class FleetScheduleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'departure' => $this->departure,
-            'destination' => $this->destination,
             'title' => $this->title,
             'description' => $this->description,
+            'departure' => new SystemResource($this->whenLoaded('departure'), false),
+            'destination' => new SystemResource($this->whenLoaded('destination'), false),
             'departs_at' => $this->departs_at,
             'arrives_at' => $this->arrives_at,
             'carrier' => new FleetCarrierResource($this->whenLoaded('carrier')),

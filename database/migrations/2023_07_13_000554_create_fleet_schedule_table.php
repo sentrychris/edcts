@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('fleet_schedule', function (Blueprint $table) {
             $table->id();
             $table->foreignIdfor(FleetCarrier::class)->constrained();
-            $table->string('departure');
-            $table->string('destination');
+            $table->unsignedBigInteger('departure_system_id');
+            $table->unsignedBigInteger('destination_system_id');
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('departs_at');
@@ -27,6 +27,8 @@ return new class extends Migration
             $table->boolean('is_cancelled')->default(false);
             $table->boolean('has_departed')->default(false);
             $table->boolean('has_arrived')->default(false);
+            $table->foreign('departure_system_id')->references('id')->on('systems');
+            $table->foreign('destination_system_id')->references('id')->on('systems');
         });
     }
 

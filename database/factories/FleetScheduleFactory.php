@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\FleetCarrier;
+use App\Models\System;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,40 +19,23 @@ class FleetScheduleFactory extends Factory
      */
     public function definition(): array
     {
-        $fleetCarrierIds = FleetCarrier::all()->pluck('id')->toArray();
-
-        $departureSystems = [
-            'Merope',
-            'Diaguandri',
-            'Coriccha',
-            'HIP 36601',
-            'Sagittarius A*',
-            'Voqooe BI-H D11-846'
-        ];
-
-        $arrivalSystems = [
-            'Colonia',
-            'Rohini',
-            'Skaude AA-A H294',
-            'Sagittarius A*',
-            'Beagle Point',
-            'Eocs Aub AA-A E9'
-        ];
-
-        $carrier = $fleetCarrierIds[array_rand($fleetCarrierIds)];
-        $departure = $departureSystems[array_rand($departureSystems)];
-        $destination = $arrivalSystems[array_rand($arrivalSystems)];
+        $carrier = FleetCarrier::inRandomOrder()->first();
+        $departure = System::inRandomOrder()->first();
+        $destination = System::inRandomOrder()->first();
 
         $departsAt = Carbon::today()->addDays(rand(1, 90))->addHours(rand(0, 23))->addMinutes(rand(0, 59));
+        $isBoarding = $departsAt->diffInDays(now()) <= 2;
+        $isCancelled = !$isBoarding ? rand(0,1) : 0;
 
         return [
-            'fleet_carrier_id' => $carrier,
-            'departure' => $departure,
-            'destination' => $destination,
-            'title' => $departure . ' > ' . $destination . ' | ' . $departsAt->format('d F \'y H:i') . ' UTC',
+            'fleet_carrier_id' => $carrier->id,
+            'departure_system_id' => $departure->id,
+            'destination_system_id' => $destination->id,
+            'title' => $departure->name . ' > ' . $destination->name . ' | ' . $departsAt->format('d F \'y H:i') . ' UTC',
             'description' => fake()->paragraphs(2, true),
             'departs_at' => $departsAt->toDateTimeString(),
-            'is_boarding' => $departsAt->diffInDays(now()) <= 2
+            'is_boarding' => $isBoarding,
+            'is_cancelled' => $isCancelled
         ];
     }
 }
