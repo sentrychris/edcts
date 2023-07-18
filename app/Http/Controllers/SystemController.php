@@ -21,7 +21,7 @@ class SystemController extends Controller
 
         return SystemResource::collection(
             $systems->paginate($request->get('limit', config('app.pagination.limit')))
-            ->appends($request->all())
+                ->appends($request->all())
         );
     }
 

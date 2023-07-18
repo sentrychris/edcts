@@ -63,7 +63,7 @@ class FleetScheduleController extends Controller
         }
         
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier.commander'))
+            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure', 'destination']))
         );
     }
     
@@ -79,7 +79,7 @@ class FleetScheduleController extends Controller
         $schedule = FleetSchedule::create($validated);
         
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier.commander')),
+            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure', 'destination'])),
             JsonResponse::HTTP_CREATED
         );
     }
