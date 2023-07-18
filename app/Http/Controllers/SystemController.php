@@ -37,7 +37,7 @@ class SystemController extends Controller
         }
 
         return response()->json(
-            new SystemResource($system->load('information'), true)
+            new SystemResource($system->load('information'))
         );
     }
     

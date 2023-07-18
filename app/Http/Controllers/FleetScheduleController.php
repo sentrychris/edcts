@@ -39,7 +39,7 @@ class FleetScheduleController extends Controller
     public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
     {        
         $validated = $request->validated();
-        $schedule = FleetSchedule::with(['carrier.commander', 'departure', 'destination'])
+        $schedule = FleetSchedule::with(['carrier.commander', 'departure.information', 'destination.information'])
             ->filter($validated, $request->get('operand', 'in'));
         
         return FleetScheduleResource::collection(
