@@ -36,10 +36,10 @@ class FleetScheduleController extends Controller
     * @param SearchFleetScheduleRequest $request
     * @return AnonymousResourceCollection
     */
-    public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
+    public function index(SearchFleetScheduleRequest $request): AnonymousResourceCollection
     {        
         $validated = $request->validated();
-        $schedule = FleetSchedule::with('carrier.commander')
+        $schedule = FleetSchedule::with(['carrier.commander', 'departure.information', 'destination.information'])
             ->filter($validated, $request->get('operand', 'in'));
         
         return FleetScheduleResource::collection(
@@ -51,19 +51,19 @@ class FleetScheduleController extends Controller
     /**
     * Display the specified resource.
     * 
-    * @param string $id
+    * @param string $slug
     * @return JsonResponse
     */
-    public function show(string $id): JsonResponse
+    public function show(string $slug): JsonResponse
     {
-        $schedule = FleetSchedule::find($id);
+        $schedule = FleetSchedule::whereSlug($slug)->first();
         
         if (!$schedule) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
         
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier.commander'))
+            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure.information', 'destination.information']))
         );
     }
     
@@ -79,7 +79,7 @@ class FleetScheduleController extends Controller
         $schedule = FleetSchedule::create($validated);
         
         return response()->json(
-            new FleetScheduleResource($schedule->load('carrier.commander')),
+            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure', 'destination'])),
             JsonResponse::HTTP_CREATED
         );
     }

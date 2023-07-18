@@ -16,28 +16,28 @@ class SystemController extends Controller
     public function index(SearchSystemRequest $request)
     {
         $validated = $request->validated();
-        $systems = System::with('information')
+        $systems = System::with(['information', 'departures', 'arrivals'])
             ->filter($validated, $request->get('operand', 'in'));
 
         return SystemResource::collection(
             $systems->paginate($request->get('limit', config('app.pagination.limit')))
-            ->appends($request->all())
+                ->appends($request->all())
         );
     }
 
     /**
     * Display the specified resource.
     */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        $system = System::find($id);
+        $system = System::whereSlug($slug)->first();
 
         if (!$system) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         return response()->json(
-            new SystemResource($system->load('information'))
+            new SystemResource($system->load(['information', 'departures.destination', 'arrivals']))
         );
     }
     

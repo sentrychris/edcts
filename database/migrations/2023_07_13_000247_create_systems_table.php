@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('systems', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id64');
+            $table->unsignedBigInteger('id64')->unique();
             $table->string('name')->unique();
             $table->string('main_star')->nullable();
             $table->json('coords');
+            $table->string('slug')->nullable();
             $table->timestamp('updated_at');
-
+            $table->softDeletes();
             $table->index(['name', 'id64', 'updated_at']);
         });
     }

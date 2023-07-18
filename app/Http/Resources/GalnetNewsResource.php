@@ -26,7 +26,8 @@ class GalnetNewsResource extends JsonResource
             'title' => $this->title,
             'content' =>  $content,
             'uploaded_at' => $this->uploaded_at,
-            'banner_image' => $this->banner_image
+            'banner_image' => $this->banner_image,
+            'slug' => $this->slug
         ];
     }
 

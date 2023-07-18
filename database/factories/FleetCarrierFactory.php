@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class FleetCarrierFactory extends Factory
 {
     /**
+     * Unique identifiers
+     */
+    private $usedIdentifiers = [];
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -22,7 +27,7 @@ class FleetCarrierFactory extends Factory
         return [
             'name' => ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
             'commander_id' => $commanderIds[array_rand($commanderIds)],
-            'identifier' => $this->generateIdentifier(),
+            'identifier' => $this->generateUniqueIdentifier(),
             'has_refuel' => rand(0,1),
             'has_repair' => rand(0,1),
             'has_armory' => rand(0,1),
@@ -32,7 +37,7 @@ class FleetCarrierFactory extends Factory
         ];
     }
 
-    private function generateIdentifier()
+    private function generateUniqueIdentifier()
     {
         $rand = '';
         $seed = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
@@ -41,6 +46,13 @@ class FleetCarrierFactory extends Factory
             $rand .= $seed[$k];
         }
 
-        return $rand . '-' . rand(100,999);
+        $identifier = $rand . '-' . rand(100,999);
+
+        if (!(in_array($identifier, $this->usedIdentifiers))) {
+            $this->usedIdentifiers[] = $identifier;
+            return $identifier;
+        }
+
+        $this->generateIdentifier();
     }
 }

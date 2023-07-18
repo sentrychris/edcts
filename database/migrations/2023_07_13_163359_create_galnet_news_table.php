@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('uploaded_at');
             $table->string('banner_image');
+            $table->string('slug')->nullable();
             $table->softDeletes();
         });
     }

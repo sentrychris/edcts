@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\HasQueryFilter;
+use Cviebrock\EloquentSluggable\Sluggable;
+use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\HasQueryFilter;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FleetCarrier extends Model
 {
-    use HasFactory, HasQueryFilter, SoftDeletes;
+    use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
     protected $table = 'fleet_carriers';
 
@@ -57,5 +59,18 @@ class FleetCarrier extends Model
             'name',
             'identifier'
         ], $operand);
+    }
+
+    /**
+     * Configure slug
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => ['identifier', 'name'],
+                'separator' => '-'
+            ]
+        ];
     }
 }

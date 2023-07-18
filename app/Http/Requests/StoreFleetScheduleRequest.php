@@ -13,8 +13,8 @@ class StoreFleetScheduleRequest extends BaseRequest
     {
         return [
             'fleet_carrier_id' => 'required|exists:fleet_carriers,id',
-            'departure' => 'required|string|max:60',
-            'destination' => 'required|string|max:60',
+            'departure_system_id' => 'required|exists:systems,id|max:60',
+            'destination_system_id' => 'required|exists:systems,id|max:60',
             'title' => 'required|string|max:255',
             'description' => 'sometimes|string',
             'departs_at' => 'required|date',

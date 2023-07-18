@@ -31,7 +31,7 @@ class FleetCarrierController extends Controller
     public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $carriers = FleetCarrier::with(['commander', 'schedule'])
+        $carriers = FleetCarrier::with(['commander', 'schedule.departure', 'schedule.destination'])
             ->filter($validated, $request->get('operand', 'in'));
 
         return FleetCarrierResource::collection(
@@ -43,19 +43,19 @@ class FleetCarrierController extends Controller
     /**
      * Display the specified resource.
      * 
-     * @param string $id
+     * @param string $slug
      * @return JsonResponse
      */
-    public function show(string $id): JsonResponse
+    public function show(string $slug): JsonResponse
     {
-        $carrier = FleetCarrier::find($id);
+        $carrier = FleetCarrier::whereSlug($slug)->first();
 
         if (!$carrier) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         return response()->json(
-            new FleetCarrierResource($carrier->load(['commander', 'schedule']))
+            new FleetCarrierResource($carrier->load(['commander', 'schedule.departure', 'schedule.destination']))
         );
     }
 

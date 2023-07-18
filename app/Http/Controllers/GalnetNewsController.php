@@ -32,9 +32,9 @@ class GalnetNewsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        $article = GalnetNews::find($id);
+        $article = GalnetNews::whereSlug($slug)->first();
 
         if  (!$article) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

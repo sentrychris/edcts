@@ -1,0 +1,51 @@
+{
+    "id": 19874,
+    "id64": 7268024133033,
+    "name": "LHS 547",
+    "coords": {
+        "x": 0.5,
+        "y": -38.21875,
+        "z": 12.65625
+    },
+    "information": {
+        "allegiance": "Empire",
+        "government": "Feudal",
+        "population": 234829,
+        "security": "Medium",
+        "economy": "Colony",
+        "controlling_faction": {
+            "name": "LFT 1 Noblement",
+            "allegiance": "Empire"
+        }
+    },
+    "departures": [
+        {
+            "id": 454,
+            "title": "LHS 547 > Moortic | 19 July '23 01:54 UTC",
+            "description": "Nam provident vero quia incidunt molestias quo labore. Aperiam tempore iste velit provident aperiam doloremque libero animi. Assumenda aut illum et sed deleniti optio reiciendis.\n\nNon cupiditate deserunt necessitatibus ut quae quibusdam. Laborum voluptas exercitationem corporis est. Et at et rem sunt et.",
+            "destination": {
+                "id": 13311,
+                "id64": 10460596587,
+                "name": "Moortic",
+                "coords": {
+                    "x": -73.21875,
+                    "y": 49.96875,
+                    "z": 12.78125
+                },
+                "updated_at": "2023-07-18 00:12:51"
+            },
+            "departs_at": "2023-07-19 01:54:00",
+            "arrives_at": null,
+            "status": {
+                "cancelled": false,
+                "boarding": true,
+                "departed": false,
+                "departed_at": false,
+                "arrived": false,
+                "arrived_at": false
+            }
+        }
+    ],
+    "arrivals": [],
+    "updated_at": "2023-07-18 00:13:55"
+}
