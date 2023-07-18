@@ -63,7 +63,7 @@ class FleetScheduleController extends Controller
         }
         
         return response()->json(
-            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure', 'destination']))
+            new FleetScheduleResource($schedule->load(['carrier.commander', 'departure.information', 'destination.information']))
         );
     }
     

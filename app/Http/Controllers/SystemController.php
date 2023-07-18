@@ -16,7 +16,7 @@ class SystemController extends Controller
     public function index(SearchSystemRequest $request)
     {
         $validated = $request->validated();
-        $systems = System::with('information')
+        $systems = System::with(['information', 'departures', 'arrivals'])
             ->filter($validated, $request->get('operand', 'in'));
 
         return SystemResource::collection(
@@ -37,7 +37,7 @@ class SystemController extends Controller
         }
 
         return response()->json(
-            new SystemResource($system->load('information'))
+            new SystemResource($system->load(['information', 'departures.destination', 'arrivals']))
         );
     }
     
