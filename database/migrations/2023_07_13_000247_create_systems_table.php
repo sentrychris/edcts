@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('main_star')->nullable();
             $table->json('coords');
+            $table->string('slug')->nullable();
             $table->timestamp('updated_at');
-
+            $table->softDeletes();
             $table->index(['name', 'id64', 'updated_at']);
         });
     }

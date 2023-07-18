@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean('has_shipyard')->default(false);
             $table->boolean('has_outfitting')->default(false);
             $table->boolean('has_cartographics')->default(false);
+            $table->string('slug')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

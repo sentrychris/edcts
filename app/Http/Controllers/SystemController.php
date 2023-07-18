@@ -28,9 +28,9 @@ class SystemController extends Controller
     /**
     * Display the specified resource.
     */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        $system = System::find($id);
+        $system = System::whereSlug($slug)->first();
 
         if (!$system) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

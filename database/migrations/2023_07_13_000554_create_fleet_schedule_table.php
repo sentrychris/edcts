@@ -27,6 +27,8 @@ return new class extends Migration
             $table->boolean('is_cancelled')->default(false);
             $table->boolean('has_departed')->default(false);
             $table->boolean('has_arrived')->default(false);
+            $table->string('slug')->nullable();
+            $table->softDeletes();
             $table->foreign('departure_system_id')->references('id')->on('systems');
             $table->foreign('destination_system_id')->references('id')->on('systems');
         });

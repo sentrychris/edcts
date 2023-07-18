@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\HasQueryFilter;
+use Cviebrock\EloquentSluggable\Sluggable;
+use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Traits\HasQueryFilter;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FleetSchedule extends Model
 {
-    use HasFactory, HasQueryFilter;
+    use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
     protected $table = 'fleet_schedule';
 
@@ -67,5 +70,18 @@ class FleetSchedule extends Model
             'destination',
             'departs_at'
         ], $operand);
+    }
+
+    /**
+     * Configure slug
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title',
+                'separator' => '-'
+            ]
+        ];
     }
 }

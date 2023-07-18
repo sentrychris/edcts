@@ -31,6 +31,7 @@ class FleetScheduleResource extends JsonResource
                 'arrived' => !!$this->has_arrived,
                 'arrived_at' => !!$this->arrived_at
             ],
+            'slug' => $this->slug
         ];
     }
 }

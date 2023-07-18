@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GalnetNews extends Model
 {
-    use HasFactory, SoftDeletes, Sluggable;
+    use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
     protected $table = 'galnet_news';
 
@@ -35,8 +37,8 @@ class GalnetNews extends Model
     public function sluggable(): array
     {
         return [
-            'title' => [
-                'source' => 'title',
+            'slug' => [
+                'source' => ['uploaded_at', 'title'],
                 'separator' => '-'
             ]
         ];

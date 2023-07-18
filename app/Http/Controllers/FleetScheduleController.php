@@ -36,7 +36,7 @@ class FleetScheduleController extends Controller
     * @param SearchFleetScheduleRequest $request
     * @return AnonymousResourceCollection
     */
-    public function index(SearchFleetScheduleRequest $request ): AnonymousResourceCollection
+    public function index(SearchFleetScheduleRequest $request): AnonymousResourceCollection
     {        
         $validated = $request->validated();
         $schedule = FleetSchedule::with(['carrier.commander', 'departure.information', 'destination.information'])
@@ -51,12 +51,12 @@ class FleetScheduleController extends Controller
     /**
     * Display the specified resource.
     * 
-    * @param string $id
+    * @param string $slug
     * @return JsonResponse
     */
-    public function show(string $id): JsonResponse
+    public function show(string $slug): JsonResponse
     {
-        $schedule = FleetSchedule::find($id);
+        $schedule = FleetSchedule::whereSlug($slug)->first();
         
         if (!$schedule) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

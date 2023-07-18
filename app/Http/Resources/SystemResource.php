@@ -23,6 +23,7 @@ class SystemResource extends JsonResource
             'departures' => FleetScheduleResource::collection($this->whenLoaded('departures')),
             'arrivals' => FleetScheduleResource::collection($this->whenLoaded('arrivals')),
             'updated_at' => $this->updated_at,
+            'slug' => $this->slug
         ];
     }
 }

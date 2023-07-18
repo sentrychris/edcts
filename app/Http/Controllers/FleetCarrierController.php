@@ -43,12 +43,12 @@ class FleetCarrierController extends Controller
     /**
      * Display the specified resource.
      * 
-     * @param string $id
+     * @param string $slug
      * @return JsonResponse
      */
-    public function show(string $id): JsonResponse
+    public function show(string $slug): JsonResponse
     {
-        $carrier = FleetCarrier::find($id);
+        $carrier = FleetCarrier::whereSlug($slug)->first();
 
         if (!$carrier) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);

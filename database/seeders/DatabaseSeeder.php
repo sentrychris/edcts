@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\System;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,9 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(1000)->create();
-        // \App\Models\Commander::factory(1000)->create();
-        // \App\Models\FleetCarrier::factory(1000)->create();
-        \App\Models\FleetSchedule::factory(1000)->create();
+        $num = 100;
+
+        \App\Models\User::factory($num)->create();
+        \App\Models\Commander::factory($num)->create();
+        \App\Models\FleetCarrier::factory($num)->create();
+
+        if (System::count() > 2) {
+            \App\Models\FleetSchedule::factory($num)->create();
+        }
     }
 }

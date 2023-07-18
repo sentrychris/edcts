@@ -9,21 +9,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SystemInformation extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'systems_information';
-
+    
     protected $fillable = [
-      'allegiance',
-      'government',
-      'faction',
-      'faction_state',
-      'population',
-      'security',
-      'economy'
+        'allegiance',
+        'government',
+        'faction',
+        'faction_state',
+        'population',
+        'security',
+        'economy'
     ];
-
+    
     public function system(): BelongsTo
     {
-      return $this->belongsTo(System::class);
+        return $this->belongsTo(System::class);
     }
 }

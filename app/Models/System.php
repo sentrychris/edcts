@@ -4,15 +4,17 @@ namespace App\Models;
 
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class System extends Model
 {
-    use HasFactory, HasQueryFilter, Sluggable;
+    use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
     
     protected $table = 'systems';
     
@@ -70,8 +72,8 @@ class System extends Model
     public function sluggable(): array
     {
         return [
-            'name' => [
-                'source' => 'name',
+            'slug' => [
+                'source' => ['id64', 'name'],
                 'separator' => '-'
             ]
         ];
