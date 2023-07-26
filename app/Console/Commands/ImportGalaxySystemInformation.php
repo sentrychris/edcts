@@ -61,11 +61,11 @@ class ImportGalaxySystemInformation extends Command
         }
         
         $response =$this->api->setConfig(config('elite.'.$this->option('from')))
-        ->setCategory('systems')
-        ->get('system', [
-            'systemName' => $this->option('system'),
-            'showInformation' => true
-        ]);
+            ->setCategory('systems')
+            ->get('system', [
+                'systemName' => $this->option('system'),
+                'showInformation' => true
+            ]);
 
         if ($response->information) {
             $data = [];

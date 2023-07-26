@@ -1,3 +1,4 @@
+*.code-workspace
 /.phpunit.cache
 /node_modules
 /public/build

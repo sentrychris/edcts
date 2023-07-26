@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 
 class FleetSchedule extends Model
 {
@@ -65,11 +66,25 @@ class FleetSchedule extends Model
             $builder->search($options['search']);
         }
 
-        return $this->buildFilterQuery($builder, $options, [
-            'departure',
-            'destination',
-            'departs_at'
-        ], $operand);
+        if (Arr::exists($options, 'departure')) {
+            $builder->whereHas('departure', function($qb) use ($options) {
+                $qb->where('name', $options['departure']);
+            });
+        }
+
+        if (Arr::exists($options, 'destination')) {
+            $builder->whereHas('destination', function($qb) use ($options) {
+                $qb->where('name', $options['destination']);
+            });
+        }
+
+        return $builder;
+
+        // return $this->buildFilterQuery($builder, $options, [
+        //     'departure',
+        //     'destination',
+        //     'departs_at'
+        // ], $operand);
     }
 
     /**
