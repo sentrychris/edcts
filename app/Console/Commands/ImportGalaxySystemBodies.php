@@ -6,7 +6,7 @@ use App\Libraries\EliteAPIManager;
 use App\Models\System;
 use Illuminate\Console\Command;
 
-class ImportGalaxySystemInformation extends Command
+class ImportGalaxySystemBodies extends Command
 {
     
     /**
@@ -28,7 +28,7 @@ class ImportGalaxySystemInformation extends Command
     *
     * @var string
     */
-    protected $signature = 'elite:import-galaxy-system-info
+    protected $signature = 'elite:import-galaxy-system-bodies
     {--f|--from= : The service to import the data from (edsm or inara)}
     {--s|--system= : The system}';
     
@@ -37,7 +37,7 @@ class ImportGalaxySystemInformation extends Command
     *
     * @var string
     */
-    protected $description = 'Import galaxy system information from 3rd party services';
+    protected $description = 'Import galaxy system bodies from 3rd party services';
     
     /**
     * Execute the console command.
@@ -61,16 +61,22 @@ class ImportGalaxySystemInformation extends Command
         }
         
         $response =$this->api->setConfig(config('elite.'.$this->option('from')))
-            ->setCategory('systems')
-            ->get('system', [
-                'systemName' => $this->option('system'),
-                'showInformation' => true
+            ->setCategory('system')
+            ->get('bodies', [
+                'systemName' => $this->option('system')
             ]);
 
-        if ($response->information) {
-            $data = [];
-            $this->api->convertResponse($response->information, $data);
-            $system->information()->create($data);
+        $bodies = $response->bodies;
+
+        foreach($bodies as $body) {
+            $system->bodies()->updateOrCreate([
+                'id64' => $body->id64,
+                'name' => $body->name,
+                'discovered_by' => $body->discovery->commander,
+                'discovered_at' => $body->discovery->date,
+                'type' => $body->type,
+                'sub_type' => $body->subType
+            ]);
         }
     }
 }

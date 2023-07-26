@@ -49,6 +49,27 @@ class EliteAPIManager extends BaseAPIManager
         }
     }
 
+    public function convertResponse($obj, &$arr)
+    {
+        if (!is_object($obj) && !is_array($obj)) {
+            $arr = $obj;
+            return $arr;
+        }
+        
+        foreach ($obj as $key => $value){
+            $key = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+
+            if (!empty($value)) {
+                $arr[$key] = array();
+                $this->convertResponse($value, $arr[$key]);
+            } else {
+                $arr[$key] = $value;
+            }
+        }
+        
+        return $arr;
+    }
+
     private function buildQueryString(array $params = null)
     {
         if (!$params) {

@@ -36,6 +36,13 @@ class System extends Model
     }
 
     /**
+     * Systemn bodies relation
+     */
+    public function bodies(): HasMany {
+        return $this->hasMany(SystemBody::class);
+    }
+
+    /**
      * System departures relation
      */
     public function departures(): HasMany
