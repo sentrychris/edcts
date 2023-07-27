@@ -11,8 +11,14 @@ use Illuminate\Http\Request;
 
 class SystemController extends Controller
 {
+    /**
+     * @var EliteAPIManager
+     */
     private EliteAPIManager $api;
 
+    /**
+     * Constructor
+     */
     public function __construct(EliteAPIManager $api) {
         $this->api = $api;
     }
@@ -40,6 +46,26 @@ class SystemController extends Controller
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
+            $response =$this->api->setConfig(config('elite.edsm'))
+                ->setCategory('systems')
+                ->get('system', [
+                    'systemName' => $slug,
+                    'showCoordinates' => true,
+                    'showInformation' => true,
+                    'showId' => true
+                ]);
+
+            if ($response) {
+                $system = System::create([
+                    'id64' => $response->id64,
+                    'name' => $response->name,
+                    'coords' => json_encode($response->coords),
+                    'updated_at' => now()
+                ]);
+            }
+        }
+
+        if (!$system) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
@@ -49,22 +75,6 @@ class SystemController extends Controller
         return response()->json(
             new SystemResource($system->load(['information', 'bodies']))
         );
-    }
-    
-    /**
-    * Update the specified resource in storage.
-    */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-    
-    /**
-    * Remove the specified resource from storage.
-    */
-    public function destroy(string $id)
-    {
-        //
     }
 
     private function checkForSystemInformation(System $system)
@@ -101,7 +111,8 @@ class SystemController extends Controller
             if ($bodies) {
                 foreach($bodies as $body) {
                     $system->bodies()->updateOrCreate([
-                        'id64' => $body->id64,
+                        // TODO not this lol... see https://github.com/EDSM-NET/FrontEnd/issues/506
+                        'id64' => $body->id64 ?? random_int(100000000, 999999999),
                         'name' => $body->name,
                         'discovered_by' => $body->discovery->commander,
                         'discovered_at' => $body->discovery->date,
