@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\EliteAPIManager;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
@@ -71,6 +72,94 @@ class System extends Model
             'name',
             'main_star'
         ], $operand);
+    }
+
+    /**
+     * import from API
+     */
+    public static function importFromAPI(string $source, string $slug)
+    {
+        $api = app(EliteAPIManager::class);
+        $response = $api->setConfig(config('elite.'.$source))
+            ->setCategory('systems')
+            ->get('system', [
+                'systemName' => $slug,
+                'showCoordinates' => true,
+                'showInformation' => true,
+                'showId' => true
+            ]);
+
+        if ($response) {
+            $system = System::create([
+                'id64' => $response->id64,
+                'name' => $response->name,
+                'coords' => json_encode($response->coords),
+                'updated_at' => now()
+            ]);
+        }
+
+        if ($system) {
+            return $system;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check for system information
+     */
+    public function checkForSystemInformation(string $source)
+    {
+        $api = app(EliteAPIManager::class);
+        if (!$this->information()->exists()) {
+            $response = $api->setConfig(config('elite.'.$source))
+                ->setCategory('systems')
+                ->get('system', [
+                    'systemName' => $this->name,
+                    'showInformation' => true
+                ]);
+
+            if ($response->information) {
+                $data = [];
+                $api->convertResponse($response->information, $data);
+                $this->information()->updateOrCreate($data);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check for system bodies
+     */
+    public function checkForSystemBodies()
+    {
+        $api = app(EliteAPIManager::class);
+        if (!$this->bodies()->exists()) {
+            $response = $api->setConfig(config('elite.edsm'))
+                ->setCategory('system')
+                ->get('bodies', [
+                    'systemName' => $this->name
+                ]);
+
+            $bodies = $response->bodies;
+
+            if ($bodies) {
+                foreach($bodies as $body) {
+                    $this->bodies()->updateOrCreate([
+                        // TODO not this lol... see https://github.com/EDSM-NET/FrontEnd/issues/506
+                        'id64' => $body->id64 ?? random_int(100000000, 999999999),
+                        'name' => $body->name,
+                        'discovered_by' => $body->discovery->commander,
+                        'discovered_at' => $body->discovery->date,
+                        'type' => $body->type,
+                        'sub_type' => $body->subType
+                    ]);
+                }
+            }
+        }
+
+        return $this;
     }
 
     /**

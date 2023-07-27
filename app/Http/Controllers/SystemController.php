@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
-use App\Libraries\EliteAPIManager;
 use App\Models\System;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,117 +11,78 @@ use Illuminate\Http\Request;
 class SystemController extends Controller
 {
     /**
-     * @var EliteAPIManager
+     * List systems.
+     * 
+     * User can provide the following request parameters.
+     * 
+     * name: - Filter systems by name
+     * 
+     * withInformation: 0 or 1 - Return systems with associated information
+     *                           e.g. governance, economy, security etc.
+     * 
+     * withBodies: 0 or 1      - Return systems with associated celestial bodies
+     *                           e.g. stars, moons, planets.
+     * 
+     * operand: "in" or "like" - Search for exact matches or based on a partial
+     *                           string.
+     * 
+     * limit: - page limit
      */
-    private EliteAPIManager $api;
-
-    /**
-     * Constructor
-     */
-    public function __construct(EliteAPIManager $api) {
-        $this->api = $api;
-    }
-
-    /**
-    * Display a listing of the resource.
-    */
     public function index(SearchSystemRequest $request)
     {
         $validated = $request->validated();
-        $systems = System::with(['information', 'bodies'])
-            ->filter($validated, $request->get('operand', 'in'));
+        $systems = System::filter($validated, $request->get('operand', 'in'))
+            ->paginate($request->get('limit', config('app.pagination.limit')))
+            ->appends($request->all());
 
-        return SystemResource::collection(
-            $systems->paginate($request->get('limit', config('app.pagination.limit')))
-                ->appends($request->all())
-        );
+        if ((int)$request->get('withInformation') === 1) {
+            $systems->load('information');
+        }
+
+        if ((int)$request->get('withBodies') === 1) {
+            $systems->load('bodies');
+        }
+
+        return SystemResource::collection($systems);
     }
 
     /**
-    * Display the specified resource.
-    */
-    public function show(string $slug)
+     * Show system.
+     * 
+     * User can provide the following request parameters.
+     * 
+     * withInformation: 0 or 1 - Return system with associated information
+     *                           e.g. governance, economy, security etc.
+     * 
+     * withBodies: 0 or 1      - Return system with associated celestial bodies
+     *                           e.g. stars, moons, planets.
+     */
+    public function show(string $slug, Request $request)
     {
+        $source = 'edsm';
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
-            $response =$this->api->setConfig(config('elite.edsm'))
-                ->setCategory('systems')
-                ->get('system', [
-                    'systemName' => $slug,
-                    'showCoordinates' => true,
-                    'showInformation' => true,
-                    'showId' => true
-                ]);
-
-            if ($response) {
-                $system = System::create([
-                    'id64' => $response->id64,
-                    'name' => $response->name,
-                    'coords' => json_encode($response->coords),
-                    'updated_at' => now()
-                ]);
-            }
+            $system = System::importfromAPI($source, $slug);
         }
 
         if (!$system) {
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
+        
+        $system->checkForSystemInformation($source)
+            ->checkForSystemBodies($source);
 
-        $this->checkForSystemInformation($system)
-            ->checkForSystemBodies($system);
+        if ((int)$request->get('withInformation') === 1) {
+            $system->load('information');
+        }
+
+        if ((int)$request->get('withBodies') === 1) {
+            $system->load('bodies');
+        }
 
         return response()->json(
-            new SystemResource($system->load(['information', 'bodies']))
+            new SystemResource($system)
         );
-    }
-
-    private function checkForSystemInformation(System $system)
-    {
-        if (!$system->information()->exists()) {
-            $response =$this->api->setConfig(config('elite.edsm'))
-                ->setCategory('systems')
-                ->get('system', [
-                    'systemName' => $system->name,
-                    'showInformation' => true
-                ]);
-
-            if ($response->information) {
-                $data = [];
-                $this->api->convertResponse($response->information, $data);
-                $system->information()->updateOrCreate($data);
-            }
-        }
-
-        return $this;
-    }
-
-    private function checkForSystemBodies(System $system)
-    {
-        if (!$system->bodies()->exists()) {
-            $response =$this->api->setConfig(config('elite.edsm'))
-                ->setCategory('system')
-                ->get('bodies', [
-                    'systemName' => $system->name
-                ]);
-
-            $bodies = $response->bodies;
-
-            if ($bodies) {
-                foreach($bodies as $body) {
-                    $system->bodies()->updateOrCreate([
-                        // TODO not this lol... see https://github.com/EDSM-NET/FrontEnd/issues/506
-                        'id64' => $body->id64 ?? random_int(100000000, 999999999),
-                        'name' => $body->name,
-                        'discovered_by' => $body->discovery->commander,
-                        'discovered_at' => $body->discovery->date,
-                        'type' => $body->type,
-                        'sub_type' => $body->subType
-                    ]);
-                }
-            }
-        }
-
-        return $this;
     }
 }

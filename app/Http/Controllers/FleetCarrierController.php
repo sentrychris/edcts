@@ -23,30 +23,53 @@ class FleetCarrierController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * List carriers.
      * 
-     * @param SearchFleetCarrierRequest $request
-     * @return AnonymousResourceCollection
+     * User can provide the following request parameters.
+     * 
+     * name: - Filter carriers by name
+     * 
+     * identifier: - Filter carriers by identifier
+     * 
+     * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
+     * 
+     * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * 
+     * operand: "in" or "like" - Search for exact matches or based on a partial
+     *                           string.
+     * 
+     * limit: - page limit
      */
-    public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
+    public function index(SearchFleetCarrierRequest $request)
     {
         $validated = $request->validated();
-        $carriers = FleetCarrier::with(['commander', 'schedule.departure', 'schedule.destination'])
-            ->filter($validated, $request->get('operand', 'in'));
 
-        return FleetCarrierResource::collection(
-            $carriers->paginate($request->get('limit', config('app.pagination.limit')))
-                ->appends($request->all())
-        );
+        $carriers = FleetCarrier::filter($validated, $request->get('operand', 'in'))
+            ->paginate($request->get('limit', config('app.pagination.limit')))
+            ->appends($request->all());
+
+        if ((int)$request->get('withCommanderInformation') === 1) {
+            $carriers->load('commander');
+        }
+
+        if ((int)$request->get('withScheduleInformation') === 1) {
+            $carriers->load(['schedule.departure', 'schedule.destination']);
+        }
+
+        return FleetCarrierResource::collection($carriers);
     }
 
     /**
-     * Display the specified resource.
+     * Show carrier.
      * 
-     * @param string $slug
-     * @return JsonResponse
+     * User can provide the following request parameters.
+     * 
+     * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
+     * 
+     * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * 
      */
-    public function show(string $slug): JsonResponse
+    public function show(string $slug, Request $request)
     {
         $carrier = FleetCarrier::whereSlug($slug)->first();
 
@@ -54,8 +77,16 @@ class FleetCarrierController extends Controller
             return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
+        if ((int)$request->get('withCommanderInformation') === 1) {
+            $carrier->load('commander');
+        }
+
+        if ((int)$request->get('withScheduleInformation') === 1) {
+            $carrier->load(['schedule.departure', 'schedule.destination']);
+        }
+
         return response()->json(
-            new FleetCarrierResource($carrier->load(['commander', 'schedule.departure', 'schedule.destination']))
+            new FleetCarrierResource($carrier)
         );
     }
 
@@ -65,7 +96,7 @@ class FleetCarrierController extends Controller
      * @param StoreFleetCarrierRequest $request
      * @return JsonResponse
      */
-    public function store(StoreFleetCarrierRequest $request): JsonResponse
+    public function store(StoreFleetCarrierRequest $request)
     {
         $validated = $request->validated();
         $carrier = $request->user()->commander->carriers()->create($validated);
@@ -83,7 +114,7 @@ class FleetCarrierController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function update(string $id, Request $request): JsonResponse
+    public function update(string $id, Request $request)
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
@@ -105,7 +136,7 @@ class FleetCarrierController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function destroy(string $id, Request $request): JsonResponse
+    public function destroy(string $id, Request $request)
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 

@@ -67,24 +67,26 @@ class FleetSchedule extends Model
         }
 
         if (Arr::exists($options, 'departure')) {
-            $builder->whereHas('departure', function($qb) use ($options) {
-                $qb->where('name', $options['departure']);
+            $builder->whereHas('departure', function($qb) use ($options, $operand) {
+                if ($operand === 'like') {
+                    $qb->where('name', 'RLIKE', $options['departure']);
+                } else {
+                    $qb->where('name', $options['departure']);
+                }
             });
         }
 
         if (Arr::exists($options, 'destination')) {
-            $builder->whereHas('destination', function($qb) use ($options) {
-                $qb->where('name', $options['destination']);
+            $builder->whereHas('destination', function($qb) use ($options, $operand) {
+                if ($operand === 'like') {
+                    $qb->where('name', 'RLIKE', $options['destination']);
+                } else {
+                    $qb->where('name', $options['destination']);
+                }
             });
         }
 
         return $builder;
-
-        // return $this->buildFilterQuery($builder, $options, [
-        //     'departure',
-        //     'destination',
-        //     'departs_at'
-        // ], $operand);
     }
 
     /**

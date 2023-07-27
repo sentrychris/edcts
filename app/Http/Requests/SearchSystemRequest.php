@@ -13,7 +13,8 @@ class SearchSystemRequest extends BaseRequest
     {
         return [
             'name' => 'sometimes|string',
-            'main_star' => 'sometimes|string|max:50',
+            'withInformation' => 'sometimes|integer|max:1',
+            'withBodies' => 'sometimes|integer|max:1',
         ];
     }
 }
