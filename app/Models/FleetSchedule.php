@@ -60,15 +60,15 @@ class FleetSchedule extends Model
     /**
      * Filter scope
      */
-    public function scopeFilter(Builder $builder, array $options, string $operand): Builder
+    public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
         if (!empty($options['search'])) {
             $builder->search($options['search']);
         }
 
         if (Arr::exists($options, 'departure')) {
-            $builder->whereHas('departure', function($qb) use ($options, $operand) {
-                if ($operand === 'like') {
+            $builder->whereHas('departure', function($qb) use ($options, $exact) {
+                if (!$exact) {
                     $qb->where('name', 'RLIKE', $options['departure']);
                 } else {
                     $qb->where('name', $options['departure']);
@@ -77,8 +77,8 @@ class FleetSchedule extends Model
         }
 
         if (Arr::exists($options, 'destination')) {
-            $builder->whereHas('destination', function($qb) use ($options, $operand) {
-                if ($operand === 'like') {
+            $builder->whereHas('destination', function($qb) use ($options, $exact) {
+                if (!$exact) {
                     $qb->where('name', 'RLIKE', $options['destination']);
                 } else {
                     $qb->where('name', $options['destination']);

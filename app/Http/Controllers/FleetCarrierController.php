@@ -8,7 +8,6 @@ use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FleetCarrierController extends Controller
 {
@@ -35,8 +34,7 @@ class FleetCarrierController extends Controller
      * 
      * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
      * 
-     * operand: "in" or "like" - Search for exact matches or based on a partial
-     *                           string.
+     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * 
      * limit: - page limit
      */
@@ -44,7 +42,7 @@ class FleetCarrierController extends Controller
     {
         $validated = $request->validated();
 
-        $carriers = FleetCarrier::filter($validated, $request->get('operand', 'in'))
+        $carriers = FleetCarrier::filter($validated, (int)$request->get('exactSearch'))
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 

@@ -36,8 +36,7 @@ class FleetScheduleController extends Controller
      * withSystemInformation: 0 or 1  - Return schedule with associated departure/destination
      *                                  information.
      * 
-     * operand: "in" or "like" - Search for exact matches or based on a partial
-     *                           string.
+     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * 
      * limit: - page limit
      */
@@ -45,7 +44,7 @@ class FleetScheduleController extends Controller
     {        
         $validated = $request->validated();
 
-        $schedule = FleetSchedule::filter($validated, $request->get('operand', 'in'))
+        $schedule = FleetSchedule::filter($validated, (int)$request->get('exactSearch'))
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 

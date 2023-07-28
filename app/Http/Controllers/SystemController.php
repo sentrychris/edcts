@@ -23,15 +23,14 @@ class SystemController extends Controller
      * withBodies: 0 or 1      - Return systems with associated celestial bodies
      *                           e.g. stars, moons, planets.
      * 
-     * operand: "in" or "like" - Search for exact matches or based on a partial
-     *                           string.
+     * exactSearch: 0 or 1    - Search for exact matches or based on a partial string.
      * 
      * limit: - page limit
      */
     public function index(SearchSystemRequest $request)
     {
         $validated = $request->validated();
-        $systems = System::filter($validated, $request->get('operand', 'in'))
+        $systems = System::filter($validated, (int)$request->get('exactSearch'))
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 

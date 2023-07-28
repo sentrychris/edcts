@@ -1,0 +1,643 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Fleet Carrier Services",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost/api"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "noauthAuth": {
+        "type": "http",
+        "scheme": "noauth"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Carriers",
+      "description": "Fleet carriers"
+    },
+    {
+      "name": "Schedule",
+      "description": "Fleet carrier scheduled trips"
+    },
+    {
+      "name": "Systems",
+      "description": "Galaxy systems"
+    },
+    {
+      "name": "Galnet",
+      "description": "GalNet news"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "Chris Rowles",
+                  "email": "me@rowles.ch",
+                  "password": "secret123"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "oberbrunner.sam@example.net",
+                  "password": "password"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "logout",
+        "requestBody": {
+          "content": {}
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "me",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/carriers": {
+      "get": {
+        "tags": [
+          "Carriers"
+        ],
+        "summary": "/fleet/carriers",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by carrier name",
+            "example": "Canter"
+          },
+          {
+            "name": "exactSearch",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Exact search or partial match",
+            "example": "1"
+          },
+          {
+            "name": "withCommanderInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return carriers with associated commander information",
+            "example": "1"
+          },
+          {
+            "name": "withScheduleInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return carriers with associated schedule information",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Carriers"
+        ],
+        "summary": "/fleet/carriers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "VBRK Oracle",
+                  "identifier": "VBK-011",
+                  "has_refuel": true,
+                  "has_repair": true,
+                  "has_armory": true,
+                  "has_shipyard": false,
+                  "has_outfitting": false,
+                  "has_cartographics": false
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/carriers/sjf-732-canterbury": {
+      "get": {
+        "tags": [
+          "Carriers"
+        ],
+        "summary": "/fleet/carriers/:slug",
+        "security": [
+          {
+            "noauthAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "withCommanderInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return carrier with associated commander information",
+            "example": "1"
+          },
+          {
+            "name": "withScheduleInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return carrier with associated commander information",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/carriers/66": {
+      "put": {
+        "tags": [
+          "Carriers"
+        ],
+        "summary": "/fleet/carriers/:id",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "TEST Chris Rowles"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/carriers/40": {
+      "delete": {
+        "tags": [
+          "Carriers"
+        ],
+        "summary": "/fleet/carriers/:id",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/schedule": {
+      "get": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "/fleet/schedule",
+        "security": [
+          {
+            "noauthAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "departure",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by departure system name",
+            "example": "Merop"
+          },
+          {
+            "name": "exactSearch",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Exact search or partial match",
+            "example": "1"
+          },
+          {
+            "name": "withSystemInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return scheduled trips with associated system information",
+            "example": "1"
+          },
+          {
+            "name": "withCarrierInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return scheduled trips with associated carrier information",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "/fleet/schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "fleet_carrier_id": 2,
+                  "departure_system_id": 19677,
+                  "destination_system_id": 1,
+                  "title": "Expedition Service | SJ Fleet",
+                  "description": "Return tripe from exploration to the center of the Milky Way",
+                  "departs_at": "2023-09-11 03:00:00"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/schedule/ancanec-col-285-sector-hc-u-d3-61-28-july-23-02-14-utc": {
+      "get": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "/fleet/schedule/:slug",
+        "security": [
+          {
+            "noauthAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "withSystemInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return scheduled trip with associated system information",
+            "example": "1"
+          },
+          {
+            "name": "withCarrierInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return scheduled trip with associated carrier information",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/schedule/1002": {
+      "put": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "/fleet/schedule/:id",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "UNCANCELLED",
+                  "description": "Sorry, now cancelled",
+                  "is_cancelled": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/fleet/schedule/1001": {
+      "delete": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "/fleet/schedule/:id",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/systems": {
+      "get": {
+        "tags": [
+          "Systems"
+        ],
+        "summary": "/systems",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter systems by name",
+            "example": "Trappi"
+          },
+          {
+            "name": "exactSearch",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Exact search or partial match",
+            "example": "1"
+          },
+          {
+            "name": "withInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return systems with associated information e.g. governance, economy, security",
+            "example": "1"
+          },
+          {
+            "name": "withBodies",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return systems with associated celestial bodies",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/systems/5364950911832-trappist-1": {
+      "get": {
+        "tags": [
+          "Systems"
+        ],
+        "summary": "/systems/:slug",
+        "parameters": [
+          {
+            "name": "withInformation",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return systems with associated information e.g. governance, economy, security",
+            "example": "1"
+          },
+          {
+            "name": "withBodies",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return systems with associated celestial bodies",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/galnet/news": {
+      "get": {
+        "tags": [
+          "Galnet"
+        ],
+        "summary": "galnet/news",
+        "security": [
+          {
+            "noauthAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/galnet/news/17-jul-3309-presidential-candidates-outline-manifestos": {
+      "get": {
+        "tags": [
+          "Galnet"
+        ],
+        "summary": "galnet/news/:slug",
+        "security": [
+          {
+            "noauthAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/galnet/news/1": {
+      "delete": {
+        "tags": [
+          "Galnet"
+        ],
+        "summary": "galnet/news/:id",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

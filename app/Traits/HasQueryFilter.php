@@ -15,14 +15,14 @@ trait HasQueryFilter
      * @param string|array $attribute The model attribute(s) to filter
      * @return Builder $builder The query builder
      */
-    public function buildFilterQuery(Builder $builder, array $options, string|array $attribute, string $operand): Builder
+    public function buildFilterQuery(Builder $builder, array $options, string|array $attribute, bool $exact): Builder
     {
         if (is_array($attribute)) {
             foreach ($attribute as $attr) {
                 if (Arr::exists($options, $attr) && $options[$attr]) {
                     $value = explode(',', $options[$attr]);
                     if ($value) {
-                        if ($operand === 'like') {
+                        if (!$exact) {
                             $builder->where($attr, 'RLIKE', $value);
                         } else {
                             $builder->whereIn($attr, $value);
@@ -34,7 +34,7 @@ trait HasQueryFilter
             if (Arr::exists($attribute, $attribute) && $options[$attribute]) {
                 $value = explode(',', $options[$attribute]);
                 if ($value) {
-                    if ($operand === 'like') {
+                    if (!$exact) {
                         $builder->where($attribute, 'RLIKE', $value);
                     } else {
                         $builder->whereIn($attribute, $value);

@@ -62,7 +62,7 @@ class System extends Model
     /**
     * Filter scope
     */
-    public function scopeFilter(Builder $builder, array $options, string $operand): Builder
+    public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
         if (!empty($options['search'])) {
             $builder->search($options['search']);
@@ -71,7 +71,7 @@ class System extends Model
         return $this->buildFilterQuery($builder, $options, [
             'name',
             'main_star'
-        ], $operand);
+        ], $exact);
     }
 
     /**
