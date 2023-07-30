@@ -77,16 +77,14 @@ class System extends Model
     /**
      * import from API
      * 
-     * @param string $source
      * @param string $slug
      * 
-     * @return System
-     * @throws SystemNotFoundException
+     * @return System|false
      */
-    public static function checkAPI(string $source, string $slug)
+    public static function checkAPI(string $slug)
     {
         $api = app(EliteAPIManager::class);
-        $response = $api->setConfig(config('elite.'.$source))
+        $response = $api->setConfig(config('elite.edsm'))
             ->setCategory('systems')
             ->get('system', [
                 'systemName' => $slug,
@@ -105,7 +103,7 @@ class System extends Model
         }
 
         if (! $system) {
-            throw new SystemNotFoundException($slug . ' system not found, using ['.$source.'] api source');
+            return false;
         }
 
         return $system;
@@ -114,11 +112,11 @@ class System extends Model
     /**
      * Check for system information
      */
-    public function checkAPIForSystemInformation(string $source)
+    public function checkAPIForSystemInformation()
     {
         $api = app(EliteAPIManager::class);
         if (!$this->information()->exists()) {
-            $response = $api->setConfig(config('elite.'.$source))
+            $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('systems')
                 ->get('system', [
                     'systemName' => $this->name,
@@ -138,11 +136,11 @@ class System extends Model
     /**
      * Check for system bodies
      */
-    public function checkAPIForSystemBodies(string $source)
+    public function checkAPIForSystemBodies()
     {
         $api = app(EliteAPIManager::class);
         if (!$this->bodies()->exists()) {
-            $response = $api->setConfig(config('elite.'.$source))
+            $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('system')
                 ->get('bodies', [
                     'systemName' => $this->name

@@ -59,19 +59,18 @@ class SystemController extends Controller
      */
     public function show(string $slug, SearchSystemRequest $request): Response
     {
-        $source = 'edsm';
         $validated = $request->validated();
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
-            $system = System::checkAPI($source, $slug);
+            $system = System::checkAPI($slug);
         }
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $system = $this->loadValidatedRelations($validated, $system, $source);
+        $system = $this->loadValidatedRelations($validated, $system);
 
         return response(new SystemResource($system));
     }
@@ -81,14 +80,10 @@ class SystemController extends Controller
      * 
      * @param array $validated
      * @param Model|LengthAwarePaginator $data
-     * @param ?string $source
      * 
      * @return Model|LengthAwarePaginator $data
      */
-    private function loadValidatedRelations(
-        array $validated,
-        Model | LengthAwarePaginator $data,
-        ?string $source = null): Model|LengthAwarePaginator
+    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
     {
         $allowed = [
             'withInformation' => 'information',
@@ -99,12 +94,12 @@ class SystemController extends Controller
 
         foreach ($allowed as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                if ($source && $relation === 'bodies') {
-                    $data->checkAPIForSystemBodies($source);
+                if ($data instanceof Model && $relation === 'bodies') {
+                    $data->checkAPIForSystemBodies();
                 }
 
-                if ($source && $relation === 'information') {
-                    $data->checkAPIForSystemInformation($source);
+                if ($data instanceof Model && $relation === 'information') {
+                    $data->checkAPIForSystemInformation();
                 }
 
                 $data->load($relation);
