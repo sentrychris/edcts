@@ -15,17 +15,19 @@ class SystemController extends Controller
      * 
      * User can provide the following request parameters.
      * 
-     * name: - Filter systems by name
+     * name: - Filter systems by name.
      * 
-     * withInformation: 0 or 1 - Return systems with associated information
-     *                           e.g. governance, economy, security etc.
+     * withInformation: 0 or 1 - Return system with associated information.
      * 
-     * withBodies: 0 or 1      - Return systems with associated celestial bodies
-     *                           e.g. stars, moons, planets.
+     * withBodies: 0 or 1 - Return system with associated celestial bodies.
      * 
-     * exactSearch: 0 or 1    - Search for exact matches or based on a partial string.
+     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * 
-     * limit: - page limit
+     * withDepartures: 0 or 1 - Return systems with associated carrier departures schedule.
+     * 
+     * withArrivals: 0 or 1 - Return systems with associated carrier arrivals schedule.
+     * 
+     * limit: - page limit.
      */
     public function index(SearchSystemRequest $request)
     {
@@ -34,12 +36,24 @@ class SystemController extends Controller
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
+        if (!$systems) {
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
+        }
+
         if ((int)$request->get('withInformation') === 1) {
             $systems->load('information');
         }
 
         if ((int)$request->get('withBodies') === 1) {
             $systems->load('bodies');
+        }
+
+        if ((int)$request->get('withDepartures') === 1) {
+            $systems->load('departures');
+        }
+
+        if ((int)$request->withArrivals === 1) {
+            $systems->load('arrivals.departure');
         }
 
         return SystemResource::collection($systems);
@@ -50,11 +64,13 @@ class SystemController extends Controller
      * 
      * User can provide the following request parameters.
      * 
-     * withInformation: 0 or 1 - Return system with associated information
-     *                           e.g. governance, economy, security etc.
+     * withInformation: 0 or 1 - Return system with associated information.
      * 
-     * withBodies: 0 or 1      - Return system with associated celestial bodies
-     *                           e.g. stars, moons, planets.
+     * withBodies: 0 or 1 - Return system with associated celestial bodies.
+     * 
+     * withDepartures: 0 or 1 - Return system with associated carrier departures schedule.
+     * 
+     * withArrivals: 0 or 1 - Return system with associated carrier arrivals schedule.
      */
     public function show(string $slug, Request $request)
     {
@@ -62,26 +78,31 @@ class SystemController extends Controller
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
-            $system = System::importfromAPI($source, $slug);
+            $system = System::checkApi($source, $slug);
         }
 
         if (!$system) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
-        
-        $system->checkForSystemInformation($source)
-            ->checkForSystemBodies($source);
 
-        if ((int)$request->get('withInformation') === 1) {
+        if ((int)$request->withInformation === 1) {
+            $system->checkApiForSystemInformation($source);
             $system->load('information');
         }
 
-        if ((int)$request->get('withBodies') === 1) {
+        if ((int)$request->withBodies === 1) {
+            $system->checkApiForSystemBodies($source);
             $system->load('bodies');
         }
+        
+        if ((int)$request->withDepartures === 1) {
+            $system->load('departures.destination');
+        }
 
-        return response()->json(
-            new SystemResource($system)
-        );
+        if ((int)$request->withArrivals === 1) {
+            $system->load('arrivals.departure');
+        }
+
+        return response(new SystemResource($system));
     }
 }

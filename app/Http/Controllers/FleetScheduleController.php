@@ -75,7 +75,7 @@ class FleetScheduleController extends Controller
         $schedule = FleetSchedule::whereSlug($slug)->first();
         
         if (!$schedule) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         if ((int)$request->get('withCarrierInformation') === 1) {
@@ -86,9 +86,7 @@ class FleetScheduleController extends Controller
             $schedule->load(['departure.information', 'destination.information']);
         }
         
-        return response()->json(
-            new FleetScheduleResource($schedule)
-        );
+        return response(new FleetScheduleResource($schedule));
     }
     
     /**
@@ -102,7 +100,7 @@ class FleetScheduleController extends Controller
         $validated = $request->validated();
         $schedule = FleetSchedule::create($validated);
         
-        return response()->json(
+        return response(
             new FleetScheduleResource($schedule->load(['carrier.commander', 'departure', 'destination'])),
             JsonResponse::HTTP_CREATED
         );
@@ -120,12 +118,12 @@ class FleetScheduleController extends Controller
         $schedule = $request->user()->commander->schedule()->find($id);
         
         if (!$schedule) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
         
         $schedule->update($request->toArray());
         
-        return response()->json(
+        return response(
             new FleetScheduleResource($schedule->load('carrier.commander'))
         );
     }
@@ -142,12 +140,12 @@ class FleetScheduleController extends Controller
         $schedule = $request->user()->commander->schedule()->find($id);
         
         if (!$schedule) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
         
         $schedule->delete();
         
-        return response()->json([
+        return response([
             'message' => 'Scheduled carrier trip has been deleted'
         ]);
     }

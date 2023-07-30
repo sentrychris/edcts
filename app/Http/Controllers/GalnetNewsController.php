@@ -36,13 +36,11 @@ class GalnetNewsController extends Controller
     {
         $article = GalnetNews::whereSlug($slug)->first();
 
-        if  (!$article) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+        if (!$article) {
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        return response()->json(
-            new GalnetNewsResource($article)
-        );
+        return response(new GalnetNewsResource($article));
     }
 
     /**
@@ -53,12 +51,12 @@ class GalnetNewsController extends Controller
         $article = GalnetNews::find($id);
 
         if  (!$article) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         $article->delete();
 
-        return response()->json([
+        return response([
             'message' => 'Galnet news article has been successfully deleted.'
         ]);
     }

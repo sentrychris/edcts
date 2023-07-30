@@ -77,7 +77,7 @@ class System extends Model
     /**
      * import from API
      */
-    public static function importFromAPI(string $source, string $slug)
+    public static function checkApi(string $source, string $slug)
     {
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.'.$source))
@@ -108,7 +108,7 @@ class System extends Model
     /**
      * Check for system information
      */
-    public function checkForSystemInformation(string $source)
+    public function checkApiForSystemInformation(string $source)
     {
         $api = app(EliteAPIManager::class);
         if (!$this->information()->exists()) {
@@ -132,11 +132,11 @@ class System extends Model
     /**
      * Check for system bodies
      */
-    public function checkForSystemBodies()
+    public function checkApiForSystemBodies(string $source)
     {
         $api = app(EliteAPIManager::class);
         if (!$this->bodies()->exists()) {
-            $response = $api->setConfig(config('elite.edsm'))
+            $response = $api->setConfig(config('elite.'.$source))
                 ->setCategory('system')
                 ->get('bodies', [
                     'systemName' => $this->name
@@ -146,14 +146,39 @@ class System extends Model
 
             if ($bodies) {
                 foreach($bodies as $body) {
+                    $id = random_int(100000000, 999999999);
+                    $bodyId = $id;
+                    if (property_exists($body,'id64') && $body->id64) {
+                        $id = $body->id64;
+                        $bodyId = $body->bodyId;
+                    }
+                    
                     $this->bodies()->updateOrCreate([
-                        // TODO not this lol... see https://github.com/EDSM-NET/FrontEnd/issues/506
-                        'id64' => $body->id64 ?? random_int(100000000, 999999999),
+                        'id64' => $id,
+                        'body_id' => $bodyId,
                         'name' => $body->name,
                         'discovered_by' => $body->discovery->commander,
                         'discovered_at' => $body->discovery->date,
                         'type' => $body->type,
-                        'sub_type' => $body->subType
+                        'sub_type' => $body->subType,
+                        'is_landable' => $body->isLandable ?? false,
+                        'surface_temp' => $body->surfaceTemperature,
+                        'radius' => $body->radius ?? null,
+                        'gravity' => $body->gravity ?? null,
+                        'earth_masses' => $body->earthMasses ?? null,
+                        'atmosphere_type' => $body->atmosphereType ?? null,
+                        'volcanism_type' => $body->volcanismType ?? null,
+                        'terraforming_state' => $body->terraformingState ?? null,
+                        'orbital_period' => $body->orbitalPeriod ?? null,
+                        'orbital_eccentricity' => $body->orbitalEccentricity ?? null,
+                        'orbital_inclination' => $body->orbitalInclination ?? null,
+                        'arg_of_periapsis' => $body->argOfPeriapsis ?? null,
+                        'rotational_period' => $body->rotationalPeriod ?? null,
+                        'is_tidally_locked' => $body->rotationalPeriodTidallyLocked ?? false,
+                        'semi_major_axis' => $body->semiMajorAxis ?? null,
+                        'axial_tilt' => $body->axialTilt ?? null,
+                        'rings' => property_exists($body, 'rings') ? json_encode($body->rings) : null,
+                        'parents' => property_exists($body, 'parents') ? json_encode($body->parents) : null,
                     ]);
                 }
             }

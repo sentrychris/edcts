@@ -72,7 +72,7 @@ class FleetCarrierController extends Controller
         $carrier = FleetCarrier::whereSlug($slug)->first();
 
         if (!$carrier) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         if ((int)$request->get('withCommanderInformation') === 1) {
@@ -83,9 +83,7 @@ class FleetCarrierController extends Controller
             $carrier->load(['schedule.departure', 'schedule.destination']);
         }
 
-        return response()->json(
-            new FleetCarrierResource($carrier)
-        );
+        return response(new FleetCarrierResource($carrier));
     }
 
     /**
@@ -99,7 +97,7 @@ class FleetCarrierController extends Controller
         $validated = $request->validated();
         $carrier = $request->user()->commander->carriers()->create($validated);
 
-        return response()->json(
+        return response(
             new FleetCarrierResource($carrier->load('commander')),
             JsonResponse::HTTP_CREATED
         );
@@ -117,12 +115,12 @@ class FleetCarrierController extends Controller
         $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         $carrier->update($request->toArray());
 
-        return response()->json(
+        return response(
             new FleetCarrierResource($carrier->load(['commander', 'schedule']))
         );
     }
@@ -139,12 +137,12 @@ class FleetCarrierController extends Controller
         $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
-            return response()->json(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
         $carrier->delete();
 
-        return response()->json([
+        return response([
             'message' => 'Fleet carrier and associated schedule has been deleted'
         ]);
     }
