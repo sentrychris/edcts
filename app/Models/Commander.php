@@ -14,7 +14,11 @@ class Commander extends Model
 
     protected $table = 'commanders';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'cmdr_name',
+        'inara_api_key',
+        'edsm_api_key'
+    ];
 
     /**
      * User relation

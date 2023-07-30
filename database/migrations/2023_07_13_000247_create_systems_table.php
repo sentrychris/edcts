@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id64')->unique();
             $table->string('name')->unique();
-            $table->string('main_star')->nullable();
             $table->json('coords');
             $table->string('slug')->nullable();
             $table->timestamp('updated_at');

@@ -64,7 +64,7 @@ class SystemController extends Controller
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
-            $system = System::checkApi($source, $slug);
+            $system = System::checkAPI($source, $slug);
         }
 
         if (!$system) {
@@ -81,7 +81,7 @@ class SystemController extends Controller
      * 
      * @param array $validated
      * @param Model|LengthAwarePaginator $data
-     * @param string|null $source
+     * @param ?string $source
      * 
      * @return Model|LengthAwarePaginator $data
      */
@@ -100,11 +100,11 @@ class SystemController extends Controller
         foreach ($allowed as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 if ($source && $relation === 'bodies') {
-                    $data->checkApiForSystemBodies($source);
+                    $data->checkAPIForSystemBodies($source);
                 }
 
                 if ($source && $relation === 'information') {
-                    $data->checkApiForSystemInformation($source);
+                    $data->checkAPIForSystemInformation($source);
                 }
 
                 $data->load($relation);

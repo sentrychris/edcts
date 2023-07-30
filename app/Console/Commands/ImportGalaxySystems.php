@@ -49,10 +49,6 @@ class ImportGalaxySystems extends Command
                     'updated_at' => $this->getUpdateTime($system)
                 ]);
     
-                if (property_exists($system, 'mainStar')) {
-                    $record->main_star = $system->mainStar;
-                }
-    
                 $record->save();
             }
 

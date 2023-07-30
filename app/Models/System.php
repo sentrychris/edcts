@@ -70,8 +70,7 @@ class System extends Model
         }
         
         return $this->buildFilterQuery($builder, $options, [
-            'name',
-            'main_star'
+            'name'
         ], $exact);
     }
 
@@ -84,7 +83,7 @@ class System extends Model
      * @return System
      * @throws SystemNotFoundException
      */
-    public static function checkApi(string $source, string $slug)
+    public static function checkAPI(string $source, string $slug)
     {
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.'.$source))
@@ -115,7 +114,7 @@ class System extends Model
     /**
      * Check for system information
      */
-    public function checkApiForSystemInformation(string $source)
+    public function checkAPIForSystemInformation(string $source)
     {
         $api = app(EliteAPIManager::class);
         if (!$this->information()->exists()) {
@@ -139,7 +138,7 @@ class System extends Model
     /**
      * Check for system bodies
      */
-    public function checkApiForSystemBodies(string $source)
+    public function checkAPIForSystemBodies(string $source)
     {
         $api = app(EliteAPIManager::class);
         if (!$this->bodies()->exists()) {

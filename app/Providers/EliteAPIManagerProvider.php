@@ -16,12 +16,4 @@ class EliteAPIManagerProvider extends ServiceProvider
           return new EliteAPIManager();
         });
     }
-
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
-    {
-        //
-    }
 }
