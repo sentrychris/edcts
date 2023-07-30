@@ -2,30 +2,57 @@
 
 namespace App\Libraries;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class EliteAPIManager extends BaseAPIManager
 {
+    /**
+     * @var array $config
+     */
     protected array $config;
 
+    /**
+     * var string $category;
+     */
     protected string $category;
     
-    public function setConfig(array $config)
+    /**
+     * Set API config
+     * 
+     * @param array $config
+     * 
+     * @return EliteAPIManager
+     */
+    public function setConfig(array $config): EliteAPIManager
     {
         $this->config = $config;
 
         return $this;
     }
 
-    public function setCategory(string $category)
+    /**
+     * Set API calling category
+     * 
+     * @param string $category
+     * 
+     * @return EliteAPIManager
+     */
+    public function setCategory(string $category): EliteAPIManager
     {
         $this->category = $category;
 
         return $this;
     }
 
-    public function get(string $key, array $params = null)
+    /**
+     * Make call to Elite API
+     * 
+     * @param string $key
+     * @param ?array $params
+     * 
+     * @return mixed
+     */
+    public function get(string $key, ?array $params = null): mixed
     {
         $url = $this->config['base_url']
             . $this->resolveUri($this->category, $key)
@@ -36,7 +63,16 @@ class EliteAPIManager extends BaseAPIManager
         return $this->getContents($response, true);
     }
     
-    public function resolveUri(string $section, string $key, string $subKey = null)
+    /**
+     * Resolve uri from config
+     * 
+     * @param string $section
+     * @param string $key
+     * @param ?string $subKey
+     * 
+     * @return string
+     */
+    public function resolveUri(string $section, string $key, string $subKey = null): string
     {
         $section = $this->config[$section];
         if ($section && $section[$key]) {
@@ -49,7 +85,15 @@ class EliteAPIManager extends BaseAPIManager
         }
     }
 
-    public function convertResponse($obj, &$arr)
+    /**
+     * Convert elite API response
+     * 
+     * @param mixed $obj,
+     * @param mixed &$arr
+     * 
+     * @return mixed
+     */
+    public function convertResponse($obj, &$arr): mixed
     {
         if (!is_object($obj) && !is_array($obj)) {
             $arr = $obj;
@@ -70,7 +114,14 @@ class EliteAPIManager extends BaseAPIManager
         return $arr;
     }
 
-    private function buildQueryString(array $params = null)
+    /**
+     * Build query string for request
+     * 
+     * @param ?array $params
+     * 
+     * @return string
+     */
+    private function buildQueryString(?array $params = null): string
     {
         if (!$params) {
             return '';

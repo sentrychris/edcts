@@ -7,16 +7,29 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class GalnetRSSParser
 {   
-    private $url = '';
+    /**
+     * @var string $url
+     */
+    private string $url = '';
     
+    /**
+     * Constructor
+     */
     public function __construct($url)
     {
         $this->url = $url;
     }
     
-    public function import(ProgressBar $progress)
+    /**
+     * Import Galnet news articles
+     * 
+     * @param ProgressBar $progress
+     * 
+     * @return void
+     */
+    public function import(ProgressBar $progress): void
     {
-        $url = $this->resolveFile($this->url);
+        $url = $this->resolveFeed($this->url);
         
         if (!($x = simplexml_load_file($url))) {
             return;
@@ -44,7 +57,15 @@ class GalnetRSSParser
         $progress->finish();
     }
     
-    private function resolveFile($path) {
+    /**
+     * Resolve RSS feed
+     * 
+     * @param string $path
+     * 
+     * @return string
+     */
+    private function resolveFeed(string $path): string
+    {
         if (!preg_match('|^https?:|', $path)) {
             $feed = $_SERVER['DOCUMENT_ROOT'] .'/shared/xml/'. $path;
         } else {

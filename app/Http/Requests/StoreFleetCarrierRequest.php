@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class StoreFleetCarrierRequest extends BaseRequest
+class StoreFleetCarrierRequest extends APIRequest
 {
     /**
      * Get the validation rules that apply to the request.

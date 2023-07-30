@@ -84,6 +84,7 @@ class FleetCarrierController extends Controller
      * Store a newly created resource in storage.
      * 
      * @param StoreFleetCarrierRequest $request
+     * 
      * @return Response
      */
     public function store(StoreFleetCarrierRequest $request): Response
