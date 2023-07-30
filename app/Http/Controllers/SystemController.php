@@ -6,10 +6,10 @@ use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class SystemController extends Controller
 {

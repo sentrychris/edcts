@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\GalnetNewsResource;
 use App\Models\GalnetNews;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class GalnetNewsController extends Controller
 {

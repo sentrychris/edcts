@@ -6,8 +6,12 @@ use App\Http\Requests\SearchFleetScheduleRequest;
 use App\Http\Requests\StoreFleetScheduleRequest;
 use App\Http\Resources\FleetScheduleResource;
 use App\Models\FleetSchedule;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 
 class FleetScheduleController extends Controller
 {   
@@ -26,35 +30,27 @@ class FleetScheduleController extends Controller
      * 
      * User can provide the following request parameters.
      * 
-     * departure:   - Filter schedule by departure points
-     * 
-     * destination: - Filter schedule by destination points
-     * 
+     * departure:   - Filter schedule by departure points.
+     * destination: - Filter schedule by destination points.
      * withCarrierInformation: 0 or 1 - Return schedule with associated carrier/commander
      *                                  information.
-     * 
-     * withSystemInformation: 0 or 1  - Return schedule with associated departure/destination
+     * withSystemInformation:  0 or 1 - Return schedule with associated departure/destination
      *                                  information.
-     * 
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
-     * 
      * limit: - page limit
+     * 
+     * @param SearchFleetScheduleRequest $request
+     * 
+     * @return AnonymousResourceCollection
      */
-    public function index(SearchFleetScheduleRequest $request)
+    public function index(SearchFleetScheduleRequest $request): AnonymousResourceCollection
     {        
         $validated = $request->validated();
-
         $schedule = FleetSchedule::filter($validated, (int)$request->exactSearch)
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        if ((int)$request->withCarrierInformation === 1) {
-            $schedule->load('carrier.commander');
-        }
-
-        if ((int)$request->withSystemInformation === 1) {
-            $schedule->load(['departure.information', 'destination.information']);
-        }
+        $this->loadValidatedRelations($validated, $schedule);
         
         return FleetScheduleResource::collection($schedule);
     }
@@ -66,25 +62,24 @@ class FleetScheduleController extends Controller
      * 
      * withCarrierInformation: 0 or 1 - Return schedule with associated carrier/commander
      *                                  information.
-     * 
      * withSystemInformation: 0 or 1  - Return schedule with associated departure/destination
      *                                  information.
+     * 
+     * @param string $slug
+     * @param SearchFleetScheduleRequest $request
+     * 
+     * @return Response
      */
-    public function show(string $slug, Request $request)
+    public function show(string $slug, SearchFleetScheduleRequest $request): Response
     {
+        $validated = $request->validated();
         $schedule = FleetSchedule::whereSlug($slug)->first();
         
         if (!$schedule) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if ((int)$request->withCarrierInformation === 1) {
-            $schedule->load('carrier.commander');
-        }
-
-        if ((int)$request->withSystemInformation === 1) {
-            $schedule->load(['departure.information', 'destination.information']);
-        }
+        $this->loadValidatedRelations($validated, $schedule);
         
         return response(new FleetScheduleResource($schedule));
     }
@@ -93,9 +88,10 @@ class FleetScheduleController extends Controller
     * Store a newly created resource in storage.
     * 
     * @param StoreFleetScheduleRequest $request
-    * @return JsonResponse
+
+    * @return Response
     */
-    public function store(StoreFleetScheduleRequest $request)
+    public function store(StoreFleetScheduleRequest $request): Response
     {
         $validated = $request->validated();
         $schedule = FleetSchedule::create($validated);
@@ -111,9 +107,10 @@ class FleetScheduleController extends Controller
     * 
     * @param string $id
     * @param Request $request
-    * @return JsonResponse
+
+    * @return Response
     */
-    public function update(string $id, Request $request)
+    public function update(string $id, Request $request): Response
     {
         $schedule = $request->user()->commander->schedule()->find($id);
         
@@ -133,9 +130,10 @@ class FleetScheduleController extends Controller
     * 
     * @param string $id
     * @param Request $request
-    * @return JsonResponse
+
+    * @return Response
     */
-    public function destroy(string $id, Request $request)
+    public function destroy(string $id, Request $request): Response
     {
         $schedule = $request->user()->commander->schedule()->find($id);
         
@@ -148,5 +146,29 @@ class FleetScheduleController extends Controller
         return response([
             'message' => 'Scheduled carrier trip has been deleted'
         ]);
+    }
+
+    /**
+     * Load validated relations based on query.
+     * 
+     * @param array $validated
+     * @param Model|LengthAwarePaginator $data
+     * 
+     * @return Model|LengthAwarePaginator $data
+     */
+    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
+    {
+        $allowed = [
+            'withCarrierInformation' => 'carrier.commander',
+            'withSystemInformation' => ['departure.information', 'destination.information'],
+        ];
+
+        foreach ($allowed as $query => $relation) {
+            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
+                $data->load($relation);
+            }
+        }
+
+        return $data;
     }
 }

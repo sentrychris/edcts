@@ -6,8 +6,12 @@ use App\Http\Requests\SearchFleetCarrierRequest;
 use App\Http\Requests\StoreFleetCarrierRequest;
 use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FleetCarrierController extends Controller
 {
@@ -26,33 +30,25 @@ class FleetCarrierController extends Controller
      * 
      * User can provide the following request parameters.
      * 
-     * name: - Filter carriers by name
-     * 
-     * identifier: - Filter carriers by identifier
-     * 
+     * name: - Filter carriers by name.
+     * identifier: - Filter carriers by identifier.
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * 
      * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
-     * 
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
+     * limit: - page limit.
      * 
-     * limit: - page limit
+     * @param SearchFleetCarrierRequest $request
+     * 
+     * @return AnonymousResourceCollection
      */
-    public function index(SearchFleetCarrierRequest $request)
+    public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-
         $carriers = FleetCarrier::filter($validated, (int)$request->exactSearch)
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        if ((int)$request->withCommanderInformation === 1) {
-            $carriers->load('commander');
-        }
-
-        if ((int)$request->withScheduleInformation === 1) {
-            $carriers->load(['schedule.departure', 'schedule.destination']);
-        }
+        $this->loadValidatedRelations($validated, $carriers);
 
         return FleetCarrierResource::collection($carriers);
     }
@@ -63,25 +59,23 @@ class FleetCarrierController extends Controller
      * User can provide the following request parameters.
      * 
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * 
      * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
      * 
+     * @param string $slug
+     * @param SearchFleetCarrierRequest $request
+     * 
+     * @return Response
      */
-    public function show(string $slug, Request $request)
+    public function show(string $slug, SearchFleetCarrierRequest $request): Response
     {
+        $validated = $request->validated();
         $carrier = FleetCarrier::whereSlug($slug)->first();
 
         if (!$carrier) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if ((int)$request->withCommanderInformation === 1) {
-            $carrier->load('commander');
-        }
-
-        if ((int)$request->withScheduleInformation === 1) {
-            $carrier->load(['schedule.departure', 'schedule.destination']);
-        }
+        $this->loadValidatedRelations($validated, $carrier);
 
         return response(new FleetCarrierResource($carrier));
     }
@@ -90,9 +84,9 @@ class FleetCarrierController extends Controller
      * Store a newly created resource in storage.
      * 
      * @param StoreFleetCarrierRequest $request
-     * @return JsonResponse
+     * @return Response
      */
-    public function store(StoreFleetCarrierRequest $request)
+    public function store(StoreFleetCarrierRequest $request): Response
     {
         $validated = $request->validated();
         $carrier = $request->user()->commander->carriers()->create($validated);
@@ -108,9 +102,10 @@ class FleetCarrierController extends Controller
      * 
      * @param string $id
      * @param Request $request
-     * @return JsonResponse
+     * 
+     * @return Response
      */
-    public function update(string $id, Request $request)
+    public function update(string $id, Request $request): Response
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
@@ -130,9 +125,10 @@ class FleetCarrierController extends Controller
      * 
      * @param string $id
      * @param Request $request
-     * @return JsonResponse
+     * 
+     * @return Response
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(string $id, Request $request): Response
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
@@ -145,5 +141,29 @@ class FleetCarrierController extends Controller
         return response([
             'message' => 'Fleet carrier and associated schedule has been deleted'
         ]);
+    }
+
+    /**
+     * Load validated relations based on query.
+     * 
+     * @param array $validated
+     * @param Model|LengthAwarePaginator $data
+     * 
+     * @return Model|LengthAwarePaginator $data
+     */
+    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
+    {
+        $allowed = [
+            'withCommanderInformation' => 'commander',
+            'withScheduleInformation' => ['schedule.departure', 'schedule.destination'],
+        ];
+
+        foreach ($allowed as $query => $relation) {
+            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
+                $data->load($relation);
+            }
+        }
+
+        return $data;
     }
 }
