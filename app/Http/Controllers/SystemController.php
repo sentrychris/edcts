@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SystemController extends Controller
 {
@@ -16,45 +19,25 @@ class SystemController extends Controller
      * User can provide the following request parameters.
      * 
      * name: - Filter systems by name.
-     * 
      * withInformation: 0 or 1 - Return system with associated information.
-     * 
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
-     * 
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
-     * 
      * withDepartures: 0 or 1 - Return systems with associated carrier departures schedule.
-     * 
      * withArrivals: 0 or 1 - Return systems with associated carrier arrivals schedule.
-     * 
      * limit: - page limit.
+     * 
+     * @param SearchSystemRequest $request
+     * 
+     * @return AnonymousResourceCollection
      */
-    public function index(SearchSystemRequest $request)
+    public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $systems = System::filter($validated, (int)$request->get('exactSearch'))
+        $systems = System::filter($validated, (int)$request->exactSearch)
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        if (!$systems) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
-        }
-
-        if ((int)$request->get('withInformation') === 1) {
-            $systems->load('information');
-        }
-
-        if ((int)$request->get('withBodies') === 1) {
-            $systems->load('bodies');
-        }
-
-        if ((int)$request->get('withDepartures') === 1) {
-            $systems->load('departures');
-        }
-
-        if ((int)$request->withArrivals === 1) {
-            $systems->load('arrivals.departure');
-        }
+        $systems = $this->loadValidatedRelations($validated, $systems);
 
         return SystemResource::collection($systems);
     }
@@ -65,16 +48,19 @@ class SystemController extends Controller
      * User can provide the following request parameters.
      * 
      * withInformation: 0 or 1 - Return system with associated information.
-     * 
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
-     * 
      * withDepartures: 0 or 1 - Return system with associated carrier departures schedule.
-     * 
      * withArrivals: 0 or 1 - Return system with associated carrier arrivals schedule.
+     * 
+     * @param string $slug
+     * @param SearchSystemRequest $request
+     * 
+     * @return Response
      */
-    public function show(string $slug, Request $request)
+    public function show(string $slug, SearchSystemRequest $request): Response
     {
         $source = 'edsm';
+        $validated = $request->validated();
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
@@ -85,24 +71,46 @@ class SystemController extends Controller
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if ((int)$request->withInformation === 1) {
-            $system->checkApiForSystemInformation($source);
-            $system->load('information');
-        }
-
-        if ((int)$request->withBodies === 1) {
-            $system->checkApiForSystemBodies($source);
-            $system->load('bodies');
-        }
-        
-        if ((int)$request->withDepartures === 1) {
-            $system->load('departures.destination');
-        }
-
-        if ((int)$request->withArrivals === 1) {
-            $system->load('arrivals.departure');
-        }
+        $system = $this->loadValidatedRelations($validated, $system, $source);
 
         return response(new SystemResource($system));
+    }
+
+    /**
+     * Load validated relations based on query.
+     * 
+     * @param array $validated
+     * @param Model|LengthAwarePaginator $data
+     * @param string|null $source
+     * 
+     * @return Model|LengthAwarePaginator $data
+     */
+    private function loadValidatedRelations(
+        array $validated,
+        Model | LengthAwarePaginator $data,
+        ?string $source = null): Model|LengthAwarePaginator
+    {
+        $allowed = [
+            'withInformation' => 'information',
+            'withBodies' => 'bodies',
+            'withDepartures' => 'departures.destination',
+            'withArrivals' => 'arrivals.departure'
+        ];
+
+        foreach ($allowed as $query => $relation) {
+            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
+                if ($source && $relation === 'bodies') {
+                    $data->checkApiForSystemBodies($source);
+                }
+
+                if ($source && $relation === 'information') {
+                    $data->checkApiForSystemInformation($source);
+                }
+
+                $data->load($relation);
+            }
+        }
+
+        return $data;
     }
 }

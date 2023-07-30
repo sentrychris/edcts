@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\SystemNotFoundException;
 use App\Libraries\EliteAPIManager;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
@@ -76,6 +77,12 @@ class System extends Model
 
     /**
      * import from API
+     * 
+     * @param string $source
+     * @param string $slug
+     * 
+     * @return System
+     * @throws SystemNotFoundException
      */
     public static function checkApi(string $source, string $slug)
     {
@@ -98,11 +105,11 @@ class System extends Model
             ]);
         }
 
-        if ($system) {
-            return $system;
+        if (! $system) {
+            throw new SystemNotFoundException($slug . ' system not found, using ['.$source.'] api source');
         }
 
-        return false;
+        return $system;
     }
 
     /**

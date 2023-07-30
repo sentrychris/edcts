@@ -42,15 +42,15 @@ class FleetCarrierController extends Controller
     {
         $validated = $request->validated();
 
-        $carriers = FleetCarrier::filter($validated, (int)$request->get('exactSearch'))
+        $carriers = FleetCarrier::filter($validated, (int)$request->exactSearch)
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        if ((int)$request->get('withCommanderInformation') === 1) {
+        if ((int)$request->withCommanderInformation === 1) {
             $carriers->load('commander');
         }
 
-        if ((int)$request->get('withScheduleInformation') === 1) {
+        if ((int)$request->withScheduleInformation === 1) {
             $carriers->load(['schedule.departure', 'schedule.destination']);
         }
 
@@ -75,11 +75,11 @@ class FleetCarrierController extends Controller
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        if ((int)$request->get('withCommanderInformation') === 1) {
+        if ((int)$request->withCommanderInformation === 1) {
             $carrier->load('commander');
         }
 
-        if ((int)$request->get('withScheduleInformation') === 1) {
+        if ((int)$request->withScheduleInformation === 1) {
             $carrier->load(['schedule.departure', 'schedule.destination']);
         }
 

@@ -14,7 +14,10 @@ class SearchFleetCarrierRequest extends BaseRequest
         return [
             'name' => 'sometimes|string',
             'identifier' => 'sometimes|string|max:7',
-            'limit' => 'sometimes|int|max:100'
+            'withCommanderInformation' => 'sometimes|int|max:1',
+            'withScheduleInformation' => 'sometimes|int|max:1',
+            'exactSearch' => 'sometimes|int|max:1',
+            'limit' => 'sometimes|int|max:100',
         ];
     }
 }

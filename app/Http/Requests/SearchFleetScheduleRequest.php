@@ -15,7 +15,10 @@ class SearchFleetScheduleRequest extends BaseRequest
             'departure' => 'sometimes|string|max:60',
             'destination' => 'sometimes|string|max:60',
             'departs_at' => 'sometimes|date',
-            'limit' => 'sometimes|int|max:100'
+            'withCarrierInformation' => 'sometimes|int|max:1',
+            'withSystemInformation' => 'sometimes|int|max:1',
+            'exactSearch' => 'sometimes|int|max:1',
+            'limit' => 'sometimes|int|max:100',
         ];
     }
 }
