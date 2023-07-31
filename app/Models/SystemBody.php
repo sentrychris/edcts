@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +21,14 @@ class SystemBody extends Model
         'discovered_at',
         'type',
         'sub_type',
-        'is_landable',
+        'distance_to_arrival',
+        'is_main_star',
+        'is_scoopable',
+        'spectral_class',
+        'luminosity',
+        'solar_masses',
+        'solar_radius',
+        'absolute_magnitude',
         'surface_temp',
         'radius',
         'gravity',
@@ -28,6 +36,7 @@ class SystemBody extends Model
         'atmosphere_type',
         'volcanism_type',
         'terraforming_state',
+        'is_landable',
         'orbital_period',
         'orbital_eccentricity',
         'orbital_inclination',
@@ -47,5 +56,25 @@ class SystemBody extends Model
      */
     public function system(): BelongsTo {
         return $this->belongsTo(System::class);
+    }
+
+    /**
+     * Fetch rings as array
+     */
+    protected function rings(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => $value ? json_decode($value) : null
+        );
+    }
+
+    /**
+     * Fetch parents as array
+     */
+    protected function parents(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => $value ? json_decode($value) : null
+        );
     }
 }

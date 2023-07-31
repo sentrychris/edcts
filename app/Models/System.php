@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Exceptions\SystemNotFoundException;
 use App\Libraries\EliteAPIManager;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
@@ -165,7 +164,14 @@ class System extends Model
                         'discovered_at' => $body->discovery->date,
                         'type' => $body->type,
                         'sub_type' => $body->subType,
-                        'is_landable' => $body->isLandable ?? false,
+                        'distance_to_arrival' => property_exists($body, 'distanceToArrival') ? $body->distanceToArrival : null,
+                        'is_main_star' => property_exists($body, 'isMainStar') ? $body->isMainStar : false,
+                        'is_scoopable' => property_exists($body, 'isScoopable') ? $body->isScoopable : false,
+                        'spectral_class' => property_exists($body, 'spectralClass') ? $body->spectralClass : null,
+                        'luminosity' => property_exists($body, 'luminosity') ? $body->luminosity : null,
+                        'solar_masses' => property_exists($body, 'solarMasses') ? $body->solarMasses : null,
+                        'solar_radius' => property_exists($body, 'solarRadius') ? $body->solarRadius : null,
+                        'absolute_magnitude' => property_exists($body, 'absoluteMagnitude') ? $body->absoluteMagnitude : null,
                         'surface_temp' => $body->surfaceTemperature,
                         'radius' => $body->radius ?? null,
                         'gravity' => $body->gravity ?? null,
@@ -173,6 +179,7 @@ class System extends Model
                         'atmosphere_type' => $body->atmosphereType ?? null,
                         'volcanism_type' => $body->volcanismType ?? null,
                         'terraforming_state' => $body->terraformingState ?? null,
+                        'is_landable' => $body->isLandable ?? false,
                         'orbital_period' => $body->orbitalPeriod ?? null,
                         'orbital_eccentricity' => $body->orbitalEccentricity ?? null,
                         'orbital_inclination' => $body->orbitalInclination ?? null,

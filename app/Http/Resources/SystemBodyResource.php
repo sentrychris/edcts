@@ -16,6 +16,7 @@ class SystemBodyResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'body_id' => $this->body_id,
             'name' => $this->name,
             'type' => $this->type,
             'sub_type' => $this->sub_type,
@@ -43,8 +44,8 @@ class SystemBodyResource extends JsonResource
                 'arg_of_periapsis' => $this->arg_of_periapsis
             ],
             'is_tidally_locked' => $this->is_tidally_locked,
-            'rings' => json_decode($this->rings),
-            'parents' => json_decode($this->parents)
+            'rings' => $this->rings,
+            'parents' => $this->parents
         ];
     }
 }

@@ -25,9 +25,19 @@ return new class extends Migration
             
             $table->string('type');
             $table->string('sub_type');
+
+            $table->bigInteger('distance_to_arrival')->nullable();
+
+            $table->boolean('is_main_star')->nullable();
+            $table->boolean('is_scoopable')->nullable();
+
+            $table->string('spectral_class')->nullable();
+            $table->string('luminosity')->nullable();
             
-            $table->boolean('is_landable')->default(false);
-            
+            $table->double('solar_masses', 30, 10)->nullable();
+            $table->double('solar_radius', 30, 10)->nullable();
+            $table->double('absolute_magnitude', 30, 10)->nullable();
+
             $table->bigInteger('surface_temp')->nullable();
 
             $table->double('radius', 30, 10)->nullable();
@@ -37,6 +47,8 @@ return new class extends Migration
             $table->string('atmosphere_type')->nullable();
             $table->string('volcanism_type')->nullable();
             $table->string('terraforming_state')->nullable();
+
+            $table->boolean('is_landable')->default(false);
             
             $table->double('orbital_period', 30, 10)->nullable();
             $table->double('orbital_eccentricity', 30, 10)->nullable();

@@ -20,7 +20,7 @@ class SystemResource extends JsonResource
             'name' => $this->name,
             'coords' => json_decode($this->coords),
             'information' => new SystemInformationResource($this->whenLoaded('information')),
-            'bodies' => SystemBodyResource::collection($this->whenLoaded('bodies')),
+            'bodies' => $this->whenLoaded('bodies'),
             'departures' => FleetScheduleResource::collection($this->whenLoaded('departures')),
             'arrivals' => FleetScheduleResource::collection($this->whenLoaded('arrivals')),
             'updated_at' => $this->updated_at,
