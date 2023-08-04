@@ -67,7 +67,8 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 6. Seed systems data **before** running other seeders:
     ```sh
     ./vendor/bin/sail artisan elite:import-galaxy-systems \
-        -f systemsPopulated.json`
+        --file systemsPopulated.json \
+        --has-info
     ```
 
 7. Seed data:
