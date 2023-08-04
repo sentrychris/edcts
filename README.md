@@ -90,3 +90,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 ## Swagger Documentation
 
 To access swagger UI, run `npm run docs` and access on http://localhost:8888.
+
+## Credits
+
+- [AnthorNet/EDSM](https://github.com/EDSM-NET) - for the wonderful cartographical data and API.
