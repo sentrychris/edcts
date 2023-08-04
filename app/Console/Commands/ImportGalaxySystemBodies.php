@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Libraries\EliteAPIManager;
 use App\Models\System;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ImportGalaxySystemBodies extends Command
 {
@@ -45,22 +47,22 @@ class ImportGalaxySystemBodies extends Command
     public function handle()
     {
         if (!$this->option('system')) {
-            $this->output->error('You must specify a system');
+            $this->error('You must specify a system');
             return false;
         }
         
         $system = System::whereName($this->option('system'))->first();
         if (!$system) {
-            $this->output->error('Could not find specified system.');
+            $this->error('Could not find specified system.');
             return false;
         }
         
         if (!(in_array($this->option('from'), ['edsm', 'inara']))) {
-            $this->output->error('-f|--from must be edsm or inara');
+            $this->error('-f|--from must be edsm or inara');
             return false;
         }
         
-        $response =$this->api->setConfig(config('elite.'.$this->option('from')))
+        $response = $this->api->setConfig(config('elite.'.$this->option('from')))
             ->setCategory('system')
             ->get('bodies', [
                 'systemName' => $this->option('system')
@@ -69,14 +71,20 @@ class ImportGalaxySystemBodies extends Command
         $bodies = $response->bodies;
 
         foreach($bodies as $body) {
-            $system->bodies()->updateOrCreate([
-                'id64' => $body->id64,
-                'name' => $body->name,
-                'discovered_by' => $body->discovery->commander,
-                'discovered_at' => $body->discovery->date,
-                'type' => $body->type,
-                'sub_type' => $body->subType
-            ]);
+            try {
+                $this->line('import bodies for system <fg=cyan>' . $system->name . '</>');
+
+                $system->bodies()->updateOrCreate([
+                    'id64' => $body->id64,
+                    'name' => $body->name,
+                    'discovered_by' => $body->discovery->commander,
+                    'discovered_at' => $body->discovery->date,
+                    'type' => $body->type,
+                    'sub_type' => $body->subType
+                ]);
+            } catch (Exception $e) {
+                Log::channel('system')->error->getMessage($e->getMessage());
+            }
         }
     }
 }

@@ -29,6 +29,7 @@ Route::prefix('auth')->group(function() {
 });
 
 Route::resource('systems', App\Http\Controllers\SystemController::class);
+Route::resource('statistics', App\Http\Controllers\StatisticsController::class);
 
 Route::prefix('fleet')->group(function() {
     Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);

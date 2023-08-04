@@ -31,11 +31,11 @@ class ImportGalnetNewsArticles extends Command
         $format = $this->option('format');
         
         if (!in_array($format, ['rss', 'json'])) {
-            $this->output->error('format must either be rss or json');
+            $this->error('format must either be rss or json');
             return false;
         }
 
-        $this->output->info('Importing GalNet news articles, please wait...');
+        $this->info('Importing GalNet news articles, please wait...');
         
         $parser = $format === 'rss'
             ? new GalnetRSSParser(config('elite.galnet.rss'))
@@ -45,6 +45,6 @@ class ImportGalnetNewsArticles extends Command
 
         $parser->import($progress);
 
-        $this->output->info('Importing complete.');
+        $this->info('Importing complete.');
     }
 }

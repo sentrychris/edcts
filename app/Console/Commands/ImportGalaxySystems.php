@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\System;
+use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonMachine\Items;
 
@@ -33,28 +35,50 @@ class ImportGalaxySystems extends Command
         $file = storage_path('dumps/' . $this->option('file'));
 
         if (!file_exists($file)){
-            $this->output->error('No file found at ' .  $this->option('file'));
+            $this->error('No file found at ' .  $this->option('file'));
         }
 
         $systems = Items::fromFile($file);
         foreach ($systems as $system) {
-            $this->output->writeln('importing system: ' . $system->name);
-            $record = System::whereName($system->name)->first();
+            $systemExists = false;
+
+            $updatedAt = $this->getUpdateTime($system);
+
+            $record = System::whereId64($system->id64)
+                ->where('name', $system->name)
+                ->where('updated_at', $updatedAt)
+                ->first();
 
             if (!$record) {
-                $record = new System([
+                $this->line('importing: <fg=green>' . $system->name . '</>');
+
+                $payload = [
                     'id64' => $system->id64,
                     'name' => $system->name,
                     'coords' => json_encode($system->coords),
-                    'updated_at' => $this->getUpdateTime($system)
-                ]);
-    
-                $record->save();
+                    'updated_at' => $updatedAt
+                ];
+
+                if (property_exists($system, 'mainStar') && $system->mainStar && $system->mainStar !== '') {
+                    $payload['main_star'] = $system->mainStar;
+                }
+
+                try {
+                    $record = new System($payload);
+                    $record->save();
+                    $systemExists = true;
+                } catch (Exception $e) {
+                    Log::channel('system')->error($e->getMessage());
+                }
+            } else {
+                $this->line('already imported: <fg=cyan>' . $system->name . '</>');
+                $systemExists = true;
             }
 
-            if ($this->option('has-info')) {
-                $this->output->writeln('importing information for ' . $system->name);
-                $information = [
+            if ($this->option('has-info') && $systemExists) {
+                $this->line('importing information for <fg=green>' . $system->name . '</>');
+
+                $payload = [
                     'allegiance' => property_exists($system, 'allegiance') ? $system->allegiance : null,
                     'government' => property_exists($system, 'government') ? $system->government : null,
                     'economy' => property_exists($system, 'economy') ? $system->economy : null,
@@ -64,11 +88,15 @@ class ImportGalaxySystems extends Command
     
                 if ($system->controllingFaction) {
                     $faction = $system->controllingFaction;
-                    $information['faction'] = property_exists($faction, 'name') ? $faction->name : null;
-                    $information['faction_state'] = property_exists($faction, 'allegiance') ? $faction->allegiance : null;
+                    $payload['faction'] = property_exists($faction, 'name') ? $faction->name : null;
+                    $payload['faction_state'] = property_exists($faction, 'allegiance') ? $faction->allegiance : null;
                 }
     
-                $record->information()->updateOrCreate($information);
+                try {
+                    $record->information()->updateOrCreate($payload);
+                } catch (Exception $e) {
+                    Log::channel('system')->error($e->getMessage());
+                }
             }
         }
     }

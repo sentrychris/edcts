@@ -45,22 +45,22 @@ class ImportGalaxySystemInformation extends Command
     public function handle()
     {
         if (!$this->option('system')) {
-            $this->output->error('You must specify a system');
+            $this->error('You must specify a system');
             return false;
         }
         
         $system = System::whereName($this->option('system'))->first();
         if (!$system) {
-            $this->output->error('Could not find specified system.');
+            $this->error('Could not find specified system.');
             return false;
         }
         
         if (!(in_array($this->option('from'), ['edsm', 'inara']))) {
-            $this->output->error('-f|--from must be edsm or inara');
+            $this->error('-f|--from must be edsm or inara');
             return false;
         }
         
-        $response =$this->api->setConfig(config('elite.'.$this->option('from')))
+        $response = $this->api->setConfig(config('elite.'.$this->option('from')))
             ->setCategory('systems')
             ->get('system', [
                 'systemName' => $this->option('system'),

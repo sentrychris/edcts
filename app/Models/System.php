@@ -23,7 +23,8 @@ class System extends Model
         'id64',
         'name',
         'coords',
-        'updated_at'
+        'main_star',
+        'updated_at',
     ];
     
     public $timestamps = false;
