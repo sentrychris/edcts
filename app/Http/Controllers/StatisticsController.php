@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SystemResource;
 use App\Models\Commander;
 use App\Models\FleetCarrier;
 use App\Models\FleetSchedule;
@@ -32,10 +33,23 @@ class StatisticsController extends Controller
         
         $statitics = Cache::remember($this->cacheKey, $ttl, function () {
             
+            $latestSystem = System::with(['information'])
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($latestSystem instanceof System) {
+                $latestSystem
+                    ->checkAPIForSystemInformation()
+                    ->checkAPIForSystemBodies();
+            }
+
             $data = [
                 'cartographical' => [
                     'systems' => System::count(),
                     'bodies' => SystemBody::count(),
+                    'stars' => $this->systemBodiesByType('star'),
+                    'orbiting' => $this->systemBodiesByType('planet'),
+                    'latest_system' => new SystemResource($latestSystem->load(['information', 'bodies'])),
                 ],
                 
                 'carriers' => FleetCarrier::count(),
@@ -54,9 +68,6 @@ class StatisticsController extends Controller
                     ]
                 ]
             ];
-            
-            $data['cartographical']['stars'] = $this->systemBodiesByType('star');
-            $data['cartographical']['orbiting'] = $this->systemBodiesByType('planet');
 
             return $data;
         });

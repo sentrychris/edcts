@@ -34,6 +34,7 @@ class SystemController extends Controller
     {
         $validated = $request->validated();
         $systems = System::filter($validated, (int)$request->exactSearch)
+            // ->orderBy('updated_at', 'desc')
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
