@@ -6,7 +6,6 @@ use App\Models\System;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use JsonMachine\Items;
 
 class ImportGalaxySystems extends Command

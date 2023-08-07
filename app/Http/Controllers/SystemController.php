@@ -64,6 +64,7 @@ class SystemController extends Controller
         $system = System::whereSlug($slug)->first();
 
         if (!$system) {
+            // If the system doesn't yet exist in our database, attempt to import it from EDSM.
             $system = System::checkAPI($slug);
         }
 
@@ -71,6 +72,7 @@ class SystemController extends Controller
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
+        // Load related data for the system depending on query parameters passed.
         $system = $this->loadValidatedRelations($validated, $system);
 
         return response(new SystemResource($system));
@@ -96,10 +98,14 @@ class SystemController extends Controller
         foreach ($allowed as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 if ($data instanceof Model && $relation === 'bodies') {
+                    // Fetches system celestial bodies e.g. stars, black holes, planets etc.
+                    // Either from the database, or EDSM if the data doesn't yet exist.
                     $data->checkAPIForSystemBodies();
                 }
 
                 if ($data instanceof Model && $relation === 'information') {
+                    // Fetches system information e.g. governance, economy, security etc.
+                    // Either from the database, or EDSM if the data doesn't yet exist.
                     $data->checkAPIForSystemInformation();
                 }
 

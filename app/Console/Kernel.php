@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('edcts:refresh-all-statistics --ttl=60 --flush')->hourly();
     }
 
     /**
