@@ -87,6 +87,18 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     ./vendor/bin/sail artisan elite:import-galnet-news -f json
     ```
 
+9. Cache system statistics (please note: you must initialise statistics for the frontend):
+    ```sh
+    ./vendor/bin/sail artisan edcts:refresh-all-statistics --ttl=3600 --flush
+    ```
+
+    Or
+
+10. Start the artisan scheduler which will refresh all statistics every hour:
+    ```sh
+    ./vendor/bin/sail artisan schedule:work
+    ```
+
 ## Swagger Documentation
 
 To access swagger UI, run `npm run docs` and access on http://localhost:8888.

@@ -2,12 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\SystemResource;
-use App\Models\Commander;
-use App\Models\FleetCarrier;
-use App\Models\FleetSchedule;
-use App\Models\System;
-use App\Models\SystemBody;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -20,83 +14,14 @@ class StatisticsController extends Controller
     /**
      * Get statistics.
      * 
+     * Statistics are cached and refreshed every hour through the artisan
+     * scheduler.
+     * 
      * @param Request $request
      * @return Response
      */
-    public function index(Request $request): Response
-    {
-        $ttl = (int)$request->get('ttl', 60);
-        
-        if ($request->exists('resetCache')) {
-            Cache::forget($this->cacheKey);
-        }
-        
-        $statitics = Cache::remember($this->cacheKey, $ttl, function () {
-            
-            $latestSystem = System::with(['information'])
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if ($latestSystem instanceof System) {
-                $latestSystem
-                    ->checkAPIForSystemInformation()
-                    ->checkAPIForSystemBodies();
-            }
-
-            $data = [
-                'cartographical' => [
-                    'systems' => System::count(),
-                    'bodies' => SystemBody::count(),
-                    'stars' => $this->systemBodiesByType('star'),
-                    'orbiting' => $this->systemBodiesByType('planet'),
-                    'latest_system' => new SystemResource($latestSystem->load(['information', 'bodies'])),
-                ],
-                
-                'carriers' => FleetCarrier::count(),
-                
-                'commanders' => Commander::count(),
-
-                'journeys' => [
-                    'total' => FleetSchedule::count(),
-                    'boarding' => FleetSchedule::whereIsBoarding(1)->count(),
-                    'cancelled' => FleetSchedule::whereIsCancelled(1)->count(),
-                    'leaving_in' => [
-                        'two_days' => $this->journeysLeavingInNextNDays(2),
-                        'one_week' => $this->journeysLeavingInNextNDays(7),
-                        'one_month' => $this->journeysLeavingInNextNDays(31),
-                        'six_months' => $this->journeysLeavingInNextNDays(31*6),
-                    ]
-                ]
-            ];
-
-            return $data;
-        });
-        
-        return Response(['data' => $statitics]);
-    }
-
-    private function journeysLeavingInNextNDays(int $n)
-    {
-        $time = now()->addDays($n)->toDateTimeString();
-        $count = FleetSchedule::whereIsCancelled(0)
-            ->where('departs_at', '>', now()->toDateString())
-            ->where('departs_at', '<=', $time)
-            ->count();
-        
-        return $count;
-    }
-    
-    private function systemsUpdatedLastNDays(int $n)
-    {
-        $time = now()->subDays($n)->toDateTimeString();
-        $count = System::where('updated_at', '<=', $time)
-        ->count();
-        
-        return $count; 
-    }
-    
-    private function systemBodiesByType(string $type)
-    {
-        return SystemBody::whereType(ucfirst($type))->count();
+    public function index(): Response
+    {          
+        return Response(['data' => Cache::get($this->cacheKey)]);
     }
 }
