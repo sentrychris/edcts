@@ -6,7 +6,7 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: fcoc/web
+        image: edcts/web
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
