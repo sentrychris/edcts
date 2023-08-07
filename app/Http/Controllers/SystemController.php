@@ -43,6 +43,7 @@ class SystemController extends Controller
         return SystemResource::collection($systems);
     }
 
+    
     /**
      * Show system.
      * 
