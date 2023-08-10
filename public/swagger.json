@@ -43,8 +43,15 @@
       "description": "Galaxy systems"
     },
     {
+      "name": "Stations",
+      "description": "Galaxy systems"
+    },
+    {
       "name": "Galnet",
       "description": "GalNet news"
+    },
+    {
+      "name": "Statistics"
     }
   ],
   "paths": {
@@ -162,10 +169,10 @@
             "name": "exactSearch",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "description": "Exact search or partial match",
-            "example": "1"
+            "example": "like"
           },
           {
             "name": "withCommanderInformation",
@@ -229,7 +236,7 @@
         }
       }
     },
-    "/fleet/carriers/sjf-732-canterbury": {
+    "/fleet/carriers/{slug}": {
       "get": {
         "tags": [
           "Carriers"
@@ -241,6 +248,15 @@
           }
         ],
         "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The slug",
+            "example": "sjf-732-canterbury"
+          },
           {
             "name": "withCommanderInformation",
             "in": "query",
@@ -270,12 +286,23 @@
         }
       }
     },
-    "/fleet/carriers/66": {
+    "/fleet/carriers/{putId}": {
       "put": {
         "tags": [
           "Carriers"
         ],
-        "summary": "/fleet/carriers/:id",
+        "summary": "/fleet/carriers/:putId",
+        "parameters": [
+          {
+            "name": "putId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -298,12 +325,23 @@
         }
       }
     },
-    "/fleet/carriers/40": {
+    "/fleet/carriers/{deleteId}": {
       "delete": {
         "tags": [
           "Carriers"
         ],
-        "summary": "/fleet/carriers/:id",
+        "summary": "/fleet/carriers/:deleteId",
+        "parameters": [
+          {
+            "name": "deleteId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -327,22 +365,22 @@
         ],
         "parameters": [
           {
-            "name": "departure",
+            "name": "destination",
             "in": "query",
             "schema": {
               "type": "string"
             },
-            "description": "Filter by departure system name",
-            "example": "Merop"
+            "description": "Filter by destination system name",
+            "example": "Skau"
           },
           {
             "name": "exactSearch",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "string"
             },
             "description": "Exact search or partial match",
-            "example": "1"
+            "example": "like"
           },
           {
             "name": "withSystemInformation",
@@ -384,11 +422,11 @@
                 "type": "object",
                 "example": {
                   "fleet_carrier_id": 2,
-                  "departure_system_id": 19677,
-                  "destination_system_id": 1,
-                  "title": "Expedition Service | SJ Fleet",
-                  "description": "Return tripe from exploration to the center of the Milky Way",
-                  "departs_at": "2023-09-11 03:00:00"
+                  "departure_system_id": 20424,
+                  "destination_system_id": 13654,
+                  "title": "Homeward Bound | SJUP Fleet | Collection of Wonders",
+                  "description": "Sol Jupiter Fleet's weekly expedition service to/from the skaude sector",
+                  "departs_at": "2023-12-11 13:00:00"
                 }
               }
             }
@@ -404,18 +442,27 @@
         }
       }
     },
-    "/fleet/schedule/ancanec-col-285-sector-hc-u-d3-61-28-july-23-02-14-utc": {
+    "/fleet/schedule/{getId}": {
       "get": {
         "tags": [
           "Schedule"
         ],
-        "summary": "/fleet/schedule/:slug",
+        "summary": "/fleet/schedule/:getId",
         "security": [
           {
             "noauthAuth": []
           }
         ],
         "parameters": [
+          {
+            "name": "getId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          },
           {
             "name": "withSystemInformation",
             "in": "query",
@@ -445,12 +492,23 @@
         }
       }
     },
-    "/fleet/schedule/1002": {
+    "/fleet/schedule/{putId}": {
       "put": {
         "tags": [
           "Schedule"
         ],
-        "summary": "/fleet/schedule/:id",
+        "summary": "/fleet/schedule/:putId",
+        "parameters": [
+          {
+            "name": "putId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -475,12 +533,23 @@
         }
       }
     },
-    "/fleet/schedule/1001": {
+    "/fleet/schedule/{deleteId}": {
       "delete": {
         "tags": [
           "Schedule"
         ],
-        "summary": "/fleet/schedule/:id",
+        "summary": "/fleet/schedule/:deleteId",
+        "parameters": [
+          {
+            "name": "deleteId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -505,16 +574,7 @@
               "type": "string"
             },
             "description": "Filter systems by name",
-            "example": "Trappi"
-          },
-          {
-            "name": "exactSearch",
-            "in": "query",
-            "schema": {
-              "type": "integer"
-            },
-            "description": "Exact search or partial match",
-            "example": "1"
+            "example": "Sol"
           },
           {
             "name": "withInformation",
@@ -522,7 +582,7 @@
             "schema": {
               "type": "integer"
             },
-            "description": "Return systems with associated information e.g. governance, economy, security",
+            "description": "Return systems with associated information",
             "example": "1"
           },
           {
@@ -532,6 +592,24 @@
               "type": "integer"
             },
             "description": "Return systems with associated celestial bodies",
+            "example": "1"
+          },
+          {
+            "name": "withStations",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return system with associated stations",
+            "example": "1"
+          },
+          {
+            "name": "exactSearch",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Perform an exact search on name",
             "example": "1"
           }
         ],
@@ -545,7 +623,7 @@
         }
       }
     },
-    "/systems/5364950911832-trappist-1": {
+    "/systems/{slug}": {
       "get": {
         "tags": [
           "Systems"
@@ -553,12 +631,21 @@
         "summary": "/systems/:slug",
         "parameters": [
           {
+            "name": "slug",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The slug",
+            "example": "10477373803-sol"
+          },
+          {
             "name": "withInformation",
             "in": "query",
             "schema": {
               "type": "integer"
             },
-            "description": "Return systems with associated information e.g. governance, economy, security",
+            "description": "Return system with associated information",
             "example": "1"
           },
           {
@@ -567,7 +654,124 @@
             "schema": {
               "type": "integer"
             },
-            "description": "Return systems with associated celestial bodies",
+            "description": "Return system with associated celestial bodies",
+            "example": "1"
+          },
+          {
+            "name": "withStations",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return system with associated stations",
+            "example": "1"
+          },
+          {
+            "name": "withDepartures",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return system with scheduled departures",
+            "example": "1"
+          },
+          {
+            "name": "withArrivals",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return system with scheduled arrivals",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/stations": {
+      "get": {
+        "tags": [
+          "Stations"
+        ],
+        "summary": "/stations",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter station by name",
+            "example": "Daedalus"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter station by type",
+            "example": "Orbis"
+          },
+          {
+            "name": "withSystem",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return station with associated system information",
+            "example": "1"
+          },
+          {
+            "name": "exactSearch",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Perform an exact search on name and type",
+            "example": "0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/stations/{slug}": {
+      "get": {
+        "tags": [
+          "Stations"
+        ],
+        "summary": "/stations/:slug",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The slug",
+            "example": "3534389760-walz-depot"
+          },
+          {
+            "name": "withSystem",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Return station with associated system information",
             "example": "1"
           }
         ],
@@ -602,12 +806,23 @@
         }
       }
     },
-    "/galnet/news/17-jul-3309-presidential-candidates-outline-manifestos": {
+    "/galnet/news/{slug}": {
       "get": {
         "tags": [
           "Galnet"
         ],
         "summary": "galnet/news/:slug",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The slug",
+            "example": "17-jul-3309-presidential-candidates-outline-manifestos"
+          }
+        ],
         "security": [
           {
             "noauthAuth": []
@@ -623,12 +838,48 @@
         }
       }
     },
-    "/galnet/news/1": {
+    "/galnet/news/{deleteId}": {
       "delete": {
         "tags": [
           "Galnet"
         ],
-        "summary": "galnet/news/:id",
+        "summary": "galnet/news/:deleteId",
+        "parameters": [
+          {
+            "name": "deleteId",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID",
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/statistics": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "statistics",
+        "parameters": [
+          {
+            "name": "resetCache",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
