@@ -48,14 +48,15 @@ class EliteAPIManager extends BaseAPIManager
      * Make call to Elite API
      * 
      * @param string $key
+     * @param ?string $subkey
      * @param ?array $params
      * 
      * @return mixed
      */
-    public function get(string $key, ?array $params = null, ?string $subKey = null): mixed
+    public function get(string $key, ?string $subkey = null, ?array $params = null): mixed
     {
         $url = $this->config['base_url']
-            . $this->resolveUri($this->category, $key, $subKey)
+            . $this->resolveUri($this->category, $key, $subkey)
             . $this->buildQueryString($params);
 
         $response = Http::withHeaders($this->headers)->get($url);

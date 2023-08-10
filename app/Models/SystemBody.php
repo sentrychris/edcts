@@ -86,7 +86,7 @@ class SystemBody extends Model
         if (!$system->bodies()->exists()) {
             $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('system')
-                ->get('bodies', [
+                ->get(key: 'bodies', params: [
                     'systemName' => $system->name
                 ]);
 

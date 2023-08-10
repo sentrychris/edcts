@@ -58,10 +58,10 @@ class SystemStation extends Model
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.edsm'))
             ->setCategory('system')
-            ->get('stations', [
+            ->get(key: 'stations', subkey: 'stations', params:[
                 'systemName' => $system->name,
                 'showId' => true
-            ], 'stations');
+            ]);
 
         $stations = $response->stations;
 

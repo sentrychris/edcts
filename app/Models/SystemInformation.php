@@ -35,7 +35,7 @@ class SystemInformation extends Model
         if (!$system->information()->exists()) {
             $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('systems')
-                ->get('system', [
+                ->get(key: 'system', params: [
                     'systemName' => $system->name,
                     'showInformation' => true
                 ]);

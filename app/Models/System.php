@@ -93,7 +93,7 @@ class System extends Model
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.edsm'))
             ->setCategory('systems')
-            ->get('system', [
+            ->get(key: 'system', params: [
                 'systemName' => $slug,
                 'showCoordinates' => true,
                 'showInformation' => true,
