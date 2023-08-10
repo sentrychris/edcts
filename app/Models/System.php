@@ -137,6 +137,16 @@ class System extends Model
     }
 
     /**
+     * Check for system stations
+     */
+    public function checkAPIForSystemStations()
+    {
+        SystemStation::checkAPI($this);
+
+        return $this;
+    }
+
+    /**
      * configure slug
      */
     public function sluggable(): array

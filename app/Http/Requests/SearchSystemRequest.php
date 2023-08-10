@@ -15,6 +15,7 @@ class SearchSystemRequest extends APIRequest
             'name' => 'sometimes|string',
             'withInformation' => 'sometimes|integer|max:1',
             'withBodies' => 'sometimes|integer|max:1',
+            'withStations' => 'sometimes|integer|max:1',
             'withDepartures' => 'sometimes|integer|max:1',
             'withArrivals' => 'sometimes|integer|max:1',
             'exactSearch' => 'sometimes|integer|max:1',

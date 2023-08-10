@@ -52,10 +52,10 @@ class EliteAPIManager extends BaseAPIManager
      * 
      * @return mixed
      */
-    public function get(string $key, ?array $params = null): mixed
+    public function get(string $key, ?array $params = null, ?string $subKey = null): mixed
     {
         $url = $this->config['base_url']
-            . $this->resolveUri($this->category, $key)
+            . $this->resolveUri($this->category, $key, $subKey)
             . $this->buildQueryString($params);
 
         $response = Http::withHeaders($this->headers)->get($url);
@@ -78,6 +78,7 @@ class EliteAPIManager extends BaseAPIManager
         if ($section && $section[$key]) {
 
             if (is_array($section[$key]) && $subKey && $section[$key][$subKey]) {
+
                 return $section[$key][$subKey];
             }
 

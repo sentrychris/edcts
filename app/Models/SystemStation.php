@@ -55,20 +55,37 @@ class SystemStation extends Model
     {
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.edsm'))
-            ->setCategory('systems')
-            ->get('station', [
+            ->setCategory('system')
+            ->get('stations', [
                 'systemName' => $system->name,
                 'showId' => true
-            ]);
+            ], 'stations');
 
-        if ($response) {
-            $station = $system->stations()->updateOrCreate([
-                // assign api response attributes here;
-            ]);
-        }
+        $stations = $response->stations;
 
-        if (! $station) {
-            return false;
+        if ($stations) {
+            foreach ($stations as $station) {
+                $station = $system->stations()->updateOrCreate([
+                    'market_id' => $station->marketId,
+                    'type' => $station->type,
+                    'name' => $station->name,
+                    'body' => property_exists($station, 'body') ? json_encode($station->body) : null,
+                    'distance_to_arrival' => $station->distanceToArrival,
+                    'allegiance' => $station->allegiance,
+                    'government' => $station->government,
+                    'economy' => $station->economy,
+                    'second_economy' => $station->secondEconomy,
+                    'has_market' => $station->haveMarket,
+                    'has_shipyard' => $station->haveShipyard,
+                    'has_outfitting' => $station->haveOutfitting,
+                    'other_services' => is_array($station->otherServices) ? implode(',', $station->otherServices) : null,
+                    'controlling_faction' => $station->controllingFaction->name,
+                    'information_last_updated' => $station->updateTime->information,
+                    'market_last_updated' => $station->updateTime->market,
+                    'shipyard_last_updated' => $station->updateTime->shipyard,
+                    'outfitting_last_updated' => $station->updateTime->outfitting,
+                ]);
+            }
         }
 
         return $system;
