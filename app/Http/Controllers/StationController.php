@@ -20,6 +20,7 @@ class StationController extends Controller
      * User can provide the following request parameters.
      * 
      * name: - Filter stations by name.
+     * type: - Filter stations by type.
      * withSystem: 0 or 1 - Return stations with associated system.
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * limit: - page limit.

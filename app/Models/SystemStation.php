@@ -41,7 +41,8 @@ class SystemStation extends Model
         }
         
         return $this->buildFilterQuery($builder, $options, [
-            'name'
+            'name',
+            'type'
         ], $exact);
     }
 

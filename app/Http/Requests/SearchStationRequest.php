@@ -13,6 +13,7 @@ class SearchStationRequest extends APIRequest
     {
         return [
             'name' => 'sometimes|string',
+            'type' => 'sometimes|string',
             'withSystem' => 'sometimes|integer|max:1',
             'exactSearch' => 'sometimes|integer|max:1',
             'limit' => 'sometimes|int|max:100',
