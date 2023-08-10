@@ -7,6 +7,7 @@ use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -89,6 +90,26 @@ class SystemStation extends Model
         }
 
         return $system;
+    }
+
+    /**
+     * Fetch body as object
+     */
+    protected function body(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => $value ? json_decode($value) : null
+        );
+    }
+
+    /**
+     * Fetch other services as array
+     */
+    protected function otherServices(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => $value ? explode(',', $value) : null
+        );
     }
 
     /**
