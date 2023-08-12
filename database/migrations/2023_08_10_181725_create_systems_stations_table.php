@@ -47,7 +47,7 @@ return new class extends Migration
             
             $table->softDeletes();
 
-            $table->index(['name', 'market_id'])->unique();
+            $table->unique(['name', 'type', 'distance_to_arrival']);
         });
     }
 

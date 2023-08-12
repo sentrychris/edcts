@@ -6,12 +6,14 @@ use App\Libraries\EliteAPIManager;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class SystemStation extends Model
 {
@@ -67,26 +69,34 @@ class SystemStation extends Model
 
         if ($stations) {
             foreach ($stations as $station) {
-                $station = $system->stations()->updateOrCreate([
-                    'market_id' => $station->marketId,
-                    'type' => $station->type,
-                    'name' => $station->name,
-                    'body' => property_exists($station, 'body') ? json_encode($station->body) : null,
-                    'distance_to_arrival' => $station->distanceToArrival,
-                    'allegiance' => $station->allegiance,
-                    'government' => $station->government,
-                    'economy' => $station->economy,
-                    'second_economy' => $station->secondEconomy,
-                    'has_market' => $station->haveMarket,
-                    'has_shipyard' => $station->haveShipyard,
-                    'has_outfitting' => $station->haveOutfitting,
-                    'other_services' => is_array($station->otherServices) ? implode(',', $station->otherServices) : null,
-                    'controlling_faction' => $station->controllingFaction->name,
-                    'information_last_updated' => $station->updateTime->information,
-                    'market_last_updated' => $station->updateTime->market,
-                    'shipyard_last_updated' => $station->updateTime->shipyard,
-                    'outfitting_last_updated' => $station->updateTime->outfitting,
-                ]);
+                try {
+                    $station = $system->stations()->updateOrCreate(
+                        [   // composite unique key 
+                            'name' => $station->name,
+                            'type' => $station->type,
+                        ],
+                        [
+                            'market_id' => $station->marketId,
+                            'distance_to_arrival' => $station->distanceToArrival,
+                            'body' => property_exists($station, 'body') ? json_encode($station->body) : null,
+                            'allegiance' => $station->allegiance,
+                            'government' => $station->government,
+                            'economy' => $station->economy,
+                            'second_economy' => $station->secondEconomy,
+                            'has_market' => $station->haveMarket,
+                            'has_shipyard' => $station->haveShipyard,
+                            'has_outfitting' => $station->haveOutfitting,
+                            'other_services' => is_array($station->otherServices) ? implode(',', $station->otherServices) : null,
+                            'controlling_faction' => $station->controllingFaction->name,
+                            'information_last_updated' => $station->updateTime->information,
+                            'market_last_updated' => $station->updateTime->market,
+                            'shipyard_last_updated' => $station->updateTime->shipyard,
+                            'outfitting_last_updated' => $station->updateTime->outfitting,
+                        ]
+                    );
+                } catch (Exception $e) {
+                    Log::channel('system')->error($e->getMessage());
+                }
             }
         }
 
