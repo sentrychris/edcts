@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\UsesStatistics;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 
 class StatisticsController extends Controller
 {
+    use UsesStatistics;
+
     /** @var string */
     private string $cacheKey = 'edcts:statistics';
     
@@ -20,8 +22,10 @@ class StatisticsController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function index(): Response
-    {          
-        return Response(['data' => Cache::get($this->cacheKey)]);
+    public function index(Request $request): Response
+    {
+        return Response([
+            'data' => $this->getAllStatistics($this->cacheKey, $request->all())
+        ]);
     }
 }
