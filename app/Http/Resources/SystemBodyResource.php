@@ -24,6 +24,7 @@ class SystemBodyResource extends JsonResource
                 'commander' => $this->discovered_by,
                 'date' => $this->discovered_at
             ],
+            'system' => new SystemResource($this->whenLoaded('system')),
             'radius' => $this->radius,
             'gravity' => $this->gravity,
             'earth_masses' => $this->earth_masses,

@@ -63,6 +63,10 @@ return new class extends Migration
             
             $table->json('rings')->nullable();
             $table->json('parents')->nullable();
+
+            $table->string('slug')->nullable();
+            
+            $table->softDeletes();
         });
     }
 
