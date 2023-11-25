@@ -102,10 +102,10 @@ class APITransport extends AbstractTransport
     {
         $response = Http::withToken('secret123', '')
             ->asJson()
-            ->post('http://host.docker.internal:8000/api/invitation', $this->payload->data);
+            ->post('http://host.docker.internal:8000/api/' . $this->payload->endpoint, $this->payload->data);
 
         if ($response->status() !== 200) {
-            dd("problemo");
+            dd($response);
         }
     }
 

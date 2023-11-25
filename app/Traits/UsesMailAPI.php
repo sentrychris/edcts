@@ -11,11 +11,9 @@ trait UsesMailAPI
     */
     public function setPayload(Request $request, mixed $notification)
     {
-        if ($request->exists('isAPIMailPayload')) {
-            $transport = app('mail.manager')->driver()
-                ->getSymfonyTransport();
-            
-            $transport->setPayload($notification->toApi());
-        }
+        $transport = app('mail.manager')->driver()
+            ->getSymfonyTransport();
+    
+        $transport->setPayload($notification->toApi());
     }
 }

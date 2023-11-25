@@ -46,9 +46,14 @@ class DepartureNotification extends Notification
 
     public function toApi(): APIPayload
     {
-        return new APIPayload('test', [
-            'id' => 1,
-            'test' => 'success'
+        return new APIPayload('login_successfus', [
+            'member_ID' => 'SBCR12125442',
+            'recipient' => 'c.rowles@sentrybay.com',
+            "user" => [
+                "firstname" => "Peter",
+                "lastname" => "Simms"
+            ],
+            "url" => "http://cyber-life-protection.local/activate-account"
         ]);
     }
 

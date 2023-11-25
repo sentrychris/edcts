@@ -104,13 +104,15 @@ class SystemController extends Controller
         $system = $this->loadValidatedRelations($validated, $system);
         $notification = new DepartureNotification($system);
 
-        // dd($this->mailer->driver());
 
-        $this->setPayload($request, $notification);
-
-        if ($user) {
-            Notification::send($user, new DepartureNotification($system));
+        // If NotifyTransport middleware has detected an API mail driver, then set
+        // the payload object for the notification.
+        if ($request->exists('isAPIMailPayload')) {
+            $this->setPayload($request, $notification);
         }
+
+        // Send the notification.
+        $user->notify($notification);
 
         return response(new SystemResource($system));
     }
