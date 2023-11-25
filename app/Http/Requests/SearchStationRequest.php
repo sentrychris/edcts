@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class SearchSystemRequest extends APIRequest
+class SearchStationRequest extends APIRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -13,11 +13,8 @@ class SearchSystemRequest extends APIRequest
     {
         return [
             'name' => 'sometimes|string',
-            'withInformation' => 'sometimes|integer|max:1',
-            'withBodies' => 'sometimes|integer|max:1',
-            'withStations' => 'sometimes|integer|max:1',
-            'withDepartures' => 'sometimes|integer|max:1',
-            'withArrivals' => 'sometimes|integer|max:1',
+            'type' => 'sometimes|string',
+            'withSystem' => 'sometimes|integer|max:1',
             'exactSearch' => 'sometimes|integer|max:1',
             'limit' => 'sometimes|int|max:100',
         ];

@@ -15,7 +15,7 @@ class ImportGalaxySystems extends Command
      *
      * @var string
      */
-    protected $signature = 'elite:import-galaxy-system
+    protected $signature = 'elite:import-galaxy-systems
         {--f|--file= : The dump file (located from storage/dumps/)}
         {--i|--has-info : Provide system information if attached in dump file}';
 

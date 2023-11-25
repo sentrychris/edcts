@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class SystemController extends Controller
 {
@@ -21,9 +22,10 @@ class SystemController extends Controller
      * name: - Filter systems by name.
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
-     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
+     * withStations: 0 or 1 - Return system with associated stations and outposts.
      * withDepartures: 0 or 1 - Return systems with associated carrier departures schedule.
      * withArrivals: 0 or 1 - Return systems with associated carrier arrivals schedule.
+     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * limit: - page limit.
      * 
      * @param SearchSystemRequest $request
@@ -62,12 +64,16 @@ class SystemController extends Controller
     public function show(string $slug, SearchSystemRequest $request): Response
     {
         $validated = $request->validated();
-        $system = System::whereSlug($slug)->first();
 
-        if (!$system) {
-            // If the system doesn't yet exist in our database, attempt to import it from EDSM.
-            $system = System::checkAPI($slug);
-        }
+        // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
+        $system = Cache::remember('system:'.$slug, (60*60), function() use ($slug) {
+            $model = System::whereSlug($slug)->first();
+            if (!$model) {
+                // If the system doesn't yet exist in our database, attempt to import it from EDSM.
+                $model = System::checkAPI($slug);
+            }
+            return $model;
+        });
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
@@ -92,6 +98,7 @@ class SystemController extends Controller
         $allowed = [
             'withInformation' => 'information',
             'withBodies' => 'bodies',
+            'withStations' => 'stations',
             'withDepartures' => 'departures.destination',
             'withArrivals' => 'arrivals.departure'
         ];
@@ -108,6 +115,12 @@ class SystemController extends Controller
                     // Fetches system information e.g. governance, economy, security etc.
                     // Either from the database, or EDSM if the data doesn't yet exist.
                     $data->checkAPIForSystemInformation();
+                }
+
+                if ($data instanceof Model && $relation === 'stations') {
+                    // Fetches system stations, outposts, planetary settlements etc.
+                    // Either from the database, or EDSM if the data doesn't yet exist.
+                    $data->checkAPIForSystemStations();
                 }
 
                 $data->load($relation);
