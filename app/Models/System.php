@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class System extends Model
 {
@@ -38,51 +37,17 @@ class System extends Model
         return $this->hasOne(SystemInformation::class);
     }
 
-    public function getInformationAttribute()
-    {        
-        $information = Cache::remember($this->getCacheKey('information'), (60*60), function() {
-            return $this->getRelationValue('information');
-        });
-
-        $this->setRelation('information', $information);
-
-        return $information;
-    }
-
     /**
      * Systemn bodies relation
      */
     public function bodies(): HasMany {
         return $this->hasMany(SystemBody::class);
     }
-
-    public function getBodiesAttribute()
-    {        
-        $bodies = Cache::remember($this->getCacheKey('bodies'), (60*60), function() {
-            return $this->getRelationValue('bodies');
-        });
-
-        $this->setRelation('bodies', $bodies);
-
-        return $bodies;
-    }
-
     /**
      * System stations relation
      */
     public function stations(): HasMany {
         return $this->hasMany(SystemStation::class);
-    }
-
-    public function getStationsAttribute()
-    {        
-        $stations = Cache::remember($this->getCacheKey('stations'), (60*60), function() {
-            return $this->getRelationValue('stations');
-        });
-
-        $this->setRelation('stations', $stations);
-
-        return $stations;
     }
 
     /**
@@ -93,34 +58,12 @@ class System extends Model
         return $this->hasMany(FleetSchedule::class, 'departure_system_id');
     }
 
-    public function getDeparturesAttribute()
-    {        
-        $departures = Cache::remember($this->getCacheKey('departures'), (60*60), function() {
-            return $this->getRelationValue('departures');
-        });
-
-        $this->setRelation('departures', $departures);
-
-        return $departures;
-    }
-
     /**
      * System arrivals relation
      */
     public function arrivals(): HasMany
     {
         return $this->hasMany(FleetSchedule::class, 'destination_system_id');
-    }
-
-    public function getArrivalsAttribute()
-    {        
-        $arrivals = Cache::remember($this->getCacheKey('arrivals'), (60*60), function() {
-            return $this->getRelationValue('arrivals');
-        });
-
-        $this->setRelation('arrivals', $arrivals);
-
-        return $arrivals;
     }
     
     /**

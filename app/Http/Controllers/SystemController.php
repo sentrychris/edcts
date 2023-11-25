@@ -5,15 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
+use App\Notifications\DepartureNotification;
+use App\Traits\UsesMailAPI;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 
 class SystemController extends Controller
 {
+    use UsesMailAPI;
+
+    public $mailer;
+
+    public function __construct()
+    {   
+        $this->mailer = app('mail.manager');
+        $this->mailer->updateMailer('api');
+        
+        $this->middleware([
+            'transport',
+            'auth:sanctum'
+        ]);
+
+
+    }
+
     /**
      * List systems.
      * 
@@ -64,7 +84,8 @@ class SystemController extends Controller
     public function show(string $slug, SearchSystemRequest $request): Response
     {
         $validated = $request->validated();
-
+        $user = $request->user();
+    
         // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
         $system = Cache::remember('system:'.$slug, (60*60), function() use ($slug) {
             $model = System::whereSlug($slug)->first();
@@ -81,6 +102,15 @@ class SystemController extends Controller
 
         // Load related data for the system depending on query parameters passed.
         $system = $this->loadValidatedRelations($validated, $system);
+        $notification = new DepartureNotification($system);
+
+        // dd($this->mailer->driver());
+
+        $this->setPayload($request, $notification);
+
+        if ($user) {
+            Notification::send($user, new DepartureNotification($system));
+        }
 
         return response(new SystemResource($system));
     }
