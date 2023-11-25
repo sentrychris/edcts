@@ -66,24 +66,21 @@ class SystemController extends Controller
         $validated = $request->validated();
 
         // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
-        $system = Cache::remember('edcts:system:'.$slug, (60*60), function() use ($slug, $validated) {
+        $system = Cache::remember('system:'.$slug, (60*60), function() use ($slug) {
             $model = System::whereSlug($slug)->first();
-
             if (!$model) {
                 // If the system doesn't yet exist in our database, attempt to import it from EDSM.
                 $model = System::checkAPI($slug);
             }
-
-            // Load related data for the system depending on query parameters passed.
-            $model = $this->loadValidatedRelations($validated, $model);
-
-            // Cache it
             return $model;
         });
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
+
+        // Load related data for the system depending on query parameters passed.
+        $system = $this->loadValidatedRelations($validated, $system);
 
         return response(new SystemResource($system));
     }
