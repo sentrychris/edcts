@@ -10,6 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class SystemController extends Controller
 {
@@ -63,19 +64,26 @@ class SystemController extends Controller
     public function show(string $slug, SearchSystemRequest $request): Response
     {
         $validated = $request->validated();
-        $system = System::whereSlug($slug)->first();
 
-        if (!$system) {
-            // If the system doesn't yet exist in our database, attempt to import it from EDSM.
-            $system = System::checkAPI($slug);
-        }
+        // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
+        $system = Cache::remember('edcts:system:'.$slug, (60*60), function() use ($slug, $validated) {
+            $model = System::whereSlug($slug)->first();
+
+            if (!$model) {
+                // If the system doesn't yet exist in our database, attempt to import it from EDSM.
+                $model = System::checkAPI($slug);
+            }
+
+            // Load related data for the system depending on query parameters passed.
+            $model = $this->loadValidatedRelations($validated, $model);
+
+            // Cache it
+            return $model;
+        });
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
-
-        // Load related data for the system depending on query parameters passed.
-        $system = $this->loadValidatedRelations($validated, $system);
 
         return response(new SystemResource($system));
     }
