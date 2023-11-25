@@ -11,6 +11,7 @@
         "halaxa/json-machine": "^1.1",
         "laravel/framework": "^10.33",
         "laravel/sanctum": "^3.2",
+        "laravel/telescope": "^4.17",
         "laravel/tinker": "^2.8"
     },
     "require-dev": {
