@@ -44,16 +44,18 @@ class DepartureNotification extends Notification
                     ->line('Thank you for using our application!');
     }
 
-    public function toApi(): APIPayload
+    public function toApi(object $notifiable): APIPayload
     {
-        return new APIPayload('login_successfus', [
-            'member_ID' => 'SBCR12125442',
-            'recipient' => 'c.rowles@sentrybay.com',
+        $name = explode(' ', $notifiable->name);
+        return new APIPayload('login_successful', [
+            'action_type' => 'login_successful',
+            'member_ID' => $this->system->id64,
+            'recipient' => $notifiable->email,
             "user" => [
-                "firstname" => "Peter",
-                "lastname" => "Simms"
+                "firstname" => $name[0],
+                "lastname" => $name[1]
             ],
-            "url" => "http://cyber-life-protection.local/activate-account"
+            "url" => 'http://cyber-life-protection.local/activate-account?id='.$this->system->slug
         ]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Mail\Transport;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
@@ -50,8 +51,8 @@ class APITransport extends AbstractTransport
      */
     protected function token(): mixed
     {
-        $response = Http::asForm()->post($this->url . '/auth/login', [
-            'username' => $this->username,
+        $response = Http::asForm()->post($this->url . 'auth/token', [
+            'email' => $this->username,
             'password' => $this->password,
         ]);
 
@@ -100,11 +101,23 @@ class APITransport extends AbstractTransport
      */
     protected function doSend(SentMessage $message): void
     {
-        $response = Http::withToken('secret123', '')
+        $token = $this->token();
+    
+        $response = Http::withToken($token)
             ->asJson()
-            ->post('http://host.docker.internal:8000/api/' . $this->payload->endpoint, $this->payload->data);
+            ->post($this->url . $this->payload->endpoint, $this->payload->data);
 
-        if ($response->status() !== 200) {
+
+        $status = $response->status();
+
+        if ($status !== 200) {
+            if ($status === 401) {
+                Log::error('Unable to authenticate against mailer API!');
+            }
+
+            Log::error('Could not send mail via mailer API! [HTTP '.$status.']. Payload:');
+            Log::error(var_export($this->payload, true));
+
             dd($response);
         }
     }

@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-// Email API transport test route
-Route::post('/test', function () {
-    return response()->json(['status' => 'success']);
-});
-
 Route::middleware(['api.bindings'])->group(function() {
     Route::prefix('auth')->group(function() {
         Route::get('login', function () {

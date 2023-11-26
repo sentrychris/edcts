@@ -14,6 +14,8 @@ trait UsesMailAPI
         $transport = app('mail.manager')->driver()
             ->getSymfonyTransport();
     
-        $transport->setPayload($notification->toApi());
+        $transport->setPayload(
+            $notification->toApi($request->user())
+        );
     }
 }

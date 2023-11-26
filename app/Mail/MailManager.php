@@ -13,7 +13,7 @@ class MailManager extends BaseMailManager
     protected function createApiTransport()
     {
         return new APITransport(
-            'http://localhost/api',
+            'http://host.docker.internal:8000/api/',
             'me@rowles.ch',
             'secret123'
         );
