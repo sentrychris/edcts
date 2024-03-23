@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "docs": "docker run -p 8888:8888 -e PORT=8888 -e SWAGGER_JSON=/var/www/swagger.json -v /home/chris/workspace/fcoc/public:/var/www swaggerapi/swagger-ui",
+        "docs": "docker run -p 8888:8888 -e PORT=8888 -e SWAGGER_JSON=/var/www/swagger.json -v /home/chris/workspace/edcts/public:/var/www swaggerapi/swagger-ui",
         "dev": "vite",
         "build": "vite build"
     },
