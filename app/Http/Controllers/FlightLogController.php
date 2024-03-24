@@ -53,6 +53,11 @@ class FlightLogController extends Controller
         try {
             $commander = $request->user()->commander;
 
+            // TODO - this will currently loop through the flight log response
+            // and check to see if each system is in the database, if it is not,
+            // it will make another request to EDSM to fetch the system data, this
+            // could hit rate limits pretty fast, so this will need to be deferred to
+            // a background queue and processed in batches
             $commander->importFlightLogFromEDSM(
                 $request->get('startDateTime'),
                 $request->get('endDateTime'),
