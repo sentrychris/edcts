@@ -23,11 +23,11 @@ class FlightLog extends Model
 
     public function commander(): BelongsTo
     {
-        return $this->belongsTo(Commander::class);
+        return $this->belongsTo(Commander::class, 'commander_id', 'id');
     }
 
-    public function system(): BelongsTo
+    public function systemInformation(): BelongsTo
     {
-        return $this->belongsTo(System::class);
+        return $this->belongsTo(System::class, 'system_id', 'id');
     }
 }
