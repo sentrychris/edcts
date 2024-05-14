@@ -53,46 +53,4 @@ class Commander extends Model
     {
         return $this->hasMany(FlightLog::class);
     }
-
-    public function importFlightLogFromEDSM(string $startDateTime, string $endDateTime)
-    {
-        $key = $this->edsm_api_key;
-        if (! $key) {
-            throw new Exception('Error! Commander does not have an associated EDSM API key.');
-        }
-
-        $api = app(EliteAPIManager::class);
-        $response = $api->setConfig(config('elite.edsm'))
-            ->setCategory('commander')
-            ->get('flight-log', [
-                'commanderName' => $this->cmdr_name,
-                'apiKey' => $key,
-                'startDateTime' => $startDateTime,
-                'endDateTime' => $endDateTime
-            ]);
-        
-        if ($response->logs) {
-
-            $logs = array_reverse($response->logs);
-
-            foreach ($logs as $log) {
-
-                $system = System::whereName($log->system)->first();
-                if (! $system) {
-                    $system = System::checkAPI($log->system);
-                }
-
-                if (! $system) {
-                    throw new Exception('Error! System '. $log->system .' not found in EDSM.');
-                }
-
-                $this->flightLog()->updateOrCreate([
-                    'system_id' => $system->id,
-                    'system' => $system->name,
-                    'first_discover' => $log->firstDiscover,
-                    'visited_at' => $log->date
-                ]);
-            }
-        }
-    }
 }

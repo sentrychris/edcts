@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\FlightLogRequest;
 use App\Http\Resources\FlightLogResource;
+use App\Services\EDSM\CommanderService;
 
 class FlightLogController extends Controller
 {
@@ -58,9 +59,9 @@ class FlightLogController extends Controller
             // it will make another request to EDSM to fetch the system data, this
             // could hit rate limits pretty fast, so this will need to be deferred to
             // a background queue and processed in batches
-            $commander->importFlightLogFromEDSM(
+            CommanderService::importFlightLogFromEDSM($commander,
                 $request->get('startDateTime'),
-                $request->get('endDateTime'),
+                $request->get('endDateTime')
             );
 
             return response()->json([
