@@ -20,10 +20,19 @@ class SystemBodyResource extends JsonResource
             'name' => $this->name,
             'type' => $this->type,
             'sub_type' => $this->sub_type,
+            'distance_to_arrival' => $this->distance_to_arrival,
+            'is_main_star' => $this->is_main_star,
+            'is_scoopable' => $this->is_scoopable,
+            'spectral_class' => $this->spectral_class,
+            'luminosity' => $this->luminosity,
+            'solar_masses' => $this->solar_masses,
+            'solar_radius' => $this->solar_radius,
+            'absolute_magnitude' => $this->absolute_magnitude,
             'discovery' => [
                 'commander' => $this->discovered_by,
                 'date' => $this->discovered_at
             ],
+            'system' => new SystemResource($this->whenLoaded('system')),
             'radius' => $this->radius,
             'gravity' => $this->gravity,
             'earth_masses' => $this->earth_masses,
@@ -35,7 +44,8 @@ class SystemBodyResource extends JsonResource
             'axial' => [
                 'axial_tilt' => $this->axial_tilt,
                 'semi_major_axis' => $this->semi_major_axis,
-                'rotational_period' => $this->rotational_period
+                'rotational_period' => $this->rotational_period,
+                'is_tidally_locked' => $this->is_tidally_locked,
             ],
             'orbital' => [
                 'orbital_period' => $this->orbital_period,
@@ -43,9 +53,9 @@ class SystemBodyResource extends JsonResource
                 'orbital_inclination' => $this->orbital_inclination,
                 'arg_of_periapsis' => $this->arg_of_periapsis
             ],
-            'is_tidally_locked' => $this->is_tidally_locked,
             'rings' => $this->rings,
-            'parents' => $this->parents
+            'parents' => $this->parents,
+            'slug' => $this->slug
         ];
     }
 }

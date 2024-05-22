@@ -2,25 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Resources\SystemResource;
-use App\Models\Commander;
-use App\Models\FleetCarrier;
-use App\Models\FleetSchedule;
-use App\Models\System;
-use App\Models\SystemBody;
+use App\Traits\UsesStatistics;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
-use \Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class RefreshAllStatistics extends Command
 {
+
+    use UsesStatistics;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'edcts:refresh-all-statistics
+    protected $signature = 'edcts:refresh-stats
         {--ttl= : Time to live}
         {--flush= : Force flush}';
 
@@ -52,50 +49,7 @@ class RefreshAllStatistics extends Command
     private function runCache(array $options)
     {       
         try {
-            if ($options['resetCache']) {
-                Cache::forget($this->cacheKey);
-            }
-
-            Cache::remember($this->cacheKey, $options['ttl'], function () {
-                $latestSystem = System::with(['information'])
-                    ->orderBy('id', 'desc')
-                    ->first();
-
-                if ($latestSystem instanceof System) {
-                    $latestSystem
-                        ->checkAPIForSystemInformation()
-                        ->checkAPIForSystemBodies();
-                }
-
-                $data = [
-                    'cartographical' => [
-                        'systems' => System::count(),
-                        'bodies' => SystemBody::count(),
-                        'stars' => SystemBody::whereType('Star')->count(),
-                        'orbiting' => SystemBody::whereType('planet')->count(),
-                        'latest_system' => new SystemResource($latestSystem->load(['information', 'bodies'])),
-                    ],
-                    
-                    'carriers' => FleetCarrier::count(),
-                    
-                    'commanders' => Commander::count(),
-
-                    'journeys' => [
-                        'total' => FleetSchedule::count(),
-                        'boarding' => FleetSchedule::whereIsBoarding(1)->count(),
-                        'cancelled' => FleetSchedule::whereIsCancelled(1)->count(),
-                        'leaving_in' => [
-                            'two_days' => FleetSchedule::leavingInNextNDays(2),
-                            'one_week' => FleetSchedule::leavingInNextNDays(7),
-                            'one_month' => FleetSchedule::leavingInNextNDays(31),
-                            'six_months' => FleetSchedule::leavingInNextNDays(31*6),
-                        ]
-                    ]
-                ];
-
-                return $data;
-            });
-
+            $this->getAllStatistics($this->cacheKey, $options);
             $this->info('Statistics refreshed.');
 
             return 0;
