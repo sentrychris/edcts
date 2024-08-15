@@ -19,7 +19,9 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->timestamp('updated_at');
             $table->softDeletes();
-            $table->index(['name', 'id64', 'updated_at']);
+            $table->index('name');
+            $table->index('slug');
+            $table->index(['name', 'id64']);
         });
     }
 

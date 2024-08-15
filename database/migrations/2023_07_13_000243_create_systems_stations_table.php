@@ -16,37 +16,26 @@ return new class extends Migration
         Schema::create('systems_stations', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(System::class)->constrained();
-            
             $table->unsignedBigInteger('market_id');
-            
             $table->string('type');
             $table->string('name');
-            
             $table->json('body')->nullable();
             $table->bigInteger('distance_to_arrival');
-
             $table->string('allegiance')->nullable();
             $table->string('government')->nullable();
             $table->string('economy')->nullable();
             $table->string('second_economy')->nullable();
-
             $table->boolean('has_market')->default(false);
             $table->boolean('has_shipyard')->default(false);
             $table->boolean('has_outfitting')->default(false);
-
             $table->string('other_services')->nullable();
-            
             $table->string('controlling_faction')->nullable();
-
             $table->timestamp('information_last_updated')->nullable();
             $table->timestamp('market_last_updated')->nullable();
             $table->timestamp('shipyard_last_updated')->nullable();
             $table->timestamp('outfitting_last_updated')->nullable();
-
             $table->string('slug')->nullable();
-            
             $table->softDeletes();
-
             $table->unique(['name', 'type', 'distance_to_arrival']);
         });
     }

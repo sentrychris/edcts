@@ -21,7 +21,6 @@ return new class extends Migration
             $table->boolean('first_discover')->default(false);
             $table->timestamp('visited_at')->nullable();
             $table->softDeletes();
-
             $table->unique(['commander_id', 'system_id', 'visited_at']);
         });
     }

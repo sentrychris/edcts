@@ -66,14 +66,11 @@ class SystemController extends Controller
         $validated = $request->validated();
 
         // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
-        $system = Cache::remember('system:'.$slug, (60*60), function() use ($slug) {
-            $model = System::whereSlug($slug)->first();
-            if (!$model) {
-                // If the system doesn't yet exist in our database, attempt to import it from EDSM.
-                $model = System::checkAPI($slug);
-            }
-            return $model;
-        });
+        $system = System::whereSlug($slug)->first();
+        if (!$system) {
+            // If the system doesn't yet exist in our database, attempt to import it from EDSM.
+            $system = System::checkAPI($slug);
+        }
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
