@@ -11,21 +11,24 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 ### Getting Started
 
 1. Clone this repository:
+
     ```sh
     git clone git@gitub.com:sentrychris/edcts.git
     ```
 
 2. Install dependencies:
-   ```sh
-   docker run --rm \
-        -u "$(id -u):$(id -g)" \
-        -v "$(pwd):/var/www/html" \
-        -w /var/www/html \
-        laravelsail/php82-composer:latest \
-        composer install --ignore-platform-reqs
-   ```
+
+    ```sh
+    docker run --rm \
+         -u "$(id -u):$(id -g)" \
+         -v "$(pwd):/var/www/html" \
+         -w /var/www/html \
+         laravelsail/php82-composer:latest \
+         composer install --ignore-platform-reqs
+    ```
 
 3. Configure environment variables:
+
     ```sh
     APP_NAME=EDCTS
     APP_ENV=local
@@ -55,16 +58,19 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     ```
 
 4. Start the containers:
+
     ```sh
     ./vendor/bin/sail up -d
     ```
 
 5. Create the database tables:
+
     ```sh
     ./vendor/bin/sail artisan migrate
     ```
 
 6. Seed systems data **before** running other seeders:
+
     1. Download the `systemsPopulated.json` archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
     2. Unzip it to `storage/dumps/`
     3. Run the import command:
@@ -75,19 +81,23 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
         ```
 
 7. Seed data:
+
     ```sh
     ./vendor/bin/sail artisan db:seed
     ```
+
     - users (all with password of "_password_")
     - commanders (with fake api keys)
     - fleet carriers and scheduled fleet carrier trips
 
 8. Seed GalNet news articles (I recommend using the JSON feed):
+
     ```sh
     ./vendor/bin/sail artisan elite:import-galnet-news -f json
     ```
 
 9. Cache system statistics (please note: you must initialise statistics for the frontend):
+
     ```sh
     ./vendor/bin/sail artisan edcts:refresh-stats --ttl=3600 --flush
     ```
@@ -105,4 +115,4 @@ To access swagger UI, run `npm run docs` and access on http://localhost:8888.
 
 ## Credits
 
-- [AnthorNet/EDSM](https://github.com/EDSM-NET) - for the wonderful cartographical data and API.
+-   [AnthorNet/EDSM](https://github.com/EDSM-NET) - for the wonderful cartographical data and API.
