@@ -38,6 +38,10 @@ Route::prefix('fleet')->group(function() {
     Route::resource('schedule', App\Http\Controllers\FleetScheduleController::class);
 });
 
+Route::prefix('commander')->group(function() {
+    Route::resource('flight-log', App\Http\Controllers\FlightLogController::class);
+});
+
 Route::prefix('galnet')->group(function() {
     Route::resource('news', App\Http\Controllers\GalnetNewsController::class);
 });
