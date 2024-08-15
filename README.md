@@ -89,7 +89,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 
 9. Cache system statistics (please note: you must initialise statistics for the frontend):
     ```sh
-    ./vendor/bin/sail artisan edcts:refresh-all-statistics --ttl=3600 --flush
+    ./vendor/bin/sail artisan edcts:refresh-stats --ttl=3600 --flush
     ```
 
     Or
