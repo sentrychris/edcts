@@ -18,6 +18,7 @@ class ImportFromDumpFile extends Command
     protected $signature = "edcts:import-from-dump
         {--f|--file= : The dump file, located at `/storage/dumps`.}
         {--i|--has-info : Provide extra information if object is attached in the dump file.};
+        {--j|--job= : The name for the dispatch job e.g. `import:system`.};
         {--validate : Validate the JSON file before processing.}";
 
     /**
@@ -52,7 +53,7 @@ class ImportFromDumpFile extends Command
             $this->line("The file will need to be split into parts for parallel processing.");
             
             $parts = 16;
-            $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
+            // $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             if ($this->option('validate')) {
@@ -62,16 +63,20 @@ class ImportFromDumpFile extends Command
 
             for ($part = 1; $part <= $parts; $part++) {
                 $this->info("Dispatching part {$part} import job for processing...");
-                $this->warn("Please ensure you have enough queue workers to process the parts in parallel.");
                 // Create a job to process each part
+                $filename = pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json";
                 ProcessFileImport::dispatch(
-                    pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json",
+                    $this->option("job"),
+                    $filename,
                     $this->option("has-info")
                 )->onQueue("high");
             }
+
+            $this->warn("Please ensure you have enough queue workers to process the parts in parallel.");
         } else {
             $this->info("Dispatching import job for processing...");
             ProcessFileImport::dispatch(
+                $this->option("job"),
                 $this->option("file"),
                 $this->option("has-info")
             );

@@ -18,9 +18,15 @@ class ProcessFileImport implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
+     * @var string
+     */
+    public string $job;
+
+    /**
      * @var int
      */
     public $timeout = 0; // no timeout
+
     /**
      * @var int
      */
@@ -43,15 +49,22 @@ class ProcessFileImport implements ShouldQueue
 
     /**
      * Create a new job instance.
+     * 
+     * @param string $job
+     * @param string $file
+     * @param bool $hasInfo
      */
-    public function __construct(string $file, bool $hasInfo = false)
+    public function __construct(string $job, string $file, bool $hasInfo = false)
     {
+        $this->job = $job;
         $this->file = $file;
         $this->hasInfo = $hasInfo;
     }
 
     /**
      * Execute the job.
+     * 
+     * @return void
      */
     public function handle(): void
     {
