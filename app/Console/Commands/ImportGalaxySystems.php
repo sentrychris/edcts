@@ -49,7 +49,7 @@ class ImportGalaxySystems extends Command
         if ($filesize > $threshold) {
             $this->warn("{$filename} is larger than " . $this->formatBytes($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
-            $this->splitJsonFilesIntoParts($filename, $filepath, $filesize, 8);
+            $this->splitJsonFilesIntoParts($filename, $filepath, $filesize, 3000);
         }
 
         $this->info("Dispatching systems import job...");

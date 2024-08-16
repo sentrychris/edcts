@@ -4,6 +4,9 @@ namespace App\Traits;
 
 trait ParseLargeFile
 {
+    /**
+     * 
+     */
     public function splitJsonFilesIntoParts(string $filename, string $filepath, int $filesize, int $parts)
     {
         $this->line("Calculating parameters for equal split, please wait...\n");
@@ -45,6 +48,9 @@ trait ParseLargeFile
         $this->splitJsonFile($filename, $filepath, $objectsPerFile);
     }
 
+    /**
+     * 
+     */
     public function splitJsonFile(string $filename, string $filepath, int $objectsPerFile): void
     {
         $file = fopen($filepath, 'r');
@@ -56,17 +62,16 @@ trait ParseLargeFile
         // Remove the opening bracket from the first line
         $firstLine = fgets($file);
         if (trim($firstLine) !== '[') {
-            // If the first line is not just the opening bracket, rewind to process it as JSON
             rewind($file);
         }
 
         while (($line = fgets($file)) !== false) {
-            // Trim and skip empty lines
+            // Trim and skip empty lines and brackets
             $trimmedLine = trim($line);
             if ($trimmedLine === '' || $trimmedLine === '[' || $trimmedLine === ']') {
                 continue;
             }
-    
+
             if ($currentObjectCount % $objectsPerFile == 0) {
                 if ($outputFile) {
                     // Close the JSON array in the current part
@@ -81,18 +86,17 @@ trait ParseLargeFile
                 $outputFile = fopen($outputFilePath, 'w');
                 // Start the JSON array in the new part
                 fwrite($outputFile, "[\n");
+                $currentObjectCount = 0;  // Reset count for the new file
             } else {
-                // Add a comma only if it's not the first object in the file
-                if ($currentObjectCount > 0) {
-                    fwrite($outputFile, ",\n");
-                }
+                // Add a comma only if it's not the first object in the file or part
+                fwrite($outputFile, "\n");
             }
-    
+
             // Write the JSON object to the current part
             fwrite($outputFile, $trimmedLine);
             $currentObjectCount++;
         }
-    
+
         // Close the final part properly
         if ($outputFile) {
             fwrite($outputFile, "\n]");
@@ -103,6 +107,9 @@ trait ParseLargeFile
         fclose($file);
     }
 
+    /**
+     * 
+     */
     public function formatBytes($bytes, $precision = 2) { 
         $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 
