@@ -2,12 +2,21 @@
 
 namespace App\Traits;
 
-trait ParseLargeFile
+use Exception;
+use JsonMachine\Items;
+
+trait LargeJsonFile
 {
     /**
+     * Split a large JSON file into parts for parallel processing.
      * 
+     * @param string $filename
+     * @param string $filepath
+     * @param int $filesize
+     * @param int $parts
+     * @return void
      */
-    public function splitJsonFilesIntoParts(string $filename, string $filepath, int $filesize, int $parts)
+    public function splitJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
     {
         $this->line("Calculating parameters for equal split, please wait...\n");
 
@@ -33,7 +42,7 @@ trait ParseLargeFile
             $bar->finish();
         }
 
-        $this->line("\n\nTotal size: " . $this->formatBytes($filesize));
+        $this->line("\n\nTotal size: " . bytes_format($filesize));
         $this->line("Total JSON objects: " . number_format($objectsInFile));
 
         // Determine the number of objects per file to create equal parts
@@ -49,7 +58,12 @@ trait ParseLargeFile
     }
 
     /**
+     * Split a JSON file into parts based on the number of objects per file.
      * 
+     * @param string $filename
+     * @param string $filepath
+     * @param int $objectsPerFile
+     * @return void
      */
     public function splitJsonFile(string $filename, string $filepath, int $objectsPerFile): void
     {
@@ -74,21 +88,22 @@ trait ParseLargeFile
 
             if ($currentObjectCount % $objectsPerFile == 0) {
                 if ($outputFile) {
+                    fseek($outputFile, -1, SEEK_CUR); // Move back to remove the last comma
                     // Close the JSON array in the current part
                     fwrite($outputFile, "\n]");
                     fclose($outputFile);
-                    // Output the log message when a part is finished
                     $this->line("Part {$part} written to {$outputFilePath}");
                 }
+
                 $part++;
                 $outputFilePrefix = pathinfo($filename, PATHINFO_FILENAME);
                 $outputFilePath = storage_path("dumps/{$outputFilePrefix}_part_{$part}.json");
                 $outputFile = fopen($outputFilePath, 'w');
+
                 // Start the JSON array in the new part
                 fwrite($outputFile, "[\n");
-                $currentObjectCount = 0;  // Reset count for the new file
+                $currentObjectCount = 0;
             } else {
-                // Add a comma only if it's not the first object in the file or part
                 fwrite($outputFile, "\n");
             }
 
@@ -99,6 +114,7 @@ trait ParseLargeFile
 
         // Close the final part properly
         if ($outputFile) {
+            fseek($outputFile, -1, SEEK_CUR); // Move back to remove the last comma
             fwrite($outputFile, "\n]");
             fclose($outputFile);
             $this->line("Part {$part} written to {$outputFilePath}");
@@ -108,17 +124,50 @@ trait ParseLargeFile
     }
 
     /**
+     * Validate split parts of a JSON file.
      * 
+     * @param string $filename
+     * @param int $parts
+     * @return void
      */
-    public function formatBytes($bytes, $precision = 2) { 
-        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+    public function validateAllJsonSplitParts(string $filename, int $parts): void
+    {
+        for ($part = 1; $part <= $parts; $part++) {
+            $outputFilePrefix = pathinfo($filename, PATHINFO_FILENAME);
+            $outputFilePath = storage_path("dumps/{$outputFilePrefix}_part_{$part}.json");
 
-        $bytes = max($bytes, 0); 
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-        $pow = min($pow, count($units) - 1); 
+            // Validate each part file
+            if (!$this->validateJsonFile($outputFilePath)) {
+                $this->error("Validation failed for part {$part}.");
+            }
+        }
+    }
 
-        $bytes /= (1 << (10 * $pow)); 
+    /**
+     * Validate a JSON file.
+     * 
+     * @param string $filepath
+     * @return bool
+     */
+    public function validateJsonFile(string $filepath): bool
+    {
+        try {
+            // Use JsonMachine to iterate over the JSON items
+            $jsonStream = Items::fromFile($filepath);
 
-        return round($bytes, $precision) . $units[$pow]; 
-    } 
+            // Iterate through each item to validate the JSON structure
+            foreach ($jsonStream as $key => $value) {
+                if ($key === null || $value === null) {
+                    throw new Exception("Invalid JSON structure");
+                }
+            }
+
+            $this->line("Validation successful for file: {$filepath}");
+            return true;
+        } catch (Exception $e) {
+            $this->error("Validation failed for file: {$filepath}");
+            $this->error("Error: " . $e->getMessage());
+            return false;
+        }
+    }
 }

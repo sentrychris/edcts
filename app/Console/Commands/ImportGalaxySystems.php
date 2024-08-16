@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Traits\ParseLargeFile;
 use App\Jobs\ImportGalaxySystemsJob;
+use App\Traits\LargeJsonFile;
 
 class ImportGalaxySystems extends Command
 {
-    use ParseLargeFile;
+    use LargeJsonFile;
 
     /**
      * The name and signature of the console command.
@@ -43,16 +43,28 @@ class ImportGalaxySystems extends Command
 
         // Get the file size and set the threshold for type of processing
         $filesize = filesize($filepath);
-        $threshold = 524288000; // 500MB
+        $threshold = 1073741824; // 1GB
 
         // If it's large, split it into parts
         if ($filesize > $threshold) {
-            $this->warn("{$filename} is larger than " . $this->formatBytes($threshold));
-            $this->line("The file will need to be split into parts for parallel processing.");
-            $this->splitJsonFilesIntoParts($filename, $filepath, $filesize, 3000);
+            // $this->warn("{$filename} is larger than " . $this->formatBytes($threshold));
+            // $this->line("The file will need to be split into parts for parallel processing.");
+            
+            $parts = 16;
+            // $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
+            // $this->validateAllJsonSplitParts($filename, $parts);
+
+            for ($part = 1; $part <= $parts; $part++) {
+                $this->info("Dispatching part {$part} import job for processing...");
+                // Create a job to process each part
+                ImportGalaxySystemsJob::dispatch(
+                    pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json",
+                    $this->option("has-info")
+                )->onQueue("high");
+            }
         }
 
-        $this->info("Dispatching systems import job...");
+        // $this->info("Dispatching systems import job...");
         // ImportGalaxySystemsJob::dispatch(
         //     $this->option("file"),
         //     $this->option("has-info")
