@@ -3,10 +3,29 @@
 namespace App\Traits;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 
 trait LargeJsonFile
 {
+    /**
+     * The log channel to use for logging.
+     * 
+     * @var string
+     */
+    private string $logChannel = 'default';
+
+    /**
+     * Set the log channel to use for logging.
+     * 
+     * @param string $channel
+     * @return void
+     */
+    public function setLargeJsonFileLogChannel(string $channel): void
+    {
+        $this->logChannel = $channel;
+    }
+
     /**
      * Split a large JSON file into parts for parallel processing.
      * 
@@ -16,18 +35,15 @@ trait LargeJsonFile
      * @param int $parts
      * @return void
      */
-    public function splitJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
+    public function splitLargeJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
     {
-        $this->line("Calculating parameters for equal split, please wait...\n");
+        Log::channel($this->logChannel)->info("Processing large file {$filepath} to split into {$parts} parts.");
+        Log::channel($this->logChannel)->info("Calculating parameters for equal split contents, please wait...");
 
         // Calculate the number of JSON objects
         $objectsInFile = 0;
         $handle = fopen($filepath, "r");
         if ($handle) {
-            // Initialize the progress bar based on file size
-            $bar = $this->output->createProgressBar($filesize);
-            $bar->setFormat('%bar% %percent:3s%%');
-
             // Read each line and count JSON objects
             while (($line = fgets($handle)) !== false) {
                 // Trim and skip empty lines and brackets
@@ -36,25 +52,25 @@ trait LargeJsonFile
                     continue;
                 }
                 $objectsInFile++;
-                $bar->advance(strlen($line));
             }
             fclose($handle);
-            $bar->finish();
         }
 
-        $this->line("\n\nTotal size: " . bytes_format($filesize));
-        $this->line("Total JSON objects: " . number_format($objectsInFile));
+        Log::channel($this->logChannel)->info("Total size: " . bytes_format($filesize));
+        Log::channel($this->logChannel)->info("Total JSON objects: " . number_format($objectsInFile));
 
         // Determine the number of objects per file to create equal parts
         $objectsPerFile = ceil($objectsInFile / $parts);
 
-        $this->line("\nSplitting into:");
-        $this->line("Total parts: {$parts}");
-        $this->line("Total JSON objects per file: " . number_format($objectsPerFile));
+        Log::channel($this->logChannel)->info("Splitting into:");
+        Log::channel($this->logChannel)->info("Total parts: {$parts}");
+        Log::channel($this->logChannel)->info("Total JSON objects per file: " . number_format($objectsPerFile));
 
-        $this->info("\nSplitting file for parallel processing, please wait...");
+        Log::channel($this->logChannel)->info("Splitting file for parallel processing, please wait...");
 
         $this->splitJsonFile($filename, $filepath, $objectsPerFile);
+
+        Log::channel($this->logChannel)->info("Successfully split {$filename} into {$parts} parts.");
     }
 
     /**
@@ -92,7 +108,8 @@ trait LargeJsonFile
                     // Close the JSON array in the current part
                     fwrite($outputFile, "\n]");
                     fclose($outputFile);
-                    $this->line("Part {$part} written to {$outputFilePath}");
+                    Log::channel($this->logChannel)
+                        ->info("Part {$part} written to {$outputFilePath} (" . bytes_format(filesize($outputFilePath)) . ")");
                 }
 
                 $part++;
@@ -117,7 +134,8 @@ trait LargeJsonFile
             fseek($outputFile, -1, SEEK_CUR); // Move back to remove the last comma
             fwrite($outputFile, "\n]");
             fclose($outputFile);
-            $this->line("Part {$part} written to {$outputFilePath}");
+            Log::channel($this->logChannel)
+                ->info("Part {$part} written to {$outputFilePath} (" . bytes_format(filesize($outputFilePath)) . ")");
         }
 
         fclose($file);
@@ -138,7 +156,7 @@ trait LargeJsonFile
 
             // Validate each part file
             if (!$this->validateJsonFile($outputFilePath)) {
-                $this->error("Validation failed for part {$part}.");
+                Log::channel($this->logChannel)->error("Validation failed for part {$part}.");
             }
         }
     }
@@ -162,11 +180,11 @@ trait LargeJsonFile
                 }
             }
 
-            $this->line("Validation successful for file: {$filepath}");
+            Log::channel($this->logChannel)->info("Validation successful for file: {$filepath}");
             return true;
         } catch (Exception $e) {
-            $this->error("Validation failed for file: {$filepath}");
-            $this->error("Error: " . $e->getMessage());
+            Log::channel($this->logChannel)->error("Validation failed for file: {$filepath}");
+            Log::channel($this->logChannel)->error("Error: " . $e->getMessage());
             return false;
         }
     }

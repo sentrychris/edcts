@@ -12,15 +12,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
+use App\Traits\LargeJsonFile;
 
 class ProcessFileImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, LargeJsonFile, Queueable, SerializesModels;
 
     /**
      * @var string
      */
-    public string $job;
+    public string $channel;
 
     /**
      * @var int
@@ -48,17 +49,34 @@ class ProcessFileImport implements ShouldQueue
     protected bool $hasInfo;
 
     /**
+     * @var bool
+     */
+    protected bool $shouldValidate;
+
+    /**
      * Create a new job instance.
      * 
-     * @param string $job
+     * @param string $channel
      * @param string $file
      * @param bool $hasInfo
+     * @param bool $isLargeFile
+     * @param bool $shouldValidate
      */
-    public function __construct(string $job, string $file, bool $hasInfo = false)
-    {
-        $this->job = $job;
+    public function __construct(
+        string $channel,
+        string $file,
+        bool $hasInfo = false,
+        bool $isLargeFile = false,
+        bool $shouldValidate = false
+    ) {
+        $this->channel = $channel;
         $this->file = $file;
         $this->hasInfo = $hasInfo;
+        $this->shouldValidate = $shouldValidate;
+
+        if ($isLargeFile) {
+            $this->setLargeJsonFileLogChannel($this->channel);
+        }
     }
 
     /**
@@ -71,11 +89,24 @@ class ProcessFileImport implements ShouldQueue
         $file = storage_path('dumps/' . $this->file);
 
         if (!file_exists($file)) {
-            Log::error('No file found at ' . $this->file);
+            Log::channel($this->channel)->error('No file found at ' . $this->file);
+            Log::channel($this->channel)->error('Exiting...');
             return;
         }
 
-        Log::channel('import:system')->info('Starting import from ' . $this->file);
+        Log::channel($this->channel)->info('Processing data from ' . $this->file);
+
+        if ($this->shouldValidate) {
+            Log::channel($this->channel)->info('Validating ' . $this->file . ', please wait...');
+            if (! $this->validateJsonFile($file)) {
+                Log::channel($this->channel)->error('Validation failed for ' . $this->file);
+                Log::channel($this->channel)->error('Exiting...');
+                return;
+            } else {
+                Log::channel($this->channel)->info('Validation passed for ' . $this->file);
+                Log::channel($this->channel)->info('Batch processing ' . $this->file . ', please wait...');
+            }
+        }
 
         $systems = Items::fromFile($file);
         $systemBatch = [];
@@ -89,7 +120,7 @@ class ProcessFileImport implements ShouldQueue
                 'id64' => $system->id64,
                 'name' => $system->name,
                 'coords' => json_encode($system->coords),
-                'updated_at' => $this->getUpdateTime($system)
+                'updated_at' => System::getAPIUpdateTime($system)
             ];
 
             if (property_exists($system, 'mainStar') && $system->mainStar && $system->mainStar !== '') {
@@ -119,7 +150,7 @@ class ProcessFileImport implements ShouldQueue
 
             if (count($systemBatch) >= $this->batchSize) {
                 $this->insertBatch($systemBatch, $infoBatch);
-                Log::channel('import:system')->info('Processed batch of ' . count($systemBatch) . ' systems.');
+                Log::channel($this->channel)->info('Processed batch of ' . count($systemBatch) . ' records.');
 
                 $systemBatch = [];
                 $infoBatch = [];
@@ -129,19 +160,19 @@ class ProcessFileImport implements ShouldQueue
         // Insert any remaining records
         if (!empty($systemBatch)) {
             $this->insertBatch($systemBatch, $infoBatch);
-            Log::channel('import:system')->info('Processed final batch of ' . count($systemBatch) . ' systems.');
+            Log::channel($this->channel)->info('Processed final batch of ' . count($systemBatch) . ' records.');
         }
 
-        Log::channel('import:system')->info('Completed import of ' . $count . ' systems from ' . $this->file);
+        Log::channel($this->channel)->info('Completed processing of ' . $count . ' records from ' . $this->file);
     }
 
     /**
-     * Insert a batch of systems and their information.
+     * Insert a batch of records and their information.
      */
     private function insertBatch(array $systemBatch, array $infoBatch): void
     {
         DB::transaction(function () use ($systemBatch, $infoBatch) {
-            // Insert or update systems
+            // Insert or update records
             $inserts = 0;
             $errors = 0;
             foreach ($systemBatch as $system) {
@@ -151,21 +182,17 @@ class ProcessFileImport implements ShouldQueue
                         if ($result) {
                             $inserts++;
                         } else {
-                            Log::channel('import:system')->error('Failed to import ' . $system['name'] . ' system: create() returned false.');
+                            Log::channel($this->channel)->error('Failed to process ' . $system['name'] . ' record: create() returned false.');
                             $errors++;
                         }
                     } catch (Exception $e) {
-                        Log::channel('import:system')->error('Failed to import ' . $system['name'] . ' system: ' . $e->getMessage());
+                        Log::channel($this->channel)->error('Failed to process ' . $system['name'] . ' record: ' . $e->getMessage());
                         $errors++;
                     }
                 }
-                // System::updateOrCreate(
-                //     ['id64' => $system['id64'], 'name' => $system['name']],
-                //     $system
-                // );
             }
 
-            Log::channel('import:system')->info('Inserted ' . $inserts . ' systems with ' . $errors . ' errors.');
+            Log::channel($this->channel)->info('Processed ' . $inserts . ' records with ' . $errors . ' errors.');
 
             // Insert or update system information if available
             if ($this->hasInfo) {
@@ -177,33 +204,5 @@ class ProcessFileImport implements ShouldQueue
                 }
             }
         });
-    }
-
-    /**
-     * Get update time according to various 3rd party formats.
-     */
-    private function getUpdateTime($system): mixed
-    {
-        // Spansh dumps
-        if (property_exists($system, 'updateTime')
-            && is_string($system->updateTime)
-            && $system->updateTime
-        ) {
-            if (str_contains($system->updateTime, '+')) {
-                return substr($system->updateTime, 0, strpos($system->updateTime, '+'));
-            }
-
-            return $system->updateTime;
-        }
-
-        // EDSM dumps
-        if (property_exists($system, 'updateTime')
-            && is_object($system->updateTime)
-            && $system->updateTime->information
-        ) {
-            return $system->updateTime->information;
-        }
-
-        return now();
     }
 }

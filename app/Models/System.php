@@ -207,6 +207,34 @@ class System extends Model
     }
 
     /**
+     * Get update time according to various 3rd party formats.
+     */
+    public static function getAPIUpdateTime($system): mixed
+    {
+        // Spansh dumps
+        if (property_exists($system, 'updateTime')
+            && is_string($system->updateTime)
+            && $system->updateTime
+        ) {
+            if (str_contains($system->updateTime, '+')) {
+                return substr($system->updateTime, 0, strpos($system->updateTime, '+'));
+            }
+
+            return $system->updateTime;
+        }
+
+        // EDSM dumps
+        if (property_exists($system, 'updateTime')
+            && is_object($system->updateTime)
+            && $system->updateTime->information
+        ) {
+            return $system->updateTime->information;
+        }
+
+        return now();
+    }
+
+    /**
      * configure slug
      */
     public function sluggable(): array
