@@ -13,19 +13,18 @@ use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
 
-class ImportGalaxySystemsJob implements ShouldQueue
+class ProcessFileImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * @var int
      */
-    public $timeout = 21600; // 6 hours timeout
-
+    public $timeout = 0; // no timeout
     /**
      * @var int
      */
-    public $tries = 25;
+    public $tries = 100;
 
     /**
      * @var int
