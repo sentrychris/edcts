@@ -65,7 +65,7 @@ return [
             'replace_placeholders' => true,
         ],
 
-        'system' => [
+        'import:system' => [
             'driver' => 'single',
             'path' => storage_path('logs/imports/systems.log'),
             'level' => env('LOG_LEVEL', 'debug'),

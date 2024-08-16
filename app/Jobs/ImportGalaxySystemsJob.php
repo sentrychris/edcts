@@ -63,7 +63,7 @@ class ImportGalaxySystemsJob implements ShouldQueue
             return;
         }
 
-        Log::channel('system')->info('Starting import from ' . $this->file);
+        Log::channel('import:system')->info('Starting import from ' . $this->file);
 
         $systems = Items::fromFile($file);
         $systemBatch = [];
@@ -107,7 +107,7 @@ class ImportGalaxySystemsJob implements ShouldQueue
 
             if (count($systemBatch) >= $this->batchSize) {
                 $this->insertBatch($systemBatch, $infoBatch);
-                Log::channel('system')->info('Processed batch of ' . count($systemBatch) . ' systems.');
+                Log::channel('import:system')->info('Processed batch of ' . count($systemBatch) . ' systems.');
 
                 $systemBatch = [];
                 $infoBatch = [];
@@ -117,10 +117,10 @@ class ImportGalaxySystemsJob implements ShouldQueue
         // Insert any remaining records
         if (!empty($systemBatch)) {
             $this->insertBatch($systemBatch, $infoBatch);
-            Log::channel('system')->info('Processed final batch of ' . count($systemBatch) . ' systems.');
+            Log::channel('import:system')->info('Processed final batch of ' . count($systemBatch) . ' systems.');
         }
 
-        Log::channel('system')->info('Completed import of ' . $count . ' systems from ' . $this->file);
+        Log::channel('import:system')->info('Completed import of ' . $count . ' systems from ' . $this->file);
     }
 
     /**
@@ -139,11 +139,11 @@ class ImportGalaxySystemsJob implements ShouldQueue
                         if ($result) {
                             $inserts++;
                         } else {
-                            Log::channel('system')->error('Failed to import ' . $system['name'] . ' system: create() returned false.');
+                            Log::channel('import:system')->error('Failed to import ' . $system['name'] . ' system: create() returned false.');
                             $errors++;
                         }
                     } catch (Exception $e) {
-                        Log::channel('system')->error('Failed to import ' . $system['name'] . ' system: ' . $e->getMessage());
+                        Log::channel('import:system')->error('Failed to import ' . $system['name'] . ' system: ' . $e->getMessage());
                         $errors++;
                     }
                 }
@@ -153,7 +153,7 @@ class ImportGalaxySystemsJob implements ShouldQueue
                 // );
             }
 
-            Log::channel('system')->info('Inserted ' . $inserts . ' systems with ' . $errors . ' errors.');
+            Log::channel('import:system')->info('Inserted ' . $inserts . ' systems with ' . $errors . ' errors.');
 
             // Insert or update system information if available
             if ($this->hasInfo) {

@@ -97,7 +97,7 @@ class SystemStation extends Model
                             ]
                         );
                     } catch (Exception $e) {
-                        Log::channel('system')->error($e->getMessage());
+                        Log::channel('import:system')->error($e->getMessage());
                     }
                 }
             }
