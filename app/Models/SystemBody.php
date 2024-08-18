@@ -133,7 +133,7 @@ class SystemBody extends Model
                         $bodyId = $body->bodyId;
                     }
                     
-                    $system->bodies()->updateOrCreate([
+                    $system->bodies()->updateOrCreate(['id64' => $id], [
                         'id64' => $id,
                         'body_id' => $bodyId,
                         'name' => $body->name,
