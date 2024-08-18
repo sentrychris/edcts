@@ -31,22 +31,17 @@ class ProcessFileImport implements ShouldQueue
     /**
      * @var int
      */
-    public $tries = 100;
+    public $tries = 10;
 
     /**
      * @var int
      */
-    public int $batchSize = 100000;
+    public int $batchSize = 5000;
 
     /**
      * @var string
      */
     protected string $file;
-
-    /**
-     * @var bool
-     */
-    protected bool $hasInfo;
 
     /**
      * @var bool
@@ -58,20 +53,17 @@ class ProcessFileImport implements ShouldQueue
      * 
      * @param string $channel
      * @param string $file
-     * @param bool $hasInfo
+     * @param bool $shouldValidate,
      * @param bool $isLargeFile
-     * @param bool $shouldValidate
      */
     public function __construct(
         string $channel,
         string $file,
-        bool $hasInfo = false,
+        bool $shouldValidate = false,
         bool $isLargeFile = false,
-        bool $shouldValidate = false
     ) {
         $this->channel = $channel;
         $this->file = $file;
-        $this->hasInfo = $hasInfo;
         $this->shouldValidate = $shouldValidate;
 
         if ($isLargeFile) {
@@ -104,9 +96,11 @@ class ProcessFileImport implements ShouldQueue
                 return;
             } else {
                 Log::channel($this->channel)->info('Validation passed for ' . $this->file);
-                Log::channel($this->channel)->info('Batch processing ' . $this->file . ', please wait...');
             }
         }
+
+        Log::channel($this->channel)
+            ->info($this->file . ' (batch size: ' . number_format($this->batchSize) . '): please wait...');
 
         $systems = Items::fromFile($file);
         $systemBatch = [];
@@ -117,8 +111,8 @@ class ProcessFileImport implements ShouldQueue
             $count++;
 
             $systemPayload = [
-                'id64' => $system->id64,
-                'name' => $system->name,
+                'id64'   => $system->id64,
+                'name'   => $system->name,
                 'coords' => json_encode($system->coords),
                 'updated_at' => System::getAPIUpdateTime($system)
             ];
@@ -129,23 +123,26 @@ class ProcessFileImport implements ShouldQueue
 
             $systemBatch[] = $systemPayload;
 
-            if ($this->hasInfo) {
+            try {
                 $infoPayload = [
-                    'system_id' => $system->id64,
-                    'allegiance' => property_exists($system, 'allegiance') ? $system->allegiance : null,
-                    'government' => property_exists($system, 'government') ? $system->government : null,
-                    'economy' => property_exists($system, 'economy') ? $system->economy : null,
-                    'population' => $system->population ?? 0,
-                    'security' => $system->security
+                    'system_id'  => $system->id64,
+                    'allegiance' => isset($system->allegiance) ? $system->allegiance : null,
+                    'economy'    => isset($system->economy) ? $system->economy : null,
+                    'government' => isset($system->government) ? $system->government : null,
+                    'population' => isset($system->population) ? $system->population : 0,
+                    'security'   => isset($system->security) ? $system->security : "None"
                 ];
 
-                if ($system->controllingFaction) {
+                if (isset($system->controllingFaction)) {
                     $faction = $system->controllingFaction;
-                    $infoPayload['faction'] = property_exists($faction, 'name') ? $faction->name : null;
-                    $infoPayload['faction_state'] = property_exists($faction, 'allegiance') ? $faction->allegiance : null;
+                    $infoPayload['faction'] = isset($faction->name) ? $faction->name : null;
+                    $infoPayload['faction_state'] = isset($faction->allegiance) ? $faction->allegiance : null;
                 }
 
                 $infoBatch[] = $infoPayload;
+            } catch (Exception $e) {
+                Log::channel($this->channel)
+                    ->error('Failed to process information for ' . $system->name . ' record: ' . $e->getMessage());
             }
 
             if (count($systemBatch) >= $this->batchSize) {
@@ -195,13 +192,16 @@ class ProcessFileImport implements ShouldQueue
             Log::channel($this->channel)->info('Processed ' . $inserts . ' records with ' . $errors . ' errors.');
 
             // Insert or update system information if available
-            if ($this->hasInfo) {
+            try {
                 foreach ($infoBatch as $info) {
                     $system = System::where('id64', $info['system_id'])->first();
                     if ($system) {
                         $system->information()->updateOrCreate($info);
                     }
                 }
+            } catch (Exception $e) {
+                Log::channel($this->channel)
+                    ->error('Failed to insert information record for ' . $system->name .':'. $e->getMessage());
             }
         });
     }

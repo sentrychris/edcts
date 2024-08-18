@@ -66,21 +66,23 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 5. Create the database tables:
 
     ```sh
-    ./vendor/bin/sail artisan migrate
+    ./vendor/bin/sail artisan migrate:fresh
     ```
 
 6. Seed systems data **before** running other seeders:
 
-    1. Download the `systemsPopulated.json` archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
+    1. Download a dump e.g. `systemsPopulated.json` archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
     2. Unzip it to `storage/dumps/`
     3. Run the import command:
         ```sh
-        ./vendor/bin/sail artisan elite:import-galaxy-systems \
+        ./vendor/bin/sail artisan edcts:import-dumpfile \
+            --channel import:system \
             --file systemsPopulated.json \
-            --has-info
+            --queue high \
+            --validate true
         ```
 
-7. Seed data:
+7. Seed other test data:
 
     ```sh
     ./vendor/bin/sail artisan db:seed
@@ -90,23 +92,22 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     - commanders (with fake api keys)
     - fleet carriers and scheduled fleet carrier trips
 
-8. Seed GalNet news articles (I recommend using the JSON feed):
+8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
 
     ```sh
-    ./vendor/bin/sail artisan elite:import-galnet-news -f json
+    ./vendor/bin/sail artisan edcts:import-galnet-news --format json
     ```
 
-9. Cache system statistics (please note: you must initialise statistics for the frontend):
+9. Cache system statistics:
 
     ```sh
     ./vendor/bin/sail artisan edcts:refresh-stats --ttl=3600 --flush
     ```
 
-    Or
-
-10. Start the artisan scheduler which will refresh all statistics every hour:
+10. Start the artisan scheduler and queue:
     ```sh
     ./vendor/bin/sail artisan schedule:work
+    ./vendor/bin/sail artisan queue:work --daemon --queue high
     ```
 
 ## Swagger Documentation

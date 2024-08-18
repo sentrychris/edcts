@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Jobs\ProcessFileImport;
 use App\Traits\LargeJsonFile;
 
-class ImportFromDumpFile extends Command
+class ImportDumpFile extends Command
 {
     use LargeJsonFile;
 
@@ -15,10 +15,9 @@ class ImportFromDumpFile extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:import-from-dump
+    protected $signature = "edcts:import-dumpfile
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}
-        {--has-info : Provide extra information if object is attached in the dump file.};
         {--queue=high : The queue to dispatch the job to.}
         {--validate : Validate the JSON file before processing.}";
 
@@ -53,34 +52,39 @@ class ImportFromDumpFile extends Command
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
             
-            $parts = 16;
+            $parts = 20;
             $this->setLargeJsonFileLogChannel($this->option("channel"));
             $this->splitLargeJsonFileIntoParts($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             for ($part = 1; $part <= $parts; $part++) {
+                $filename = pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json";
                 $this->info("Dispatching part {$part} import job for processing...");
-                // Create a job to process each part
-                ProcessFileImport::dispatch(
-                    $this->option("channel"),
-                    pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json",
-                    $this->option("has-info"),
-                    true,
-                    $this->option("validate")
-                )->onQueue($this->option('queue'));
+                $this->dispatchJob($filename, true);
             }
 
-            $this->warn("Please ensure you have enough queue workers to process the parts in parallel.");
+            $this->warn("Please ensure you have enough queue workers for parallel processing.");
         } else {
             $this->line("{$filename} is smaller than " . bytes_format($threshold));
             $this->info("Dispatching import job for processing...");
-            ProcessFileImport::dispatch(
-                $this->option("channel"),
-                $this->option("file"),
-                $this->option("has-info"),
-                false,
-                $this->option("validate")
-            )->onQueue($this->option('queue'));
+            $this->dispatchJob($filename, false);
         }
+    }
+
+    /**
+     * Dispatch a job to process the file.
+     * 
+     * @param string $filename
+     * @param bool $isLargeFile
+     * @return void
+     */
+    private function dispatchJob (string $filename, bool $isLargeFile)
+    {
+        ProcessFileImport::dispatch(
+            $this->option("channel"),
+            $filename,
+            $this->option("validate"),
+            $isLargeFile,
+        )->onQueue($this->option('queue'));
     }
 }

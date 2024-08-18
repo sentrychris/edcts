@@ -45,6 +45,6 @@ class ImportGalnetArticles extends Command
 
         $parser->import($progress);
 
-        $this->info('Importing complete.');
+        $this->info("\nImporting complete.");
     }
 }
