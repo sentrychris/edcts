@@ -115,7 +115,7 @@ class SystemBody extends Model
     {
         $api = app(EliteAPIManager::class);
 
-        if (!$system->bodies()->exists()) {
+        if (!$system->bodies()->exists() && $system->body_count === null) {
             $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('system')
                 ->get(key: 'bodies', params: [
@@ -125,6 +125,9 @@ class SystemBody extends Model
             $bodies = isset($response->bodies)
                 ? $response->bodies
                 : (isset($response['bodies']) ? $response['bodies'] : []);
+
+            $system->body_count = $response->bodyCount ?? 0;
+            $system->save();
 
             if ($bodies) {
                 foreach($bodies as $body) {

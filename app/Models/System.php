@@ -24,6 +24,7 @@ class System extends Model
         'id64',
         'name',
         'coords',
+        'body_count',
         'main_star',
         'updated_at',
     ];
