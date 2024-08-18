@@ -122,10 +122,7 @@ class SystemBody extends Model
                     'systemName' => $system->name
                 ]);
 
-            $bodies = isset($response->bodies)
-                ? $response->bodies
-                : (isset($response['bodies'])
-                ? $response['bodies'] : null);
+            $bodies = $response->bodies ?? $response['bodies'];
 
             if ($bodies) {
                 foreach($bodies as $body) {
