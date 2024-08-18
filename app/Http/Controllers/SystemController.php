@@ -35,12 +35,15 @@ class SystemController extends Controller
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $systems = System::filter($validated, (int)$request->exactSearch)
-            // ->orderBy('updated_at', 'desc')
-            ->paginate($request->get('limit', config('app.pagination.limit')))
-            ->appends($request->all());
+        $systems = Cache::remember("edcts:systems", 3600, function() use ($validated, $request) {
+            $records = System::filter($validated, (int)$request->exactSearch)
+                ->paginate($request->get('limit', config('app.pagination.limit')))
+                ->appends($request->all());
 
-        $systems = $this->loadValidatedRelations($validated, $systems);
+            $records = $this->loadValidatedRelations($validated, $records);
+
+            return $records;
+        });
 
         return SystemResource::collection($systems);
     }

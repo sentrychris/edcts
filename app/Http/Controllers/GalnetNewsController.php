@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 
 class GalnetNewsController extends Controller
 {
-     /**
+    /**
      * Constructor
      */
     public function __construct()
@@ -23,7 +23,7 @@ class GalnetNewsController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {        
+    {
         return GalnetNewsResource::collection(
             GalnetNews::paginate($request->get('limit', config('app.pagination.limit')))
         );
