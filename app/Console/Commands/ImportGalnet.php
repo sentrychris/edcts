@@ -6,14 +6,14 @@ use App\Libraries\GalnetJSONParser;
 use App\Libraries\GalnetRSSParser;
 use Illuminate\Console\Command;
 
-class ImportGalnetArticles extends Command
+class ImportGalnet extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'edcts:import-galnet-articles
+    protected $signature = 'edcts:import:galnet
         {--format=json : The format to use (rss or json)}';
 
     /**

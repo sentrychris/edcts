@@ -75,7 +75,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     2. Unzip it to `storage/dumps/`
     3. Run the import command:
         ```sh
-        ./vendor/bin/sail artisan edcts:import-dumpfile \
+        ./vendor/bin/sail artisan edcts:import:dumpfile \
             --channel import:system \
             --file systemsPopulated.json \
             --queue high \
@@ -95,13 +95,13 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:import-galnet-news --format json
+    ./vendor/bin/sail artisan edcts:import:galnet --format json
     ```
 
 9. Cache system statistics:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:refresh-stats --ttl=3600 --flush
+    ./vendor/bin/sail artisan edcts:stats:refresh --ttl=3600 --flush
     ```
 
 10. Start the artisan scheduler and queue:

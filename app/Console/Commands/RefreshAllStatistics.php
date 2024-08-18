@@ -17,8 +17,8 @@ class RefreshAllStatistics extends Command
      *
      * @var string
      */
-    protected $signature = 'edcts:refresh-stats
-        {--ttl= : Time to live}
+    protected $signature = 'edcts:stats:refresh
+        {--ttl=3600 : Time to live (default: 3600)}
         {--flush= : Force flush}';
 
     /**

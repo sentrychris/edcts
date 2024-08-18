@@ -15,7 +15,7 @@ class ImportDumpFile extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:import-dumpfile
+    protected $signature = "edcts:import:dumpfile
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}
         {--queue=high : The queue to dispatch the job to.}
@@ -52,13 +52,13 @@ class ImportDumpFile extends Command
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
             
-            $parts = 20;
+            $parts = 64;
             $this->setLargeJsonFileLogChannel($this->option("channel"));
-            $this->splitLargeJsonFileIntoParts($filename, $filepath, $filesize, $parts);
+            // $this->splitLargeJsonFileIntoParts($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             for ($part = 1; $part <= $parts; $part++) {
-                $filename = pathinfo($filename, PATHINFO_FILENAME) . "_part_{$part}.json";
+                $filename = pathinfo($this->option('file'), PATHINFO_FILENAME) . "_part_{$part}.json";
                 $this->info("Dispatching part {$part} import job for processing...");
                 $this->dispatchJob($filename, true);
             }
