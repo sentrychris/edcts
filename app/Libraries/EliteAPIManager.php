@@ -67,6 +67,7 @@ class EliteAPIManager extends BaseAPIManager
         if ($status !== 200) {
             Log::channel('thirdparty')->error('API call failed', [
                 'status' => $status,
+                'reason' => $response->getReasonPhrase(),
                 'url' => $url,
                 'config' => $this->config,
             ]);
