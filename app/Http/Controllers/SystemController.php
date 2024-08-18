@@ -39,7 +39,7 @@ class SystemController extends Controller
         $validated = $request->validated();
         $page = $request->get('page', 1);
 
-        $systems = Cache::remember("edcts:systems_page_{$page}", $cacheTTL, function() use ($validated, $request) {
+        $systems = Cache::remember("systems_page_{$page}", $cacheTTL, function() use ($validated, $request) {
             $records = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($request->get('limit', config('app.pagination.limit')))
                 ->appends($request->all());
