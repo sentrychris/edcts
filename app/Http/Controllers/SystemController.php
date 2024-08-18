@@ -34,8 +34,12 @@ class SystemController extends Controller
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
+        $cacheTTL = 3600;
+
         $validated = $request->validated();
-        $systems = Cache::remember("edcts:systems", 3600, function() use ($validated, $request) {
+        $page = $request->get('page', 1);
+
+        $systems = Cache::remember("edcts:systems_page_{$page}", $cacheTTL, function() use ($validated, $request) {
             $records = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($request->get('limit', config('app.pagination.limit')))
                 ->appends($request->all());
