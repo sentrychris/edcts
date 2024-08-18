@@ -79,6 +79,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'thirdparty' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/third-party-api.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

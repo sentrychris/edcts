@@ -2,7 +2,9 @@
 
 namespace App\Libraries;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class EliteAPIManager extends BaseAPIManager
 {
@@ -60,6 +62,16 @@ class EliteAPIManager extends BaseAPIManager
             . $this->buildQueryString($params);
 
         $response = Http::withHeaders($this->headers)->get($url);
+        $status = $response->getStatusCode();
+
+        if ($status !== 200) {
+            Log::channel('thirdparty')->error('API call failed', [
+                'status' => $status,
+                'url' => $url,
+                'config' => $this->config,
+            ]);
+        }
+
 
         return $this->getContents($response, true);
     }
