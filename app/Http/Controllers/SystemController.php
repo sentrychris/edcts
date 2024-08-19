@@ -54,7 +54,7 @@ class SystemController extends Controller
         $systems = Cache::get("systems_page_{$page}");
         if (!$systems) {
             Log::channel('pages:cache')
-                ->info("systems_page_{$page} cache MISS - querying database");
+                ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
 
             $systems = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($request->get('limit', config('app.pagination.limit')))
@@ -63,9 +63,6 @@ class SystemController extends Controller
             $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
 
             Cache::set("systems_page_{$page}", $systems, $cacheTTL);
-        } else {
-            Log::channel('pages:cache')
-                ->info("systems_page_{$page} cache HIT");
         }
 
         Cache::set('systems_search_query', $query, $cacheTTL);
