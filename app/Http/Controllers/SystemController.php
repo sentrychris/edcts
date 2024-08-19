@@ -65,7 +65,7 @@ class SystemController extends Controller
             Cache::set("systems_page_{$page}", $systems, $cacheTTL);
         } else {
             Log::channel('pages:cache')
-                ->info("systems_page_{$page} cache HIT", $systems->toArray());
+                ->info("systems_page_{$page} cache HIT");
         }
 
         Cache::set('systems_search_query', $query, $cacheTTL);
