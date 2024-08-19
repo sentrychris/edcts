@@ -29,11 +29,6 @@ class RefreshAllStatistics extends Command
     protected $description = 'Refresh EDCTS statistics';
 
     /**
-     * @var string
-     */
-    private $cacheKey = 'edcts:statistics';
-
-    /**
      * Execute the console command.
      */
     public function handle()
@@ -49,7 +44,7 @@ class RefreshAllStatistics extends Command
     private function runCache(array $options)
     {       
         try {
-            $this->getAllStatistics($this->cacheKey, $options);
+            $this->getAllStatistics("statistics", $options);
             $this->info('Statistics refreshed.');
 
             return 0;

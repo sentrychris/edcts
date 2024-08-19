@@ -9,9 +9,6 @@ use Illuminate\Http\Response;
 class StatisticsController extends Controller
 {
     use UsesStatistics;
-
-    /** @var string */
-    private string $cacheKey = 'edcts:statistics';
     
     /**
      * Get statistics.
@@ -25,7 +22,7 @@ class StatisticsController extends Controller
     public function index(Request $request): Response
     {
         return Response([
-            'data' => $this->getAllStatistics($this->cacheKey, $request->all())
+            'data' => $this->getAllStatistics("statistics", $request->all())
         ]);
     }
 }
