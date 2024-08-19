@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Requests\SearchSystemRequest;
 use App\Models\System;
 use App\Traits\HasValidatedRelations;
 use Illuminate\Console\Command;
+use Illuminate\Container\Container;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 
 class PreCacheSystems extends Command
 {
@@ -17,7 +20,6 @@ class PreCacheSystems extends Command
      * @var string
      */
     protected $signature = "edcts:precache:systems
-        {--flush : Flush systems from the cache before pre-caching.}
         {--ttl=3600 : Time to live (default: 3600).}";
 
     /**
@@ -34,18 +36,16 @@ class PreCacheSystems extends Command
     {
         $this->info("Pre-caching system pages for the frontend...");
 
+        $ttl = (int)$this->option('ttl');
+
         $params = [
-            "withArrivals"    => 1,
-            "withBodies"      => 1,
-            "withDepartures"  => 1,
-            "withInformation" => 1,
-            "withStations"    => 1,
+            "withInformation" => "1",
         ];
 
         $this->line("\nQuery parameters: " . json_encode($params, 128));
         $this->info("\nCounting number of pages to cache, please wait...");
 
-        $count = System::count();
+        $count = System::filter($params, 0)->count();
         $limit = config("app.pagination.limit");
         $pages = ceil($count / $limit);
 
@@ -57,20 +57,36 @@ class PreCacheSystems extends Command
         $bar = $this->output->createProgressBar($pages);
 
         for ($page = 1; $page <= $pages; $page++) {
-            $key = "systems_page_{$page}";
+            // Manually set the URL context
+            URL::forceRootUrl(config('app.url'));
+            request()->server->set('REQUEST_URI', "/api/systems?page={$page}");
 
-            if ($this->option('flush')) {
-                Cache::forget($key);
+            $request = new SearchSystemRequest(array_merge($params, ['page' => $page]));
+
+            if ($page > 1) {
+                $request->merge(['page' => $page]);
             }
 
-            $value = System::filter($params, 0)
-                ->paginate($limit)
-                ->appends(array_merge($params, ["page" => $page]));
+            $request->setContainer(app(Container::class))
+                ->setRedirector(app('redirect'));
 
-            Cache::set($key, $value, (int)$this->option('ttl'));
+            $request->validateResolved();
+            $validated = $request->validated();
+
+            $query = $request->only('name', 'exactSearch');
+
+            $systems = System::filter($validated, (int)$request->exactSearch)
+                ->paginate($request->get('limit', config('app.pagination.limit')))
+                ->appends($request->all());
+
+            $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
+
+            Cache::set("systems_page_{$page}", $systems, $ttl);
 
             $bar->advance();
         }
+
+        Cache::set('systems_search_query', $query, $ttl);
 
         $bar->finish();
 
