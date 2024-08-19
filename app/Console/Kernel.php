@@ -13,12 +13,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('edcts:stats:refresh --ttl=3600 --flush')
-            ->hourly();
+        // $schedule->command('edcts:stats:refresh --ttl=3600 --flush')
+        //     ->hourly();
 
-        $schedule->job(new PreCacheSystems('pages:cache', true, 3600), 'default', 'database')
-            ->withoutOverlapping()
-            ->hourly();
+        // $schedule->job(new PreCacheSystems('pages:cache', true, 3600), 'default', 'database')
+        //     ->withoutOverlapping()
+        //     ->hourly();
     }
 
     /**

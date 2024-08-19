@@ -78,7 +78,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
         ./vendor/bin/sail artisan edcts:import:dumpfile \
             --channel import:system \
             --file systemsPopulated.json \
-            --queue high \
+            --queue default \
             --validate true
         ```
 
@@ -107,7 +107,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 10. Start the artisan scheduler and queue:
     ```sh
     ./vendor/bin/sail artisan schedule:work
-    ./vendor/bin/sail artisan queue:work --daemon --queue high
+    ./vendor/bin/sail artisan queue:work --daemon --queue default
     ```
 
 ## Swagger Documentation
