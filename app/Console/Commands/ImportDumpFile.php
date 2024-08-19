@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Jobs\ProcessFileImport;
-use App\Traits\LargeJsonFile;
+use App\Traits\JsonFileParsing;
 
 class ImportDumpFile extends Command
 {
-    use LargeJsonFile;
+    use JsonFileParsing;
 
     /**
      * The name and signature of the console command.
@@ -18,7 +18,7 @@ class ImportDumpFile extends Command
     protected $signature = "edcts:import:dumpfile
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}
-        {--queue=high : The queue to dispatch the job to.}
+        {--queue=default : The queue to dispatch the job to.}
         {--validate : Validate the JSON file before processing.}";
 
     /**
@@ -51,23 +51,26 @@ class ImportDumpFile extends Command
         if ($filesize > $threshold) {
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
+
+            $this->setJsonFileLogChannel($this->option('channel'));
             
-            $parts = 64;
-            $this->setLargeJsonFileLogChannel($this->option("channel"));
-            $this->splitLargeJsonFileIntoParts($filename, $filepath, $filesize, $parts);
+            $parts = 16;
+            $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             for ($part = 1; $part <= $parts; $part++) {
-                $filename = pathinfo($this->option('file'), PATHINFO_FILENAME) . "_part_{$part}.json";
                 $this->info("Dispatching part {$part} import job for processing...");
-                $this->dispatchJob($filename, true);
+
+                $filename = pathinfo($this->option('file'), PATHINFO_FILENAME) . "_part_{$part}.json";
+                $this->dispatchJob($filename);
             }
 
             $this->warn("Please ensure you have enough queue workers for parallel processing.");
         } else {
             $this->line("{$filename} is smaller than " . bytes_format($threshold));
             $this->info("Dispatching import job for processing...");
-            $this->dispatchJob($filename, false);
+
+            $this->dispatchJob($filename);
         }
     }
 
@@ -75,16 +78,14 @@ class ImportDumpFile extends Command
      * Dispatch a job to process the file.
      * 
      * @param string $filename
-     * @param bool $isLargeFile
      * @return void
      */
-    private function dispatchJob (string $filename, bool $isLargeFile)
+    private function dispatchJob (string $filename)
     {
         ProcessFileImport::dispatch(
             $this->option("channel"),
             $filename,
             $this->option("validate"),
-            $isLargeFile,
         )->onQueue($this->option('queue'));
     }
 }

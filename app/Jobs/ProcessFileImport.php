@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
-use App\Traits\LargeJsonFile;
+use App\Traits\JsonFileParsing;
 
 class ProcessFileImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, LargeJsonFile, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, JsonFileParsing, Queueable, SerializesModels;
 
     /**
      * @var string
@@ -54,21 +54,17 @@ class ProcessFileImport implements ShouldQueue
      * @param string $channel
      * @param string $file
      * @param bool $shouldValidate,
-     * @param bool $isLargeFile
      */
     public function __construct(
         string $channel,
         string $file,
         bool $shouldValidate = false,
-        bool $isLargeFile = false,
     ) {
         $this->channel = $channel;
         $this->file = $file;
         $this->shouldValidate = $shouldValidate;
 
-        if ($isLargeFile) {
-            $this->setLargeJsonFileLogChannel($this->channel);
-        }
+        $this->setJsonFileLogChannel($this->channel);
     }
 
     /**

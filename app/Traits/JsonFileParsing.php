@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 
-trait LargeJsonFile
+trait JsonFileParsing
 {
     /**
      * The log channel to use for logging.
@@ -21,13 +21,13 @@ trait LargeJsonFile
      * @param string $channel
      * @return void
      */
-    public function setLargeJsonFileLogChannel(string $channel): void
+    public function setJsonFileLogChannel(string $channel): void
     {
         $this->logChannel = $channel;
     }
 
     /**
-     * Split a large JSON file into parts for parallel processing.
+     * Split a JSON file into parts for parallel processing.
      * 
      * @param string $filename
      * @param string $filepath
@@ -35,9 +35,9 @@ trait LargeJsonFile
      * @param int $parts
      * @return void
      */
-    public function splitLargeJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
+    public function splitJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
     {
-        Log::channel($this->logChannel)->info("Processing large file {$filepath} to split into {$parts} parts.");
+        Log::channel($this->logChannel)->info("Processing file {$filepath} to split into {$parts} parts.");
         Log::channel($this->logChannel)->info("Calculating parameters for equal split contents, please wait...");
 
         // Calculate the number of JSON objects
