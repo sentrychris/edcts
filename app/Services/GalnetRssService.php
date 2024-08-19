@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Libraries;
+namespace App\Services;
 
 use App\Models\GalnetNews;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class GalnetRSSParser
+class GalnetRssService
 {   
     /**
      * @var string $url

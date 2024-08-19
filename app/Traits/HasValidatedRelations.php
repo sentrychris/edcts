@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Models\SystemBody;
 use App\Models\SystemInformation;
 use App\Models\SystemStation;
+use App\Services\EdsmApiService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 

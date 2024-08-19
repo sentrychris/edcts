@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Libraries;
+namespace App\Services;
 
 use App\Models\GalnetNews;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\Console\Helper\ProgressBar;
 
-class GalnetJSONParser extends BaseAPIManager
+class GalnetJsonService extends ApiService
 {
     /**
      * @var array $articles

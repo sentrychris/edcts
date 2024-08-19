@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Libraries\EliteAPIManager;
+use App\Services\EdsmApiService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,8 +30,7 @@ class SystemInformation extends Model
 
     public static function retrieveBy(System $system)
     {
-        $api = app(EliteAPIManager::class);
-
+        $api = app(EdsmApiService::class);
         if (!$system->information()->exists()) {
             $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('systems')

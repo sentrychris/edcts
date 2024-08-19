@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Libraries\EliteAPIManager;
+use App\Services\EdsmApiService;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
@@ -113,9 +113,8 @@ class SystemBody extends Model
 
     public static function retrieveBy(System $system)
     {
-        $api = app(EliteAPIManager::class);
-
         if (!$system->bodies()->exists() && $system->body_count === null) {
+            $api = app(EdsmApiService::class);
             $response = $api->setConfig(config('elite.edsm'))
                 ->setCategory('system')
                 ->get(key: 'bodies', params: [

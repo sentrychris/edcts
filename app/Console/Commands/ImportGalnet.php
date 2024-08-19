@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Libraries\GalnetJSONParser;
-use App\Libraries\GalnetRSSParser;
+use App\Services\GalnetJSONParser;
+use App\Services\GalnetRSSParser;
 use Illuminate\Console\Command;
 
 class ImportGalnet extends Command

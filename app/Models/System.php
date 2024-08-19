@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Libraries\EliteAPIManager;
+use App\Services\EdsmApiService;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
@@ -140,7 +140,7 @@ class System extends Model
      */
     public static function retrieveBy(string $slug)
     {
-        $api = app(EliteAPIManager::class);
+        $api = app(EdsmApiService::class);
         $response = $api->setConfig(config('elite.edsm'))
             ->setCategory('systems')
             ->get(key: 'system', params: [

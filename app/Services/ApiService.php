@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Libraries;
+namespace App\Services;
 
-abstract class BaseAPIManager
+abstract class ApiService
 {
     /**
      * @var array $headers
@@ -14,9 +14,9 @@ abstract class BaseAPIManager
      * 
      * @param array $headers
      * 
-     * @return BaseAPIManager
+     * @return ApiService
      */
-    public function setHeaders(array $headers): BaseAPIManager
+    public function setHeaders(array $headers): ApiService
     {
         $this->headers = array_merge($this->headers, $headers);
 
@@ -29,9 +29,9 @@ abstract class BaseAPIManager
      * @param string $header
      * @param string $value
      * 
-     * @return BaseAPIManager
+     * @return ApiService
      */
-    public function setAPIHeader(string $header, string $value): BaseAPIManager
+    public function setAPIHeader(string $header, string $value): ApiService
     {
         $this->headers[$header] = $value;
         

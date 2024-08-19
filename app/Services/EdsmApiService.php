@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Libraries;
+namespace App\Services;
 
-use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class EliteAPIManager extends BaseAPIManager
+class EdsmApiService extends ApiService
 {
     /**
      * @var array $config
@@ -23,9 +22,9 @@ class EliteAPIManager extends BaseAPIManager
      * 
      * @param array $config
      * 
-     * @return EliteAPIManager
+     * @return EdsmService
      */
-    public function setConfig(array $config): EliteAPIManager
+    public function setConfig(array $config): EdsmApiService
     {
         $this->config = $config;
 
@@ -37,9 +36,9 @@ class EliteAPIManager extends BaseAPIManager
      * 
      * @param string $category
      * 
-     * @return EliteAPIManager
+     * @return EdsmService
      */
-    public function setCategory(string $category): EliteAPIManager
+    public function setCategory(string $category): EdsmApiService
     {
         $this->category = $category;
 
