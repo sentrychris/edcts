@@ -5,11 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
-use App\Models\SystemBody;
-use App\Models\SystemInformation;
-use App\Models\SystemStation;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Traits\HasValidatedRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -17,6 +13,8 @@ use Illuminate\Support\Facades\Cache;
 
 class SystemController extends Controller
 {
+    use HasValidatedRelations;
+
     /**
      * List systems.
      * 
@@ -42,15 +40,24 @@ class SystemController extends Controller
         $validated = $request->validated();
         $page = $request->get('page', 1);
 
+        $query = $request->only('name', 'exactSearch');
+        $prevQuery = Cache::get('systems_search_query');
+        if ($query !== $prevQuery) {
+            Cache::forget('systems_search_query');
+            Cache::forget("systems_page_{$page}");
+        }
+
         $systems = Cache::remember("systems_page_{$page}", $cacheTTL, function() use ($validated, $request) {
             $records = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($request->get('limit', config('app.pagination.limit')))
                 ->appends($request->all());
 
-            $records = $this->loadValidatedRelations($validated, $records);
+            $records = $this->loadValidatedRelationsForSystem($validated, $records);
 
             return $records;
         });
+
+        Cache::set('systems_search_query', $query, $cacheTTL);
 
         return SystemResource::collection($systems);
     }
@@ -84,47 +91,8 @@ class SystemController extends Controller
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $system = $this->loadValidatedRelations($validated, $system);
+        $system = $this->loadValidatedRelationsForSystem($validated, $system);
 
         return response(new SystemResource($system));
-    }
-
-    /**
-     * Load validated relations based on query.
-     * 
-     * @param array $validated
-     * @param Model|LengthAwarePaginator $data
-     * 
-     * @return Model|LengthAwarePaginator $data
-     */
-    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $model): Model|LengthAwarePaginator
-    {
-        $allowed = [
-            'withInformation' => 'information',
-            'withBodies' => 'bodies',
-            'withStations' => 'stations',
-            'withDepartures' => 'departures.destination',
-            'withArrivals' => 'arrivals.departure'
-        ];
-
-        foreach ($allowed as $query => $relation) {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                if ($model instanceof Model && $relation === 'bodies') {
-                    SystemBody::retrieveBy($model);
-                }
-
-                if ($model instanceof Model && $relation === 'information') {
-                    SystemInformation::retrieveBy($model);
-                }
-
-                if ($model instanceof Model && $relation === 'stations') {
-                    SystemStation::retrieveBy($model);
-                }
-
-                $model->load($relation);
-            }
-        }
-
-        return $model;
     }
 }
