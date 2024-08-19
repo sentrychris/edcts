@@ -33,7 +33,7 @@ class PreCacheSystems implements ShouldQueue
     /**
      * @var int
      */
-    public $timeout = 0; // no timeout
+    public $timeout = 3600;
 
     /**
      * @var int
