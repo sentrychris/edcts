@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new PreCacheSystems('pages:cache', true, 3600))
             ->withoutOverlapping()
-            ->everyThirtySeconds();
+            ->hourly();
     }
 
     /**
