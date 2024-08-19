@@ -117,7 +117,7 @@ class ProcessFileImport implements ShouldQueue
                 'updated_at' => System::getAPIUpdateTime($system)
             ];
 
-            if (property_exists($system, 'mainStar') && $system->mainStar && $system->mainStar !== '') {
+            if (property_isset($system, 'mainStar') && $system->mainStar !== '') {
                 $systemPayload['main_star'] = $system->mainStar;
             }
 
@@ -126,17 +126,17 @@ class ProcessFileImport implements ShouldQueue
             try {
                 $infoPayload = [
                     'system_id'  => $system->id64,
-                    'allegiance' => isset($system->allegiance) ? $system->allegiance : null,
-                    'economy'    => isset($system->economy) ? $system->economy : null,
-                    'government' => isset($system->government) ? $system->government : null,
-                    'population' => isset($system->population) ? $system->population : 0,
-                    'security'   => isset($system->security) ? $system->security : "None"
+                    'allegiance' => property_isset($system, 'allegiance') ? $system->allegiance : null,
+                    'economy'    => property_isset($system, 'economy') ? $system->economy : null,
+                    'government' => property_isset($system, 'government') ? $system->government : null,
+                    'population' => property_isset($system, 'population') ? $system->population : 0,
+                    'security'   => property_isset($system, 'security') ? $system->security : "None"
                 ];
 
-                if (isset($system->controllingFaction)) {
+                if (property_isset($system, 'controllingFaction')) {
                     $faction = $system->controllingFaction;
-                    $infoPayload['faction'] = isset($faction->name) ? $faction->name : null;
-                    $infoPayload['faction_state'] = isset($faction->allegiance) ? $faction->allegiance : null;
+                    $infoPayload['faction'] = property_isset($faction, 'name') ? $faction->name : null;
+                    $infoPayload['faction_state'] = property_isset($faction, 'allegiance') ? $faction->allegiance : null;
                 }
 
                 $infoBatch[] = $infoPayload;

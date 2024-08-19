@@ -133,7 +133,7 @@ class SystemBody extends Model
                 foreach($bodies as $body) {
                     $id = random_int(100000000, 999999999);
                     $bodyId = $id;
-                    if (property_exists($body,'id64') && $body->id64) {
+                    if (property_isset($body,'id64')) {
                         $id = $body->id64;
                         $bodyId = $body->bodyId;
                     }
@@ -146,14 +146,14 @@ class SystemBody extends Model
                         'discovered_at' => $body->discovery->date,
                         'type' => $body->type,
                         'sub_type' => $body->subType,
-                        'distance_to_arrival' => property_exists($body, 'distanceToArrival') ? $body->distanceToArrival : null,
-                        'is_main_star' => property_exists($body, 'isMainStar') ? $body->isMainStar : false,
-                        'is_scoopable' => property_exists($body, 'isScoopable') ? $body->isScoopable : false,
-                        'spectral_class' => property_exists($body, 'spectralClass') ? $body->spectralClass : null,
-                        'luminosity' => property_exists($body, 'luminosity') ? $body->luminosity : null,
-                        'solar_masses' => property_exists($body, 'solarMasses') ? $body->solarMasses : null,
-                        'solar_radius' => property_exists($body, 'solarRadius') ? $body->solarRadius : null,
-                        'absolute_magnitude' => property_exists($body, 'absoluteMagnitude') ? $body->absoluteMagnitude : null,
+                        'distance_to_arrival' => property_isset($body, 'distanceToArrival') ? $body->distanceToArrival : null,
+                        'is_main_star' => property_isset($body, 'isMainStar') ? $body->isMainStar : false,
+                        'is_scoopable' => property_isset($body, 'isScoopable') ? $body->isScoopable : false,
+                        'spectral_class' => property_isset($body, 'spectralClass') ? $body->spectralClass : null,
+                        'luminosity' => property_isset($body, 'luminosity') ? $body->luminosity : null,
+                        'solar_masses' => property_isset($body, 'solarMasses') ? $body->solarMasses : null,
+                        'solar_radius' => property_isset($body, 'solarRadius') ? $body->solarRadius : null,
+                        'absolute_magnitude' => property_isset($body, 'absoluteMagnitude') ? $body->absoluteMagnitude : null,
                         'surface_temp' => $body->surfaceTemperature,
                         'radius' => $body->radius ?? null,
                         'gravity' => $body->gravity ?? null,
@@ -170,8 +170,8 @@ class SystemBody extends Model
                         'is_tidally_locked' => $body->rotationalPeriodTidallyLocked ?? false,
                         'semi_major_axis' => $body->semiMajorAxis ?? null,
                         'axial_tilt' => $body->axialTilt ?? null,
-                        'rings' => property_exists($body, 'rings') ? json_encode($body->rings) : null,
-                        'parents' => property_exists($body, 'parents') ? json_encode($body->parents) : null,
+                        'rings' => property_isset($body, 'rings') ? json_encode($body->rings) : null,
+                        'parents' => property_isset($body, 'parents') ? json_encode($body->parents) : null,
                     ]);
                 }
             }

@@ -172,7 +172,7 @@ class System extends Model
     public static function getAPIUpdateTime($system): mixed
     {
         // Spansh dumps
-        if (property_exists($system, 'updateTime')
+        if (property_isset($system, 'updateTime')
             && is_string($system->updateTime)
             && $system->updateTime
         ) {
@@ -184,7 +184,7 @@ class System extends Model
         }
 
         // EDSM dumps
-        if (property_exists($system, 'updateTime')
+        if (property_isset($system, 'updateTime')
             && is_object($system->updateTime)
             && $system->updateTime->information
         ) {

@@ -21,3 +21,11 @@ if (!function_exists('bytes_format')) {
         return round($bytes, $precision) . $units[$pow]; 
     }  
 }
+
+if (!function_exists('property_isset')) {
+    function property_isset(mixed $object, string $property) {
+        return property_exists($object, $property)
+            && isset($object->{$property})
+            && $object->{$property} !== null;
+    }
+}

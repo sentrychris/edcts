@@ -80,7 +80,7 @@ class SystemStation extends Model
                             [
                                 'market_id' => $station->marketId,
                                 'distance_to_arrival' => $station->distanceToArrival,
-                                'body' => property_exists($station, 'body') ? json_encode($station->body) : null,
+                                'body' => property_isset($station, 'body') ? json_encode($station->body) : null,
                                 'allegiance' => $station->allegiance,
                                 'government' => $station->government,
                                 'economy' => $station->economy,
