@@ -28,7 +28,7 @@ class SystemInformation extends Model
         return $this->belongsTo(System::class);
     }
 
-    public static function checkAPI(System $system)
+    public static function retrieveBy(System $system)
     {
         $api = app(EliteAPIManager::class);
 

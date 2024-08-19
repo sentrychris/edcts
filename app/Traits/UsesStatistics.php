@@ -8,6 +8,7 @@ use App\Models\FleetSchedule;
 use App\Models\System;
 use App\Models\SystemBody;
 use App\Http\Resources\SystemResource;
+use App\Models\SystemInformation;
 use Illuminate\Support\Facades\Cache;
 
 trait UsesStatistics
@@ -28,9 +29,8 @@ trait UsesStatistics
                 ->first();
             
             if ($latestSystem instanceof System) {
-                $latestSystem
-                    ->checkAPIForSystemInformation()
-                    ->checkAPIForSystemBodies();
+                SystemInformation::retrieveBy($latestSystem);
+                SystemBody::retrieveBy($latestSystem);
             }
             
             $data = [

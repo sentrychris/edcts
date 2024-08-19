@@ -55,7 +55,7 @@ class SystemStation extends Model
      * 
      * @return System|false
      */
-    public static function checkAPI(System $system)
+    public static function retrieveBy(System $system)
     {
         $api = app(EliteAPIManager::class);
 

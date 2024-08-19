@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
+use App\Models\SystemBody;
+use App\Models\SystemInformation;
+use App\Models\SystemStation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -72,18 +75,15 @@ class SystemController extends Controller
     {
         $validated = $request->validated();
 
-        // Attempt to retrieve system from the cache, otherwise find it and cache it for 1 hour
         $system = System::whereSlug($slug)->first();
         if (!$system) {
-            // If the system doesn't yet exist in our database, attempt to import it from EDSM.
-            $system = System::checkAPI($slug);
+            $system = System::retrieveBy($slug);
         }
 
         if (!$system) {
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        // Load related data for the system depending on query parameters passed.
         $system = $this->loadValidatedRelations($validated, $system);
 
         return response(new SystemResource($system));
@@ -97,7 +97,7 @@ class SystemController extends Controller
      * 
      * @return Model|LengthAwarePaginator $data
      */
-    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
+    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $model): Model|LengthAwarePaginator
     {
         $allowed = [
             'withInformation' => 'information',
@@ -109,28 +109,22 @@ class SystemController extends Controller
 
         foreach ($allowed as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                if ($data instanceof Model && $relation === 'bodies') {
-                    // Fetches system celestial bodies e.g. stars, black holes, planets etc.
-                    // Either from the database, or EDSM if the data doesn't yet exist.
-                    $data->checkAPIForSystemBodies();
+                if ($model instanceof Model && $relation === 'bodies') {
+                    SystemBody::retrieveBy($model);
                 }
 
-                if ($data instanceof Model && $relation === 'information') {
-                    // Fetches system information e.g. governance, economy, security etc.
-                    // Either from the database, or EDSM if the data doesn't yet exist.
-                    $data->checkAPIForSystemInformation();
+                if ($model instanceof Model && $relation === 'information') {
+                    SystemInformation::retrieveBy($model);
                 }
 
-                if ($data instanceof Model && $relation === 'stations') {
-                    // Fetches system stations, outposts, planetary settlements etc.
-                    // Either from the database, or EDSM if the data doesn't yet exist.
-                    $data->checkAPIForSystemStations();
+                if ($model instanceof Model && $relation === 'stations') {
+                    SystemStation::retrieveBy($model);
                 }
 
-                $data->load($relation);
+                $model->load($relation);
             }
         }
 
-        return $data;
+        return $model;
     }
 }

@@ -149,7 +149,7 @@ class System extends Model
      * 
      * @return System|false
      */
-    public static function checkAPI(string $slug)
+    public static function retrieveBy(string $slug)
     {
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.edsm'))
@@ -175,36 +175,6 @@ class System extends Model
         }
 
         return $system;
-    }
-
-    /**
-     * Check for system information
-     */
-    public function checkAPIForSystemInformation()
-    {
-        SystemInformation::checkAPI($this);
-
-        return $this;
-    }
-
-    /**
-     * Check for system bodies
-     */
-    public function checkAPIForSystemBodies()
-    {
-        SystemBody::checkAPI($this);
-
-        return $this;
-    }
-
-    /**
-     * Check for system stations
-     */
-    public function checkAPIForSystemStations()
-    {
-        SystemStation::checkAPI($this);
-
-        return $this;
     }
 
     /**

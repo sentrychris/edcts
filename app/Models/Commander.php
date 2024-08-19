@@ -64,7 +64,7 @@ class Commander extends Model
         $api = app(EliteAPIManager::class);
         $response = $api->setConfig(config('elite.edsm'))
             ->setCategory('commander')
-            ->get('flight-log', [
+            ->get(key: 'flight-log', params: [
                 'commanderName' => $this->cmdr_name,
                 'apiKey' => $key,
                 'startDateTime' => $startDateTime,
@@ -79,7 +79,7 @@ class Commander extends Model
 
                 $system = System::whereName($log->system)->first();
                 if (! $system) {
-                    $system = System::checkAPI($log->system);
+                    $system = System::retrieveBy($log->system);
                 }
 
                 if (! $system) {

@@ -111,7 +111,7 @@ class SystemBody extends Model
         );
     }
 
-    public static function checkAPI(System $system)
+    public static function retrieveBy(System $system)
     {
         $api = app(EliteAPIManager::class);
 
