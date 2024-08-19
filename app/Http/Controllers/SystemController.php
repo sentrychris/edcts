@@ -36,36 +36,30 @@ class SystemController extends Controller
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
-        $cacheTTL = 3600;
-
         $validated = $request->validated();
         $page = $request->get('page', 1);
+        $limit = $request->get('limit', config('app.pagination.limit'));
 
-        $query = $request->only('name', 'exactSearch');
-        $prevQuery = Cache::get('systems_search_query');
-        if ($query !== $prevQuery) {
-            Log::channel('pages:cache')
-                ->info('systems_search_query cache MISS - flushing systems_page_* cache');
-
-            Cache::forget('systems_search_query');
-            Cache::forget("systems_page_{$page}");
-        }
-
-        $systems = Cache::get("systems_page_{$page}");
-        if (!$systems) {
-            Log::channel('pages:cache')
-                ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
-
+        if ($request->get('name') !== null) {
             $systems = System::filter($validated, (int)$request->exactSearch)
-                ->paginate($request->get('limit', config('app.pagination.limit')))
+                ->paginate($limit)
                 ->appends($request->all());
+        } else {
+            $systems = Cache::get("systems_page_{$page}");
 
-            $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
+            if (!$systems) {
+                Log::channel('pages:cache')
+                    ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
 
-            Cache::set("systems_page_{$page}", $systems, $cacheTTL);
+                $systems = System::filter($validated, 0)
+                    ->paginate($limit)
+                    ->appends($request->all());
+
+                Cache::set("systems_page_{$page}", $systems, 3600);
+            }
         }
 
-        Cache::set('systems_search_query', $query, $cacheTTL);
+        $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
 
         return SystemResource::collection($systems);
     }

@@ -33,7 +33,7 @@ class PreCacheSystems implements ShouldQueue
     /**
      * @var int
      */
-    public $timeout = 3600;
+    public $timeout = 0; // no timeout
 
     /**
      * @var int
@@ -95,8 +95,6 @@ class PreCacheSystems implements ShouldQueue
 
             $request->validateResolved();
             $validated = $request->validated();
-
-            $query = $request->only('name', 'exactSearch');
             $limit = $request->get('limit', config('app.pagination.limit'));
 
             try {
@@ -117,8 +115,6 @@ class PreCacheSystems implements ShouldQueue
                 $errors++;
             }
         }
-
-        Cache::set('systems_search_query', $query, $this->ttl);
 
         Log::channel($this->channel)
             ->info("Systems page pre-caching completed with " . number_format($errors) . " errors.");
