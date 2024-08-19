@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('edcts:stats:refresh --ttl=3600 --flush')
             ->hourly();
 
-        $schedule->job(new PreCacheSystems('pages:cache', true, 3600))
+        $schedule->job(new PreCacheSystems('pages:cache', true, 3600), 'default', 'database')
             ->withoutOverlapping()
             ->hourly();
     }
