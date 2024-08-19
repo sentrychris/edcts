@@ -74,9 +74,10 @@ class PreCacheSystems extends Command
             $validated = $request->validated();
 
             $query = $request->only('name', 'exactSearch');
+            $limit = $request->get('limit', config('app.pagination.limit'));
 
             $systems = System::filter($validated, (int)$request->exactSearch)
-                ->paginate($request->get('limit', config('app.pagination.limit')))
+                ->paginate($limit, ['*'], 'page', $page)
                 ->appends($request->all());
 
             $systems = $this->loadValidatedRelationsForSystem($validated, $systems);

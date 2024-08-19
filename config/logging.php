@@ -79,6 +79,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'pages:cache' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/pages-cache.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'thirdparty' => [
             'driver' => 'single',
             'path' => storage_path('logs/third-party-api.log'),

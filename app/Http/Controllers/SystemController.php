@@ -41,19 +41,21 @@ class SystemController extends Controller
         $validated = $request->validated();
         $page = $request->get('page', 1);
 
-        Log::info("page: ", ['page' => $page]);
-
         $query = $request->only('name', 'exactSearch');
         $prevQuery = Cache::get('systems_search_query');
         if ($query !== $prevQuery) {
-            Log::info('systems_search_query cache MISS - flushing systems_page_* cache');
+            Log::channel('pages:cache')
+                ->info('systems_search_query cache MISS - flushing systems_page_* cache');
+
             Cache::forget('systems_search_query');
             Cache::forget("systems_page_{$page}");
         }
 
         $systems = Cache::get("systems_page_{$page}");
         if (!$systems) {
-            Log::info("systems_page_{$page} cache MISS - querying database");
+            Log::channel('pages:cache')
+                ->info("systems_page_{$page} cache MISS - querying database");
+
             $systems = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($request->get('limit', config('app.pagination.limit')))
                 ->appends($request->all());
@@ -62,7 +64,8 @@ class SystemController extends Controller
 
             Cache::set("systems_page_{$page}", $systems, $cacheTTL);
         } else {
-            Log::info("systems_page_{$page} cache HIT", $systems->toArray());
+            Log::channel('pages:cache')
+                ->info("systems_page_{$page} cache HIT", $systems->toArray());
         }
 
         Cache::set('systems_search_query', $query, $cacheTTL);
