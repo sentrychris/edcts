@@ -3,17 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchStationRequest;
-use App\Http\Resources\SystemResource;
 use App\Http\Resources\SystemStationResource;
 use App\Models\SystemStation;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Traits\HasValidatedRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class StationController extends Controller
 {
+    use HasValidatedRelations;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->setAllowedRelations([
+            'withSystem' => 'system'
+        ]);
+    }
+
     /**
      * List stations.
      * 
@@ -67,28 +77,5 @@ class StationController extends Controller
         $station = $this->loadValidatedRelations($validated, $station);
 
         return response(new SystemStationResource($station));
-    }
-
-    /**
-     * Load validated relations based on query.
-     * 
-     * @param array $validated
-     * @param Model|LengthAwarePaginator $data
-     * 
-     * @return Model|LengthAwarePaginator $data
-     */
-    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
-    {
-        $allowed = [
-            'withSystem' => 'system',
-        ];
-
-        foreach ($allowed as $query => $relation) {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                $data->load($relation);
-            }
-        }
-
-        return $data;
     }
 }

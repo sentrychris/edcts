@@ -3,19 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchSystemBodyRequest;
-use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemBodyResource;
-use App\Http\Resources\SystemResource;
-use App\Models\System;
 use App\Models\SystemBody;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Traits\HasValidatedRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class SystemBodyController extends Controller
 {
+    use HasValidatedRelations;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->setAllowedRelations([
+            'withSystem' => 'system',
+            'withStations' => 'system.stations'
+        ]);
+    }
+
     /**
      * List system bodies.
      * 
@@ -72,29 +81,5 @@ class SystemBodyController extends Controller
         $body = $this->loadValidatedRelations($validated, $body);
 
         return response(new SystemBodyResource($body));
-    }
-
-    /**
-     * Load validated relations based on query.
-     * 
-     * @param array $validated
-     * @param Model|LengthAwarePaginator $data
-     * 
-     * @return Model|LengthAwarePaginator $data
-     */
-    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
-    {
-        $allowed = [
-            'withSystem' => 'system',
-            'withStations' => 'system.stations'
-        ];
-
-        foreach ($allowed as $query => $relation) {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                $data->load($relation);
-            }
-        }
-
-        return $data;
     }
 }

@@ -6,15 +6,16 @@ use App\Http\Requests\SearchFleetScheduleRequest;
 use App\Http\Requests\StoreFleetScheduleRequest;
 use App\Http\Resources\FleetScheduleResource;
 use App\Models\FleetSchedule;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Traits\HasValidatedRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 
 class FleetScheduleController extends Controller
-{   
+{
+    use HasValidatedRelations;
+
     /**
     * Constructor
     */
@@ -22,6 +23,11 @@ class FleetScheduleController extends Controller
     {
         $this->middleware(['auth:sanctum', 'has.cmdr'], [
             'only' => ['store', 'update', 'destroy']
+        ]);
+
+        $this->setAllowedRelations([
+            'withCarrierInformation' => 'carrier.commander',
+            'withSystemInformation' => ['departure.information', 'destination.information'],
         ]);
     }
     
@@ -146,29 +152,5 @@ class FleetScheduleController extends Controller
         return response([
             'message' => 'Scheduled carrier trip has been deleted'
         ]);
-    }
-
-    /**
-     * Load validated relations based on query.
-     * 
-     * @param array $validated
-     * @param Model|LengthAwarePaginator $data
-     * 
-     * @return Model|LengthAwarePaginator $data
-     */
-    private function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model|LengthAwarePaginator
-    {
-        $allowed = [
-            'withCarrierInformation' => 'carrier.commander',
-            'withSystemInformation' => ['departure.information', 'destination.information'],
-        ];
-
-        foreach ($allowed as $query => $relation) {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                $data->load($relation);
-            }
-        }
-
-        return $data;
     }
 }
