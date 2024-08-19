@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class System extends Model
 {
@@ -41,9 +40,7 @@ class System extends Model
 
     public function getInformationAttribute()
     {        
-        $information = Cache::remember($this->getCacheKey('information'), (60*60), function() {
-            return $this->getRelationValue('information');
-        });
+        $information = $this->getRelationValue('information');
 
         $this->setRelation('information', $information);
 
@@ -59,9 +56,7 @@ class System extends Model
 
     public function getBodiesAttribute()
     {        
-        $bodies = Cache::remember($this->getCacheKey('bodies'), (60*60), function() {
-            return $this->getRelationValue('bodies');
-        });
+        $bodies = $this->getRelationValue('bodies');
 
         $this->setRelation('bodies', $bodies);
 
@@ -77,9 +72,7 @@ class System extends Model
 
     public function getStationsAttribute()
     {        
-        $stations = Cache::remember($this->getCacheKey('stations'), (60*60), function() {
-            return $this->getRelationValue('stations');
-        });
+        $stations = $this->getRelationValue('stations');
 
         $this->setRelation('stations', $stations);
 
@@ -96,9 +89,7 @@ class System extends Model
 
     public function getDeparturesAttribute()
     {        
-        $departures = Cache::remember($this->getCacheKey('departures'), (60*60), function() {
-            return $this->getRelationValue('departures');
-        });
+        $departures = $this->getRelationValue('departures');
 
         $this->setRelation('departures', $departures);
 
@@ -115,9 +106,7 @@ class System extends Model
 
     public function getArrivalsAttribute()
     {        
-        $arrivals = Cache::remember($this->getCacheKey('arrivals'), (60*60), function() {
-            return $this->getRelationValue('arrivals');
-        });
+        $arrivals = $this->getRelationValue('arrivals');
 
         $this->setRelation('arrivals', $arrivals);
 
