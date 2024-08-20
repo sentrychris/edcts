@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Resources\GalnetNewsResource;
 use App\Models\GalnetNews;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GalnetNewsController extends Controller
 {
@@ -20,9 +21,12 @@ class GalnetNewsController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * List galnet news articles.
+     * 
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         return GalnetNewsResource::collection(
             GalnetNews::paginate($request->get('limit', config('app.pagination.limit')))
@@ -31,27 +35,32 @@ class GalnetNewsController extends Controller
 
     /**
      * Display the specified resource.
+     * 
+     * @param string $slug
+     * @return GalnetNewsResource|Response
      */
-    public function show(string $slug)
+    public function show(string $slug): GalnetNewsResource|Response
     {
         $article = GalnetNews::whereSlug($slug)->first();
 
         if (!$article) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response([], 404);
         }
 
-        return response(new GalnetNewsResource($article));
+        return new GalnetNewsResource($article);
     }
 
     /**
      * Remove the specified resource from storage.
+     * 
+     * @param string $id
      */
-    public function destroy(string $id)
+    public function destroy(string $id): Response
     {
         $article = GalnetNews::find($id);
 
         if  (!$article) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response([], 404);
         }
 
         $article->delete();

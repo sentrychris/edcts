@@ -39,7 +39,6 @@ class SystemBodyController extends Controller
      */
     public function show(string $slug, SearchSystemBodyRequest $request): SystemBodyResource|Response
     {
-        $validated = $request->validated();
         $body = SystemBody::whereSlug($slug)->first();
 
         if (!$body) {
@@ -47,7 +46,7 @@ class SystemBodyController extends Controller
         }
 
         // Load related data for the system depending on query parameters passed.
-        $body = $this->loadValidatedRelationsForQuery($validated, $body);
+        $body = $this->loadValidatedRelationsForQuery($request->validated(), $body);
 
         return new SystemBodyResource($body);
     }

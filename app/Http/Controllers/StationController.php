@@ -37,7 +37,6 @@ class StationController extends Controller
      */
     public function show(string $slug, SearchStationRequest $request): SystemStationResource|Response
     {
-        $validated = $request->validated();
         $station = SystemStation::whereSlug($slug)->first();
 
         if (! $station) {
@@ -45,7 +44,7 @@ class StationController extends Controller
         }
 
         // Load related data for the station depending on query parameters passed.
-        $station = $this->loadValidatedRelationsForQuery($validated, $station);
+        $station = $this->loadValidatedRelationsForQuery($request->validated(), $station);
 
         return new SystemStationResource($station);
     }

@@ -21,7 +21,7 @@ class StatisticsController extends Controller
      */
     public function index(Request $request): Response
     {
-        return Response([
+        return response([
             'data' => $this->getAllStatistics("statistics", $request->all())
         ]);
     }
