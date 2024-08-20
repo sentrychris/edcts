@@ -49,63 +49,6 @@ class SystemStation extends Model
     }
 
     /**
-     * import from API
-     * 
-     * @param string $slug
-     * 
-     * @return System|false
-     */
-    public static function retrieveBy(System $system)
-    {
-        if (!$system->stations()->exists()) {
-            $api = app(EdsmApiService::class);
-            $response = $api->setConfig(config('elite.edsm'))
-                ->setCategory('system')
-                ->get(key: 'stations', subkey: 'stations', params:[
-                    'systemName' => $system->name,
-                    'showId' => true
-                ]);
-
-            $stations = $response->stations;
-
-            if ($stations) {
-                foreach ($stations as $station) {
-                    try {
-                        $station = $system->stations()->updateOrCreate(
-                            [   // composite unique key 
-                                'name' => $station->name,
-                                'type' => $station->type,
-                            ],
-                            [
-                                'market_id' => $station->marketId,
-                                'distance_to_arrival' => $station->distanceToArrival,
-                                'body' => property_isset($station, 'body') ? json_encode($station->body) : null,
-                                'allegiance' => $station->allegiance,
-                                'government' => $station->government,
-                                'economy' => $station->economy,
-                                'second_economy' => $station->secondEconomy,
-                                'has_market' => $station->haveMarket,
-                                'has_shipyard' => $station->haveShipyard,
-                                'has_outfitting' => $station->haveOutfitting,
-                                'other_services' => is_array($station->otherServices) ? implode(',', $station->otherServices) : null,
-                                'controlling_faction' => $station->controllingFaction->name,
-                                'information_last_updated' => $station->updateTime->information,
-                                'market_last_updated' => $station->updateTime->market,
-                                'shipyard_last_updated' => $station->updateTime->shipyard,
-                                'outfitting_last_updated' => $station->updateTime->outfitting,
-                            ]
-                        );
-                    } catch (Exception $e) {
-                        Log::channel('import:system')->error($e->getMessage());
-                    }
-                }
-            }
-        }
-
-        return $system;
-    }
-
-    /**
      * Fetch body as object
      */
     protected function body(): Attribute

@@ -5,13 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
-use App\Models\SystemBody;
-use App\Models\SystemInformation;
-use App\Models\SystemStation;
 use App\Services\EdsmApiService;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -143,7 +139,7 @@ class SystemController extends Controller
                 }
 
                 if ($relation === 'stations') {
-                    SystemStation::retrieveBy($system);
+                    $this->edsmApiService->updateSystemStationsData($system);
                 }
 
                 $system->load($relation);
