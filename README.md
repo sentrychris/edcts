@@ -69,10 +69,10 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     ./vendor/bin/sail artisan migrate:fresh
     ```
 
-6. Seed systems data **before** running other seeders:
+6. Seed populated systems data **before** running other seeders:
 
-    1. Download a dump e.g. `systemsPopulated.json` archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
-    2. Unzip it to `storage/dumps/`
+    1. Download the `systemsPopulated.json.gz` dump archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
+    2. Extract it to `storage/dumps/`
     3. Run the import command:
         ```sh
         ./vendor/bin/sail artisan edcts:import:dumpfile \
