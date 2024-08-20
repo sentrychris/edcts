@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 abstract class ApiService
 {
     /**
@@ -24,7 +27,7 @@ abstract class ApiService
      * 
      * @param array $config
      * 
-     * @return EdsmService
+     * @return ApiService
      */
     public function setConfig(array $config): ApiService
     {
@@ -38,7 +41,7 @@ abstract class ApiService
      * 
      * @param string $category
      * 
-     * @return EdsmService
+     * @return ApiService
      */
     public function setCategory(string $category): ApiService
     {
@@ -74,6 +77,37 @@ abstract class ApiService
         $this->headers[$header] = $value;
         
         return $this;
+    }
+
+    /**
+     * Make a GET request to a third-party API
+     * 
+     * @param string $key
+     * @param ?string $subkey
+     * @param ?array $params
+     * 
+     * @return mixed
+     */
+    public function get(string $key, ?string $subkey = null, ?array $params = null): mixed
+    {
+        $url = $this->config['base_url']
+            . $this->resolveUri($this->category, $key, $subkey)
+            . $this->buildQueryString($params);
+
+        $response = Http::withHeaders($this->headers)->get($url);
+        $status = $response->getStatusCode();
+
+        if ($status !== 200) {
+            Log::channel('thirdparty')->error('API call failed', [
+                'status' => $status,
+                'reason' => $response->getReasonPhrase(),
+                'url' => $url,
+                'config' => $this->config,
+            ]);
+        }
+
+
+        return $this->getContents($response, true);
     }
     
     /**
@@ -117,5 +151,56 @@ abstract class ApiService
         }
 
         return now();
+    }
+
+    /**
+     * Resolve uri from config
+     * 
+     * @param string $section
+     * @param string $key
+     * @param ?string $subKey
+     * 
+     * @return string|false
+     */
+    protected function resolveUri(
+        string $section,
+        string $key,
+        string $subKey = null
+    ): string|false {
+        $section = $this->config[$section];
+        if ($section && $section[$key]) {
+
+            if (is_array($section[$key]) && $subKey && $section[$key][$subKey]) {
+
+                return $section[$key][$subKey];
+            }
+
+            return $section[$key];
+        }
+
+        return false;
+    }
+
+    /**
+     * Build query string for request
+     * 
+     * @param ?array $params
+     * 
+     * @return string
+     */
+    protected function buildQueryString(?array $params = null): string
+    {
+        if (!$params) {
+            return '';
+        }
+
+        $i = 0;
+        $template = '';
+        foreach ($params as $k => $v) {
+            $template .= ($i === 0 ? '?' : '&') . $k . '=' . $v;
+            ++$i;
+        }
+
+        return $template;
     }
 }
