@@ -278,9 +278,9 @@ class EdsmApiService extends ApiService
                 'showId' => true
             ]);
 
-        $stations = $response->stations;
+        if ($response->stations) {
+            $stations = $response->stations;
 
-        if ($stations) {
             foreach ($stations as $station) {
                 try {
                     $station = $system->stations()->updateOrCreate(
