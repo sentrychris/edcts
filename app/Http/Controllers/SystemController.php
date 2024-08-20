@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
+use App\Models\SystemBody;
+use App\Models\SystemInformation;
+use App\Models\SystemStation;
 use App\Services\EdsmApiService;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -25,9 +28,17 @@ class SystemController extends Controller
     /**
      * Constructor
      */
-    public function __construct(EdsmApiService $edsmApiService)
+    public function __construct(EdsmApiService $service)
     {
-        $this->edsmApiService = $edsmApiService;
+        $this->edsmApiService = $service;
+
+        $this->setAllowedRelations([
+            'withInformation' => 'information',
+            'withBodies' => 'bodies',
+            'withStations' => 'stations',
+            'withDepartures' => 'departures.destination',
+            'withArrivals' => 'arrivals.departure'
+        ]);
     }
 
     /**
@@ -78,10 +89,10 @@ class SystemController extends Controller
         }
 
         // Load the requested and validated query relations for the collection
-        $resources = $this->loadValidatedRelationsForSystem($validated, $systems);
+        $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
 
         // Return a collection of system resources
-        return SystemResource::collection($resources);
+        return SystemResource::collection($systems);
     }
 
     
@@ -106,6 +117,7 @@ class SystemController extends Controller
         // TODO: Cache the id64 and name, if just a name is passed here, use the cache to retrieve
         //       the corresponding id64 and construct the slug
         $system = System::whereSlug($slug)->first();
+        $validated = $request->validated();
         
         if (!$system) {
             // If the system doesn't exist in our database, query EDSM for it and then update
@@ -119,8 +131,24 @@ class SystemController extends Controller
         }
 
         // Load the requested and validated query relations for the resource
-        $resource = $this->loadValidatedRelationsForSystem($request->validated(), $system);
+        foreach ($this->getAllowedRelations() as $query => $relation) {
+            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
+                if ($relation === 'bodies') {
+                    $this->edsmApiService->updateSystemsBodiesData($system);
+                }
 
-        return new SystemResource($resource);
+                if ($relation === 'information') {
+                    SystemInformation::retrieveBy($system);
+                }
+
+                if ($relation === 'stations') {
+                    SystemStation::retrieveBy($system);
+                }
+
+                $system->load($relation);
+            }
+        }
+
+        return new SystemResource($system);
     }
 }

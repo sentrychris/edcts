@@ -64,15 +64,7 @@ trait HasValidatedQueryRelations
      */
     public function loadValidatedRelationsForSystem(array $validated, Model | LengthAwarePaginator $model): Model|LengthAwarePaginator
     {
-        $allowed = [
-            'withInformation' => 'information',
-            'withBodies' => 'bodies',
-            'withStations' => 'stations',
-            'withDepartures' => 'departures.destination',
-            'withArrivals' => 'arrivals.departure'
-        ];
-
-        foreach ($allowed as $query => $relation) {
+        foreach ($this->allowedRelations as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 if ($model instanceof Model && $relation === 'bodies') {
                     SystemBody::retrieveBy($model);
