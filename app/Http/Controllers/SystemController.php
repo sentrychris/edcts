@@ -50,17 +50,20 @@ class SystemController extends Controller
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
-        $validated = $request->validated();
         $page = $request->get('page', 1);
         $limit = $request->get('limit', config('app.pagination.limit'));
+        $validated = $request->validated();
 
         if ($request->get('name') !== null) {
+            // Handle queries for specific systems based on system name
             $systems = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($limit)
                 ->appends($request->all());
         } else {
+            // Otherwise retrieve the current page from the cache
             $systems = Cache::get("systems_page_{$page}");
 
+            // If the page does not exist in the cache, then retrieve it from the database
             if (!$systems) {
                 Log::channel('pages:cache')
                     ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
@@ -69,13 +72,16 @@ class SystemController extends Controller
                     ->paginate($limit)
                     ->appends($request->all());
 
+                // Cache the page for 1 hour
                 Cache::set("systems_page_{$page}", $systems, 3600);
             }
         }
 
-        $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
+        // Load the requested and validated query relations for the collection
+        $resources = $this->loadValidatedRelationsForSystem($validated, $systems);
 
-        return SystemResource::collection($systems);
+        // Return a collection of system resources
+        return SystemResource::collection($resources);
     }
 
     
@@ -92,10 +98,13 @@ class SystemController extends Controller
      * @param string $slug
      * @param SearchSystemRequest $request
      * 
-     * @return Response
+     * @return SystemResource
      */
-    public function show(string $slug, SearchSystemRequest $request): Response
+    public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
     {
+        // Retrieve the system based on the slug (id64-name composite).
+        // TODO: Cache the id64 and name, if just a name is passed here, use the cache to retrieve
+        //       the corresponding id64 and construct the slug
         $system = System::whereSlug($slug)->first();
         
         if (!$system) {
@@ -104,13 +113,14 @@ class SystemController extends Controller
             $system = $this->edsmApiService->updateSystemData($slug);
         }
 
-        // If no system if found, then return a 404 not found
+        // If no system if found, then return a 404 not found response
         if (!$system) {
-            return response(null, 404);
+            return response([], 404);
         }
 
-        $system = $this->loadValidatedRelationsForSystem($request->validated(), $system);
+        // Load the requested and validated query relations for the resource
+        $resource = $this->loadValidatedRelationsForSystem($request->validated(), $system);
 
-        return response(new SystemResource($system));
+        return new SystemResource($resource);
     }
 }
