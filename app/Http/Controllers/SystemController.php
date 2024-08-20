@@ -17,7 +17,7 @@ class SystemController extends Controller
     use HasValidatedQueryRelations;
 
     /**
-     * @var EdsmApiService $edsmApiService
+     * The EDSM API Service
      */
     private EdsmApiService $edsmApiService;
 
@@ -52,7 +52,6 @@ class SystemController extends Controller
      * limit: - page limit.
      * 
      * @param SearchSystemRequest $request
-     * 
      * @return AnonymousResourceCollection
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
@@ -104,7 +103,6 @@ class SystemController extends Controller
      * 
      * @param string $slug
      * @param SearchSystemRequest $request
-     * 
      * @return SystemResource
      */
     public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
@@ -116,8 +114,8 @@ class SystemController extends Controller
         $validated = $request->validated();
         
         if (!$system) {
-            // If the system doesn't exist in our database, query EDSM for it and then update
-            // our records.
+            // If the system doesn't exist in our database, query EDSM for it and then
+            // update our records
             $system = $this->edsmApiService->updateSystemData($slug);
         }
 
@@ -130,15 +128,22 @@ class SystemController extends Controller
         foreach ($this->getAllowedRelations() as $query => $relation)
         {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                if ($relation === 'bodies') {
+                // TODO: Instead of not updating if records already exist, set a timer flag somewhere in the database
+                //       and check it, and if the timer allows, make an update request to EDSM (we don't want to spam
+                //       the API every time a user requests a system with all relations)
+
+                // Check for existing system bodies and update if necessary
+                if ($relation === 'bodies' && !$system->bodies()->exists() && $system->body_count === null) {
                     $this->edsmApiService->updateSystemBodiesData($system);
                 }
 
-                if ($relation === 'information') {
+                // Check for existing system information and update if necessary
+                if ($relation === 'information' && !$system->information()->exists()) {
                     $this->edsmApiService->updateSystemInformationData($system);
                 }
 
-                if ($relation === 'stations') {
+                // Check for existing system stations and update if necessary
+                if ($relation === 'stations' && !$system->stations()->exists()) {
                     $this->edsmApiService->updateSystemStationsData($system);
                 }
 
