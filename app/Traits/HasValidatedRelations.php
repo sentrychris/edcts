@@ -56,7 +56,7 @@ trait HasValidatedRelations
     /**
      * Load validated relations based on query.
      * 
-     * TODO refactor this
+     * Systems are a special case as they have additional relations and API checks.
      * 
      * @param array $validated
      * @param Model|LengthAwarePaginator $data

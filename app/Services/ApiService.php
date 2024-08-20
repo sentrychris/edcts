@@ -5,9 +5,47 @@ namespace App\Services;
 abstract class ApiService
 {
     /**
+     * @var array $config
+     */
+    protected array $config;
+
+    /**
+     * @var string $category;
+     */
+    protected string $category;
+
+    /**
      * @var array $headers
      */
     protected $headers = [];
+
+    /**
+     * Set API config
+     * 
+     * @param array $config
+     * 
+     * @return EdsmService
+     */
+    public function setConfig(array $config): ApiService
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * Set API calling category
+     * 
+     * @param string $category
+     * 
+     * @return EdsmService
+     */
+    public function setCategory(string $category): ApiService
+    {
+        $this->category = $category;
+
+        return $this;
+    }
 
     /**
      * Set API headers

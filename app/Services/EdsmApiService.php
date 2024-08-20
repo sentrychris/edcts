@@ -2,47 +2,43 @@
 
 namespace App\Services;
 
+use App\Models\System;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class EdsmApiService extends ApiService
 {
     /**
-     * @var array $config
-     */
-    protected array $config;
-
-    /**
-     * var string $category;
-     */
-    protected string $category;
-    
-    /**
-     * Set API config
+     * Search EDSM for system data by system name and update records if found.
      * 
-     * @param array $config
-     * 
-     * @return EdsmService
+     * @param string $name - the system name
+     * @return System|false the created system record or false
      */
-    public function setConfig(array $config): EdsmApiService
+    public function updateSystemData(string $name): System|false
     {
-        $this->config = $config;
+        $response = $this->setConfig(config('elite.edsm'))
+            ->setCategory('systems')
+            ->get(key: 'system', params: [
+                'systemName' => $name,
+                'showCoordinates' => true,
+                'showInformation' => true,
+                'showId' => true
+            ]);
 
-        return $this;
-    }
+        if ($response) {
+            $system = System::updateOrCreate(['id64' => $response->id64], [
+                'id64' => $response->id64,
+                'name' => $response->name,
+                'coords' => json_encode($response->coords),
+                'updated_at' => now()
+            ]);
+        }
 
-    /**
-     * Set API calling category
-     * 
-     * @param string $category
-     * 
-     * @return EdsmService
-     */
-    public function setCategory(string $category): EdsmApiService
-    {
-        $this->category = $category;
+        if (! $system) {
+            return false;
+        }
 
-        return $this;
+        return $system;
     }
 
     /**
