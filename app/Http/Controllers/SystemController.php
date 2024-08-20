@@ -46,8 +46,8 @@ class SystemController extends Controller
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
      * withStations: 0 or 1 - Return system with associated stations and outposts.
-     * withDepartures: 0 or 1 - Return systems with associated carrier departures schedule.
-     * withArrivals: 0 or 1 - Return systems with associated carrier arrivals schedule.
+     * withDepartures: 0 or 1 - Return systems with associated carrier journey departures schedule.
+     * withArrivals: 0 or 1 - Return systems with associated carrier journey arrivals schedule.
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * page: - page number.
      * limit: - page limit.
@@ -99,8 +99,8 @@ class SystemController extends Controller
      * 
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
-     * withDepartures: 0 or 1 - Return system with associated carrier departures schedule.
-     * withArrivals: 0 or 1 - Return system with associated carrier arrivals schedule.
+     * withDepartures: 0 or 1 - Return system with associated carrier journey departures schedule.
+     * withArrivals: 0 or 1 - Return system with associated carrier journey arrivals schedule.
      * 
      * @param string $slug
      * @param SearchSystemRequest $request

@@ -31,7 +31,7 @@ class FleetCarrierJourneyScheduleController extends Controller
     }
     
     /**
-     * List schedule.
+     * List scheduled fleet carrier journeys.
      * 
      * User can provide the following request parameters.
      * 
@@ -60,7 +60,7 @@ class FleetCarrierJourneyScheduleController extends Controller
     }
     
     /**
-     * Show system.
+     * Show a scheduled carrier journey.
      * 
      * User can provide the following request parameters.
      * 

@@ -89,7 +89,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 
     - users (all with password of "_password_")
     - commanders (with fake api keys)
-    - fleet carriers and scheduled fleet carrier trips
+    - fleet carriers and scheduled fleet carrier journeys
 
 8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
 

@@ -41,7 +41,7 @@ class FleetCarrierController extends Controller
      * name: - Filter carriers by name.
      * identifier: - Filter carriers by identifier.
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated journey schedule information.
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * limit: - page limit.
      * 
@@ -66,7 +66,7 @@ class FleetCarrierController extends Controller
      * User can provide the following request parameters.
      * 
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated journey schedule information.
      * 
      * @param string $slug
      * @param SearchFleetCarrierRequest $request
@@ -140,7 +140,7 @@ class FleetCarrierController extends Controller
         $carrier->delete();
 
         return response([
-            'message' => 'Fleet carrier and associated schedule has been deleted'
+            'message' => 'Fleet carrier and associated journey schedule has been deleted'
         ]);
     }
 }
