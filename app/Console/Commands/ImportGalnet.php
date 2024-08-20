@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\GalnetJSONParser;
-use App\Services\GalnetRSSParser;
+use App\Services\GalnetJsonService;
+use App\Services\GalnetRssService;
 use Illuminate\Console\Command;
 
 class ImportGalnet extends Command
@@ -38,13 +38,13 @@ class ImportGalnet extends Command
         $this->info('Importing Galnet articles, please wait...');
         
         $parser = $format === 'rss'
-            ? new GalnetRSSParser(config('elite.galnet.rss'))
-            : new GalnetJSONParser(config('elite.galnet.json'));
+            ? new GalnetRssService(config('elite.galnet.rss'))
+            : new GalnetJsonService(config('elite.galnet.json'));
 
         $progress = $this->output->createProgressBar();
 
         $parser->import($progress);
 
-        $this->info("\nImporting complete.");
+        $this->info("\nImport completed.");
     }
 }

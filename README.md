@@ -94,19 +94,19 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
 8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:import:galnet --format json
+    ./vendor/bin/sail artisan edcts:import:galnet
     ```
 
 9. Cache system statistics:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:stats:refresh --ttl=3600 --flush
+    ./vendor/bin/sail artisan edcts:stats:refresh
     ```
 
 10. Start the artisan scheduler and queue:
     ```sh
     ./vendor/bin/sail artisan schedule:work
-    ./vendor/bin/sail artisan queue:work --daemon --queue default
+    ./vendor/bin/sail artisan queue:work --daemon
     ```
 
 ## Swagger Documentation
