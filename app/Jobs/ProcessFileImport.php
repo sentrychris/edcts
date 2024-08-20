@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
+use App\Services\EdsmApiService;
 use App\Traits\JsonFileParsing;
 
 class ProcessFileImport implements ShouldQueue
@@ -110,7 +111,7 @@ class ProcessFileImport implements ShouldQueue
                 'id64'   => $system->id64,
                 'name'   => $system->name,
                 'coords' => json_encode($system->coords),
-                'updated_at' => System::getAPIUpdateTime($system)
+                'updated_at' => app(EdsmApiService::class)->formatSystemUpdateTime($system)
             ];
 
             if (property_isset($system, 'mainStar') && $system->mainStar !== '') {
