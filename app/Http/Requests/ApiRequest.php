@@ -33,7 +33,5 @@ abstract class ApiRequest extends FormRequest
         throw new HttpResponseException(
             response()->json(['errors' => $errors], Response::HTTP_UNPROCESSABLE_ENTITY)
         );
-
-        return $errors;
     }
 }
