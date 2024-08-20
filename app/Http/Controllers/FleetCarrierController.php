@@ -6,7 +6,7 @@ use App\Http\Requests\SearchFleetCarrierRequest;
 use App\Http\Requests\StoreFleetCarrierRequest;
 use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -14,7 +14,7 @@ use Illuminate\Http\Response;
 
 class FleetCarrierController extends Controller
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
      * Constructor

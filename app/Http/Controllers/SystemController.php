@@ -6,7 +6,7 @@ use App\Http\Requests\SearchSystemRequest;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class SystemController extends Controller
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
      * List systems.

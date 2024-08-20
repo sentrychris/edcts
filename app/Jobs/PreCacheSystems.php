@@ -5,7 +5,7 @@ namespace App\Jobs;
 use Exception;
 use App\Http\Requests\SearchSystemRequest;
 use App\Models\System;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\URL;
 
 class PreCacheSystems implements ShouldQueue
 {
-    use Dispatchable, HasValidatedRelations, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasValidatedQueryRelations, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * @var string

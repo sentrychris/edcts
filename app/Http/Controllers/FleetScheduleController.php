@@ -6,7 +6,7 @@ use App\Http\Requests\SearchFleetScheduleRequest;
 use App\Http\Requests\StoreFleetScheduleRequest;
 use App\Http\Resources\FleetScheduleResource;
 use App\Models\FleetSchedule;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,7 +14,7 @@ use Illuminate\Http\JsonResponse;
 
 class FleetScheduleController extends Controller
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
     * Constructor

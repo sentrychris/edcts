@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchStationRequest;
 use App\Http\Resources\SystemStationResource;
 use App\Models\SystemStation;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class StationController extends Controller
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
      * Constructor

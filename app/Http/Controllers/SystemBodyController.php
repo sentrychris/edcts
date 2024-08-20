@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemBodyRequest;
 use App\Http\Resources\SystemBodyResource;
 use App\Models\SystemBody;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
 class SystemBodyController extends Controller
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
      * Constructor

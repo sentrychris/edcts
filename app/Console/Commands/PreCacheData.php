@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Jobs\PreCacheSystems;
-use App\Traits\HasValidatedRelations;
+use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Console\Command;
 
 class PreCacheData extends Command
 {
-    use HasValidatedRelations;
+    use HasValidatedQueryRelations;
 
     /**
      * The name and signature of the console command.
