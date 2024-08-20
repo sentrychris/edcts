@@ -108,6 +108,15 @@ class SystemController extends Controller
      */
     public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
     {
+        // Attempt to retrieve the system from the cache if it exists
+        $system = Cache::get("system_detail_{$slug}");
+        if ($system) {
+            return new SystemResource($system);
+        } else {
+            Log::channel('pages:cache')
+                    ->info("system_detail_{$slug} cache MISS - refreshing cache for this page");
+        }
+
         // Retrieve the system based on the slug (id64-name composite).
         // TODO: Cache the id64 and name, if just a name is passed here, use the cache to retrieve
         //       the corresponding id64 and construct the slug
@@ -151,6 +160,9 @@ class SystemController extends Controller
                 $system->load($relation);
             }
         }
+
+        // Cache the system for 1 hour
+        Cache::set("system_detail_{$slug}", $system, 3600);
 
         return new SystemResource($system);
     }
