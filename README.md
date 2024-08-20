@@ -4,7 +4,7 @@ Backend services for ED:CTS - responsible for communicating with Elite 3rd party
 
 ## Development
 
-ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](https://mariadb.org/) for storage.
+ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage.
 
 [Docker](https://www.docker.com/) is used for local development.
 
@@ -42,7 +42,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     LOG_LEVEL=debug
 
     DB_CONNECTION=mysql
-    DB_HOST=edcts-mariadb-1 # name of the running db container
+    DB_HOST=edcts-mysql-1 # name of the running db container
     DB_PORT=3306
     DB_DATABASE=edcts
     DB_USERNAME=sail

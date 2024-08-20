@@ -42,7 +42,7 @@ class ImportDumpFile extends Command
             return;
         }
 
-        $this->info("Importing records from {$filename}\n");
+        $this->line("Configuring import job for {$filename}");
 
         // Get the file size and set the threshold for type of processing
         $filesize = filesize($filepath);
@@ -68,9 +68,7 @@ class ImportDumpFile extends Command
 
             $this->warn("Please ensure you have enough queue workers for parallel processing.");
         } else {
-            $this->line("{$filename} is smaller than " . bytes_format($threshold));
-            $this->info("Dispatching import job for processing...");
-
+            $this->line("{$filename} is smaller than split threshold (" . bytes_format($threshold) . ")");
             $this->dispatchJob($filename);
         }
     }
@@ -89,12 +87,12 @@ class ImportDumpFile extends Command
                 $filename,
                 $this->option("validate"),
             )->onQueue($this->option('queue'));
+
+            $this->info("Import job has been dispatched.");
         } else {
             $this->error('Type does not match a valid dumpfile processing job type.');
         }
 
         // More types can be added here...
-
-        $this->info("Job dispatched!");
     }
 }
