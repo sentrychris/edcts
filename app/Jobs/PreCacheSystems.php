@@ -51,6 +51,14 @@ class PreCacheSystems implements ShouldQueue
         $this->channel = $channel;
         $this->flush = $flush;
         $this->ttl = $ttl;
+
+        $this->setAllowedQueryRelations([
+            'withInformation' => 'information',
+            'withBodies' => 'bodies',
+            'withStations' => 'stations',
+            'withDepartures' => 'departures.destination',
+            'withArrivals' => 'arrivals.departure'
+        ]);
     }
 
     /**
