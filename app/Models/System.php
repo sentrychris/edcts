@@ -132,69 +132,6 @@ class System extends Model
     }
 
     /**
-     * import from API
-     * 
-     * @param string $slug
-     * 
-     * @return System|false
-     */
-    public static function retrieveBy(string $slug)
-    {
-        $api = app(EdsmApiService::class);
-        $response = $api->setConfig(config('elite.edsm'))
-            ->setCategory('systems')
-            ->get(key: 'system', params: [
-                'systemName' => $slug,
-                'showCoordinates' => true,
-                'showInformation' => true,
-                'showId' => true
-            ]);
-
-        if ($response) {
-            $system = System::create([
-                'id64' => $response->id64,
-                'name' => $response->name,
-                'coords' => json_encode($response->coords),
-                'updated_at' => now()
-            ]);
-        }
-
-        if (! $system) {
-            return false;
-        }
-
-        return $system;
-    }
-
-    /**
-     * Get update time according to various 3rd party formats.
-     */
-    public static function getAPIUpdateTime($system): mixed
-    {
-        // Spansh dumps
-        if (property_isset($system, 'updateTime')
-            && is_string($system->updateTime)
-            && $system->updateTime
-        ) {
-            if (str_contains($system->updateTime, '+')) {
-                return substr($system->updateTime, 0, strpos($system->updateTime, '+'));
-            }
-
-            return $system->updateTime;
-        }
-
-        // EDSM dumps
-        if (property_isset($system, 'updateTime')
-            && is_object($system->updateTime)
-            && $system->updateTime->information
-        ) {
-            return $system->updateTime->information;
-        }
-
-        return now();
-    }
-
-    /**
      * configure slug
      */
     public function sluggable(): array

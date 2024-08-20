@@ -18,6 +18,19 @@ class SystemController extends Controller
     use HasValidatedQueryRelations;
 
     /**
+     * @var EdsmApiService $edsmApiService
+     */
+    private EdsmApiService $edsmApiService;
+
+    /**
+     * Constructor
+     */
+    public function __construct(EdsmApiService $edsmApiService)
+    {
+        $this->edsmApiService = $edsmApiService;
+    }
+
+    /**
      * List systems.
      * 
      * User can provide the following request parameters.
@@ -83,18 +96,20 @@ class SystemController extends Controller
      */
     public function show(string $slug, SearchSystemRequest $request): Response
     {
-        $validated = $request->validated();
-
         $system = System::whereSlug($slug)->first();
+        
         if (!$system) {
-            $system = System::retrieveBy($slug);
+            // If the system doesn't exist in our database, query EDSM for it and then update
+            // our records.
+            $system = $this->edsmApiService->updateSystemData($slug);
         }
 
+        // If no system if found, then return a 404 not found
         if (!$system) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response(null, 404);
         }
 
-        $system = $this->loadValidatedRelationsForSystem($validated, $system);
+        $system = $this->loadValidatedRelationsForSystem($request->validated(), $system);
 
         return response(new SystemResource($system));
     }

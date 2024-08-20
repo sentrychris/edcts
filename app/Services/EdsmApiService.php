@@ -12,19 +12,25 @@ class EdsmApiService extends ApiService
      * Search EDSM for system data by system name and update records if found.
      * 
      * @param string $name - the system name
-     * @return System|false the created system record or false
+     * @return mixed the created system record or false
      */
-    public function updateSystemData(string $name): System|false
+    public function updateSystemData(string $name): mixed
     {
+        // Split the string in case it's a slug prefixed with the id64
+        $parts = explode('-', $name, 2);
+        $systemName = $parts[1];
+    
+        // Set the API config and make the request
         $response = $this->setConfig(config('elite.edsm'))
             ->setCategory('systems')
             ->get(key: 'system', params: [
-                'systemName' => $name,
+                'systemName' => $systemName,
                 'showCoordinates' => true,
                 'showInformation' => true,
                 'showId' => true
             ]);
 
+        // If there is a successful response, update the system record
         if ($response) {
             $system = System::updateOrCreate(['id64' => $response->id64], [
                 'id64' => $response->id64,
@@ -79,10 +85,13 @@ class EdsmApiService extends ApiService
      * @param string $key
      * @param ?string $subKey
      * 
-     * @return string
+     * @return string|false
      */
-    public function resolveUri(string $section, string $key, string $subKey = null): string
-    {
+    public function resolveUri(
+        string $section,
+        string $key,
+        string $subKey = null
+    ): string|false {
         $section = $this->config[$section];
         if ($section && $section[$key]) {
 
@@ -93,6 +102,8 @@ class EdsmApiService extends ApiService
 
             return $section[$key];
         }
+
+        return false;
     }
 
     /**
@@ -140,7 +151,7 @@ class EdsmApiService extends ApiService
         $i = 0;
         $template = '';
         foreach ($params as $k => $v) {
-            $template .= ($i === 0 ? '?' : '&') . $k . '=' . rawurlencode($v);
+            $template .= ($i === 0 ? '?' : '&') . $k . '=' . $v;
             ++$i;
         }
 
