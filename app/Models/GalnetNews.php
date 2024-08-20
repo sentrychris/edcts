@@ -16,12 +16,7 @@ class GalnetNews extends Model
 
     protected $table = 'galnet_news';
 
-    protected $fillable = [
-        'title',
-        'content',
-        'uploaded_at',
-        'banner_image'
-    ];
+    protected $guarded = [];
 
     public $timestamps = false;
 

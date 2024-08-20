@@ -12,15 +12,7 @@ class SystemInformation extends Model
     
     protected $table = 'systems_information';
     
-    protected $fillable = [
-        'allegiance',
-        'government',
-        'faction',
-        'faction_state',
-        'population',
-        'security',
-        'economy'
-    ];
+    protected $guarded = [];
     
     public function system(): BelongsTo
     {

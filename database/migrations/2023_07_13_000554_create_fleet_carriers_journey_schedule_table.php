@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fleet_carrier_journey_schedule', function (Blueprint $table) {
+        Schema::create('fleet_carriers_journey_schedule', function (Blueprint $table) {
             $table->id();
             $table->foreignIdfor(FleetCarrier::class)->constrained();
             $table->unsignedBigInteger('departure_system_id');

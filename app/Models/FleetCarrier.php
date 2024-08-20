@@ -18,16 +18,7 @@ class FleetCarrier extends Model
 
     protected $table = 'fleet_carriers';
 
-    protected $fillable = [
-        'name',
-        'identifier',
-        'has_refuel',
-        'has_repair',
-        'has_armory',
-        'has_shipyard',
-        'has_outfitting',
-        'has_cartographics'        
-    ];
+    protected $guarded = [];
 
     /**
      * Boot model

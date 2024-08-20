@@ -16,7 +16,7 @@ class FleetCarrierJourneySchedule extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
-    protected $table = 'fleet_carrier_journey_schedule';
+    protected $table = 'fleet_carriers_journey_schedule';
 
     protected $guarded = [];
 

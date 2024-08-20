@@ -19,14 +19,7 @@ class System extends Model
     
     protected $table = 'systems';
     
-    protected $fillable = [
-        'id64',
-        'name',
-        'coords',
-        'body_count',
-        'main_star',
-        'updated_at',
-    ];
+    protected $guarded = [];
     
     public $timestamps = false;
     
