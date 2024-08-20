@@ -54,10 +54,10 @@ trait UsesStatistics
                     'boarding' => FleetSchedule::whereIsBoarding(1)->count(),
                     'cancelled' => FleetSchedule::whereIsCancelled(1)->count(),
                     'leaving_in' => [
-                        'two_days' => FleetSchedule::leavingInNextNDays(2),
-                        'one_week' => FleetSchedule::leavingInNextNDays(7),
-                        'one_month' => FleetSchedule::leavingInNextNDays(31),
-                        'six_months' => FleetSchedule::leavingInNextNDays(31*6),
+                        'two_days' => FleetSchedule::leavingInNextNumberOfDays(2),
+                        'one_week' => FleetSchedule::leavingInNextNumberOfDays(7),
+                        'one_month' => FleetSchedule::leavingInNextNumberOfDays(31),
+                        'six_months' => FleetSchedule::leavingInNextNumberOfDays(31*6),
                     ]
                 ]
             ];

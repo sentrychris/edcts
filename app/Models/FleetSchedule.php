@@ -89,15 +89,12 @@ class FleetSchedule extends Model
         return $builder;
     }
 
-    public static function leavingInNextNDays(int $n)
+    public static function leavingInNextNumberOfDays(int $days)
     {
-        $time = now()->addDays($n)->toDateTimeString();
-        $count = FleetSchedule::whereIsCancelled(0)
+        return FleetSchedule::whereIsCancelled(0)
             ->where('departs_at', '>', now()->toDateString())
-            ->where('departs_at', '<=', $time)
+            ->where('departs_at', '<=', now()->addDays($days)->toDateTimeString())
             ->count();
-        
-        return $count;
     }
 
     /**
