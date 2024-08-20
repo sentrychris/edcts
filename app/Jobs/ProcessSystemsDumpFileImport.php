@@ -15,7 +15,7 @@ use App\Models\System;
 use App\Services\EdsmApiService;
 use App\Traits\JsonFileParsing;
 
-class ProcessFileImport implements ShouldQueue
+class ProcessSystemsDumpFileImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, JsonFileParsing, Queueable, SerializesModels;
 

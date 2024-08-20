@@ -76,10 +76,9 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MariaDB](
     3. Run the import command:
         ```sh
         ./vendor/bin/sail artisan edcts:import:dumpfile \
+            --type systems \
             --channel import:system \
-            --file systemsPopulated.json \
-            --queue default \
-            --validate true
+            --file systemsPopulated.json
         ```
 
 7. Seed other test data:

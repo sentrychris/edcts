@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Jobs\ProcessFileImport;
 use App\Traits\JsonFileParsing;
+use App\Jobs\ProcessSystemsDumpFileImport;
 
 class ImportDumpFile extends Command
 {
@@ -16,6 +16,7 @@ class ImportDumpFile extends Command
      * @var string
      */
     protected $signature = "edcts:import:dumpfile
+        {--type= : The type of dump file to import.}
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}
         {--queue=default : The queue to dispatch the job to.}
@@ -82,10 +83,18 @@ class ImportDumpFile extends Command
      */
     private function dispatchJob (string $filename)
     {
-        ProcessFileImport::dispatch(
-            $this->option("channel"),
-            $filename,
-            $this->option("validate"),
-        )->onQueue($this->option('queue'));
+        if (in_array($this->option("type"), ['sys', 'system', 'systems'])) {
+            ProcessSystemsDumpFileImport::dispatch(
+                $this->option("channel"),
+                $filename,
+                $this->option("validate"),
+            )->onQueue($this->option('queue'));
+        } else {
+            $this->error('Type does not match a valid dumpfile processing job type.');
+        }
+
+        // More types can be added here...
+
+        $this->info("Job dispatched!");
     }
 }
