@@ -54,6 +54,7 @@ class GalnetNewsController extends Controller
      * Remove the specified resource from storage.
      * 
      * @param string $id
+     * @return Response
      */
     public function destroy(string $id): Response
     {

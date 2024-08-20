@@ -7,10 +7,9 @@ use App\Http\Requests\StoreFleetCarrierRequest;
 use App\Http\Resources\FleetCarrierResource;
 use App\Models\FleetCarrier;
 use App\Traits\HasValidatedQueryRelations;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class FleetCarrierController extends Controller
 {
@@ -44,7 +43,6 @@ class FleetCarrierController extends Controller
      * limit: - page limit.
      * 
      * @param SearchFleetCarrierRequest $request
-     * 
      * @return AnonymousResourceCollection
      */
     public function index(SearchFleetCarrierRequest $request): AnonymousResourceCollection
@@ -69,39 +67,34 @@ class FleetCarrierController extends Controller
      * 
      * @param string $slug
      * @param SearchFleetCarrierRequest $request
-     * 
-     * @return Response
+     * @return FleetCarrierResource|Response
      */
-    public function show(string $slug, SearchFleetCarrierRequest $request): Response
+    public function show(string $slug, SearchFleetCarrierRequest $request): FleetCarrierResource|Response
     {
-        $validated = $request->validated();
         $carrier = FleetCarrier::whereSlug($slug)->first();
 
         if (!$carrier) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response([], 404);
         }
 
-        $this->loadValidatedRelationsForQuery($validated, $carrier);
+        $this->loadValidatedRelationsForQuery($request->validated(), $carrier);
 
-        return response(new FleetCarrierResource($carrier));
+        return new FleetCarrierResource($carrier);
     }
 
     /**
      * Store a newly created resource in storage.
      * 
      * @param StoreFleetCarrierRequest $request
-     * 
-     * @return Response
+     * @return FleetCarrierResource|Response
      */
-    public function store(StoreFleetCarrierRequest $request): Response
+    public function store(StoreFleetCarrierRequest $request): FleetCarrierResource|Response
     {
-        $validated = $request->validated();
-        $carrier = $request->user()->commander->carriers()->create($validated);
+        $carrier = $request->user()->commander
+            ->carriers()
+            ->create($request->validated());
 
-        return response(
-            new FleetCarrierResource($carrier->load('commander')),
-            JsonResponse::HTTP_CREATED
-        );
+        return new FleetCarrierResource($carrier->load('commander'));
     }
 
     /**
@@ -109,22 +102,19 @@ class FleetCarrierController extends Controller
      * 
      * @param string $id
      * @param Request $request
-     * 
-     * @return Response
+     * @return FleetCarrierResource|Response
      */
-    public function update(string $id, Request $request): Response
+    public function update(string $id, Request $request): FleetCarrierResource|Response
     {
         $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response([], 404);
         }
 
         $carrier->update($request->toArray());
 
-        return response(
-            new FleetCarrierResource($carrier->load(['commander', 'schedule']))
-        );
+        return new FleetCarrierResource($carrier->load(['commander', 'schedule']));
     }
 
     /**
@@ -132,7 +122,6 @@ class FleetCarrierController extends Controller
      * 
      * @param string $id
      * @param Request $request
-     * 
      * @return Response
      */
     public function destroy(string $id, Request $request): Response
@@ -140,7 +129,7 @@ class FleetCarrierController extends Controller
         $carrier = $request->user()->commander->carriers()->find($id);
 
         if (!$carrier) {
-            return response(null, JsonResponse::HTTP_NOT_FOUND);
+            return response([], 404);
         }
 
         $carrier->delete();

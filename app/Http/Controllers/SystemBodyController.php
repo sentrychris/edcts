@@ -34,7 +34,6 @@ class SystemBodyController extends Controller
      * 
      * @param string $slug
      * @param SearchSystemBodyRequest $request
-     * 
      * @return SystemBodyResource|Response
      */
     public function show(string $slug, SearchSystemBodyRequest $request): SystemBodyResource|Response

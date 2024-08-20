@@ -32,7 +32,6 @@ class StationController extends Controller
      * 
      * @param string $slug
      * @param SearchStationRequest $request
-     * 
      * @return SystemStationResource|Response
      */
     public function show(string $slug, SearchStationRequest $request): SystemStationResource|Response
