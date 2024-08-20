@@ -89,7 +89,7 @@ class SystemController extends Controller
         }
 
         // Load the requested and validated query relations for the collection
-        $systems = $this->loadValidatedRelationsForSystem($validated, $systems);
+        $systems = $this->loadValidatedRelations($validated, $systems);
 
         // Return a collection of system resources
         return SystemResource::collection($systems);
@@ -130,15 +130,16 @@ class SystemController extends Controller
             return response([], 404);
         }
 
-        // Load the requested and validated query relations for the resource
-        foreach ($this->getAllowedRelations() as $query => $relation) {
+        // Update the system with the requested relations
+        foreach ($this->getAllowedRelations() as $query => $relation)
+        {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 if ($relation === 'bodies') {
-                    $this->edsmApiService->updateSystemsBodiesData($system);
+                    $this->edsmApiService->updateSystemBodiesData($system);
                 }
 
                 if ($relation === 'information') {
-                    SystemInformation::retrieveBy($system);
+                    $this->edsmApiService->updateSystemInformationData($system);
                 }
 
                 if ($relation === 'stations') {

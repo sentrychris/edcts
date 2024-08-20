@@ -53,10 +53,9 @@ class EdsmApiService extends ApiService
      * @param System $system - the system we are searching bodies for
      * @return System - the updated system record
      */
-    public function updateSystemsBodiesData(System $system) {
+    public function updateSystemBodiesData(System $system) {
         if (!$system->bodies()->exists() && $system->body_count === null) {
-            $api = app(EdsmApiService::class);
-            $response = $api->setConfig(config('elite.edsm'))
+            $response = $this->setConfig(config('elite.edsm'))
                 ->setCategory('system')
                 ->get(key: 'bodies', params: [
                     'systemName' => $system->name
@@ -115,6 +114,39 @@ class EdsmApiService extends ApiService
                         'parents' => property_isset($body, 'parents') ? json_encode($body->parents) : null,
                     ]);
                 }
+            }
+        }
+
+        return $system;
+    }
+
+    /**
+     * Search EDSM for system information data by system name and update records if found.
+     * 
+     * @param System $system - the system we are searching information for
+     * @return System - the updated system record
+     */
+    public function updateSystemInformationData(System $system) {
+        if (!$system->information()->exists()) {
+
+            $response = $this->setConfig(config('elite.edsm'))
+                ->setCategory('systems')
+                ->get(key: 'system', params: [
+                    'systemName' => $system->name,
+                    'showInformation' => true
+                ]);
+
+            if ($response->information) {
+                $data = [];
+                $this->convertResponse($response->information, $data);
+
+                $fillable = (new System())->getFillable();
+
+                $data = array_filter($data, function($v, $k) use ($fillable) {
+                    return in_array($k, $fillable);
+                }, ARRAY_FILTER_USE_BOTH);
+
+                $system->information()->updateOrCreate($data);
             }
         }
 

@@ -8,7 +8,7 @@ use App\Models\FleetSchedule;
 use App\Models\System;
 use App\Models\SystemBody;
 use App\Http\Resources\SystemResource;
-use App\Models\SystemInformation;
+use App\Services\EdsmApiService;
 use Illuminate\Support\Facades\Cache;
 
 trait UsesStatistics
@@ -23,14 +23,17 @@ trait UsesStatistics
             ? (int)$options['ttl']
             : 3600;
 
-        return Cache::remember($key, $ttl, function () {
-            $latestSystem = System::with(['information'])
+        return Cache::remember($key, $ttl, function ()
+        {
+            $api = app(EdsmApiService::class);
+
+            $lastAddedSystem = System::with(['information'])
                 ->orderBy('id', 'desc')
                 ->first();
             
-            if ($latestSystem instanceof System) {
-                SystemInformation::retrieveBy($latestSystem);
-                SystemBody::retrieveBy($latestSystem);
+            if ($lastAddedSystem instanceof System) {
+                $api->updateSystemBodiesData($lastAddedSystem);
+                $api->updateSystemInformationData($lastAddedSystem);
             }
             
             $data = [
@@ -39,7 +42,7 @@ trait UsesStatistics
                     'bodies' => SystemBody::count(),
                     'stars' => SystemBody::whereType('Star')->count(),
                     'orbiting' => SystemBody::whereType('planet')->count(),
-                    'latest_system' => new SystemResource($latestSystem->load(['information', 'bodies'])),
+                    'latest_system' => new SystemResource($lastAddedSystem->load(['information', 'bodies'])),
                 ],
                 
                 'carriers' => FleetCarrier::count(),
