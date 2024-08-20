@@ -4,7 +4,7 @@ namespace App\Traits;
 
 use App\Models\Commander;
 use App\Models\FleetCarrier;
-use App\Models\FleetSchedule;
+use App\Models\FleetCarrierJourneySchedule;
 use App\Models\System;
 use App\Models\SystemBody;
 use App\Http\Resources\SystemResource;
@@ -50,14 +50,14 @@ trait UseStatistics
                 'commanders' => Commander::count(),
                 
                 'journeys' => [
-                    'total' => FleetSchedule::count(),
-                    'boarding' => FleetSchedule::whereIsBoarding(1)->count(),
-                    'cancelled' => FleetSchedule::whereIsCancelled(1)->count(),
+                    'total' => FleetCarrierJourneySchedule::count(),
+                    'boarding' => FleetCarrierJourneySchedule::whereIsBoarding(1)->count(),
+                    'cancelled' => FleetCarrierJourneySchedule::whereIsCancelled(1)->count(),
                     'leaving_in' => [
-                        'two_days' => FleetSchedule::leavingInNextNumberOfDays(2),
-                        'one_week' => FleetSchedule::leavingInNextNumberOfDays(7),
-                        'one_month' => FleetSchedule::leavingInNextNumberOfDays(31),
-                        'six_months' => FleetSchedule::leavingInNextNumberOfDays(31*6),
+                        'two_days' => FleetCarrierJourneySchedule::leavingInNextNumberOfDays(2),
+                        'one_week' => FleetCarrierJourneySchedule::leavingInNextNumberOfDays(7),
+                        'one_month' => FleetCarrierJourneySchedule::leavingInNextNumberOfDays(31),
+                        'six_months' => FleetCarrierJourneySchedule::leavingInNextNumberOfDays(31*6),
                     ]
                 ]
             ];

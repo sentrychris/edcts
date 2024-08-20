@@ -24,8 +24,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetCarrier> $carriers
  * @property-read int|null $carriers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetSchedule> $schedule
- * @property-read int|null $schedule_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetCarrierJourneySchedule> $carriersJourneySchedule
+ * @property-read int|null $carriers_journey_schedule_count
  * @property-read \App\Models\User $user
  * @method static \Database\Factories\CommanderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Commander newModelQuery()
@@ -60,9 +60,9 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetCarrierJourneySchedule> $carrierJourneySchedule
+ * @property-read int|null $carrier_journey_schedule_count
  * @property-read \App\Models\Commander $commander
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetSchedule> $schedule
- * @property-read int|null $schedule_count
  * @method static \Database\Factories\FleetCarrierFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrier filter(array $options, bool $exact)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrier findSimilarSlugs(string $attribute, array $config, string $slug)
@@ -95,53 +95,22 @@ namespace App\Models{
 /**
  * 
  *
- * @property int $id
- * @property int $fleet_carrier_id
- * @property int $departure_system_id
- * @property int $destination_system_id
- * @property string $title
- * @property string|null $description
- * @property string $departs_at
- * @property string|null $departed_at
- * @property string|null $arrives_at
- * @property string|null $arrived_at
- * @property int $is_boarding
- * @property int $is_cancelled
- * @property int $has_departed
- * @property int $has_arrived
- * @property string|null $slug
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\FleetCarrier $carrier
- * @property-read \App\Models\System $departure
- * @property-read \App\Models\System $destination
- * @method static \Database\Factories\FleetScheduleFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule filter(array $options, bool $exact)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule findSimilarSlugs(string $attribute, array $config, string $slug)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule query()
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereArrivedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereArrivesAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDepartedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDepartsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDepartureSystemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereDestinationSystemId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereFleetCarrierId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereHasArrived($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereHasDeparted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereIsBoarding($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereIsCancelled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule withUniqueSlugConstraints(\Illuminate\Database\Eloquent\Model $model, string $attribute, array $config, string $slug)
- * @method static \Illuminate\Database\Eloquent\Builder|FleetSchedule withoutTrashed()
+ * @property-read \App\Models\FleetCarrier|null $carrier
+ * @property-read \App\Models\System|null $departure
+ * @property-read \App\Models\System|null $destination
+ * @method static \Database\Factories\FleetCarrierJourneyScheduleFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule filter(array $options, bool $exact)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule findSimilarSlugs(string $attribute, array $config, string $slug)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule query()
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule whereSlug(string $slug)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule withUniqueSlugConstraints(\Illuminate\Database\Eloquent\Model $model, string $attribute, array $config, string $slug)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetCarrierJourneySchedule withoutTrashed()
  */
-	class FleetSchedule extends \Eloquent {}
+	class FleetCarrierJourneySchedule extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -186,11 +155,11 @@ namespace App\Models{
  * @property string|null $slug
  * @property string $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetSchedule> $arrivals
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetCarrierJourneySchedule> $arrivals
  * @property-read int|null $arrivals_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemBody> $bodies
+ * @property-read mixed $bodies
  * @property-read int|null $bodies_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetSchedule> $departures
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FleetCarrierJourneySchedule> $departures
  * @property-read int|null $departures_count
  * @property-read \App\Models\SystemInformation|null $information
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemStation> $stations

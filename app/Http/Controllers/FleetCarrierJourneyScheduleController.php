@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SearchFleetScheduleRequest;
-use App\Http\Requests\StoreFleetScheduleRequest;
-use App\Http\Resources\FleetScheduleResource;
-use App\Models\FleetSchedule;
+use App\Http\Requests\SearchFleetCarrierJourneyScheduleRequest;
+use App\Http\Requests\StoreFleetCarrierJourneyScheduleRequest;
+use App\Http\Resources\FleetCarrierJourneyScheduleResource;
+use App\Models\FleetCarrierJourneySchedule;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class FleetScheduleController extends Controller
+class FleetCarrierJourneyScheduleController extends Controller
 {
     use HasValidatedQueryRelations;
 
@@ -44,19 +44,19 @@ class FleetScheduleController extends Controller
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * limit: - page limit
      * 
-     * @param SearchFleetScheduleRequest $request
+     * @param SearchFleetCarrierJourneyScheduleRequest $request
      * @return AnonymousResourceCollection
      */
-    public function index(SearchFleetScheduleRequest $request): AnonymousResourceCollection
+    public function index(SearchFleetCarrierJourneyScheduleRequest $request): AnonymousResourceCollection
     {        
         $validated = $request->validated();
-        $schedule = FleetSchedule::filter($validated, (int)$request->exactSearch)
+        $schedule = FleetCarrierJourneySchedule::filter($validated, (int)$request->exactSearch)
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
         $this->loadValidatedRelationsForQuery($validated, $schedule);
         
-        return FleetScheduleResource::collection($schedule);
+        return FleetCarrierJourneyScheduleResource::collection($schedule);
     }
     
     /**
@@ -70,13 +70,13 @@ class FleetScheduleController extends Controller
      *                                  information.
      * 
      * @param string $slug
-     * @param SearchFleetScheduleRequest $request
-     * @return FleetScheduleResource|Response
+     * @param SearchFleetCarrierJourneyScheduleRequest $request
+     * @return FleetCarrierJourneyScheduleResource|Response
      */
-    public function show(string $slug, SearchFleetScheduleRequest $request): FleetScheduleResource|Response
+    public function show(string $slug, SearchFleetCarrierJourneyScheduleRequest $request): FleetCarrierJourneyScheduleResource|Response
     {
         $validated = $request->validated();
-        $schedule = FleetSchedule::whereSlug($slug)->first();
+        $schedule = FleetCarrierJourneySchedule::whereSlug($slug)->first();
         
         if (!$schedule) {
             return response([], 404);
@@ -84,25 +84,25 @@ class FleetScheduleController extends Controller
 
         $this->loadValidatedRelationsForQuery($validated, $schedule);
         
-        return new FleetScheduleResource($schedule);
+        return new FleetCarrierJourneyScheduleResource($schedule);
     }
     
     /**
     * Store a newly created resource in storage.
     * 
-    * @param StoreFleetScheduleRequest $request
+    * @param FleetCarrierJourneyScheduleResource $request
     * @return Response
     */
-    public function store(StoreFleetScheduleRequest $request): FleetScheduleResource|Response
+    public function store(StoreFleetCarrierJourneyScheduleRequest $request): FleetCarrierJourneyScheduleResource|Response
     {
         $validated = $request->validated();
-        $schedule = FleetSchedule::create($validated);
+        $schedule = FleetCarrierJourneySchedule::create($validated);
 
         if (!$schedule) {
             return response([], 404);
         }
         
-        return new FleetScheduleResource(
+        return new FleetCarrierJourneyScheduleResource(
             $schedule->load(['carrier.commander', 'departure', 'destination'])
         );
     }
@@ -114,9 +114,9 @@ class FleetScheduleController extends Controller
     * @param Request $request
     * @return Response
     */
-    public function update(string $id, Request $request): FleetScheduleResource|Response
+    public function update(string $id, Request $request): FleetCarrierJourneyScheduleResource|Response
     {
-        $schedule = $request->user()->commander->schedule()->find($id);
+        $schedule = $request->user()->commander->carrierJourneySchedule()->find($id);
         
         if (!$schedule) {
             return response([], 404);
@@ -124,7 +124,7 @@ class FleetScheduleController extends Controller
         
         $schedule->update($request->toArray());
         
-        return new FleetScheduleResource($schedule->load('carrier.commander'));
+        return new FleetCarrierJourneyScheduleResource($schedule->load('carrier.commander'));
     }
     
     /**
@@ -136,7 +136,7 @@ class FleetScheduleController extends Controller
     */
     public function destroy(string $id, Request $request): Response
     {
-        $schedule = $request->user()->commander->schedule()->find($id);
+        $schedule = $request->user()->commander->carrierJourneySchedule()->find($id);
         
         if (!$schedule) {
             return response([], 404);

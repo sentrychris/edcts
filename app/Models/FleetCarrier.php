@@ -35,7 +35,7 @@ class FleetCarrier extends Model
     protected static function booted(): void
     {
         static::deleting(function(FleetCarrier $carrier) {
-            $carrier->schedule()->delete();
+            $carrier->carrierJourneySchedule()->delete();
         });
     }
 
@@ -48,11 +48,11 @@ class FleetCarrier extends Model
     }
 
     /**
-     * Schedule relation
+     * Carrier journey schedule relation
      */
-    public function schedule(): HasMany
+    public function carrierJourneySchedule(): HasMany
     {
-        return $this->hasMany(FleetSchedule::class);
+        return $this->hasMany(FleetCarrierJourneySchedule::class);
     }
     
     /**

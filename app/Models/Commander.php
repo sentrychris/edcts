@@ -37,10 +37,10 @@ class Commander extends Model
     }
 
     /**
-     * Schedule relation
+     * Carriers journey schedule relation
      */
-    public function schedule(): HasManyThrough
+    public function carriersJourneySchedule(): HasManyThrough
     {
-        return $this->hasManyThrough(FleetSchedule::class, FleetCarrier::class);
+        return $this->hasManyThrough(FleetCarrierJourneySchedule::class, FleetCarrier::class);
     }
 }

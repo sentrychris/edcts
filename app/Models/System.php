@@ -113,7 +113,7 @@ class System extends Model
      */
     public function departures(): HasMany
     {
-        return $this->hasMany(FleetSchedule::class, 'departure_system_id');
+        return $this->hasMany(FleetCarrierJourneySchedule::class, 'departure_system_id');
     }
 
     /**
@@ -123,7 +123,7 @@ class System extends Model
      */
     public function arrivals(): HasMany
     {
-        return $this->hasMany(FleetSchedule::class, 'destination_system_id');
+        return $this->hasMany(FleetCarrierJourneySchedule::class, 'destination_system_id');
     }
     
     /**

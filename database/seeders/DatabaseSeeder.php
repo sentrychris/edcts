@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\FleetCarrier::factory($num)->create();
 
         if (System::count() > 2) {
-            \App\Models\FleetSchedule::factory($num)->create();
+            \App\Models\FleetCarrierJourneySchedule::factory($num)->create();
         }
     }
 }

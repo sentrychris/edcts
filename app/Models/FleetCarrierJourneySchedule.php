@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 
-class FleetSchedule extends Model
+class FleetCarrierJourneySchedule extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
-    protected $table = 'fleet_schedule';
+    protected $table = 'fleet_carrier_journey_schedule';
 
     protected $guarded = [];
 
@@ -91,7 +91,7 @@ class FleetSchedule extends Model
 
     public static function leavingInNextNumberOfDays(int $days)
     {
-        return FleetSchedule::whereIsCancelled(0)
+        return self::whereIsCancelled(0)
             ->where('departs_at', '>', now()->toDateString())
             ->where('departs_at', '<=', now()->addDays($days)->toDateTimeString())
             ->count();

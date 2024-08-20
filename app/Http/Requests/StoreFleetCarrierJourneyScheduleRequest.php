@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class StoreFleetScheduleRequest extends ApiRequest
+class StoreFleetCarrierJourneyScheduleRequest extends ApiRequest
 {
     /**
      * Get the validation rules that apply to the request.

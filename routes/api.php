@@ -34,7 +34,7 @@ Route::resource('statistics', App\Http\Controllers\StatisticsController::class);
 
 Route::prefix('fleet')->group(function() {
     Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);
-    Route::resource('schedule', App\Http\Controllers\FleetScheduleController::class);
+    Route::resource('schedule', App\Http\Controllers\FleetCarrierJourneyScheduleController::class);
 });
 
 Route::prefix('galnet')->group(function() {
