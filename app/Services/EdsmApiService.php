@@ -128,7 +128,7 @@ class EdsmApiService extends ApiService
                             ? $body->absoluteMagnitude
                             : null,
 
-                        'surface_temp' => property_isset($body, 'absoluteMagnitude')
+                        'surface_temp' => property_isset($body, 'surfaceTemperature')
                             ? $body->surfaceTemperature
                             : null,
 
@@ -140,39 +140,39 @@ class EdsmApiService extends ApiService
                             ? $body->gravity
                             : null,
 
-                        'earth_masses' => property_isset($body, 'radius')
+                        'earth_masses' => property_isset($body, 'earthMasses')
                             ? $body->earthMasses
                             : null,
 
-                        'atmosphere_type' => property_isset($body, 'radius')
+                        'atmosphere_type' => property_isset($body, 'atmosphereType')
                             ? $body->atmosphereType
                             : null,
 
-                        'volcanism_type' => property_isset($body, 'radius')
+                        'volcanism_type' => property_isset($body, 'volcanismType')
                             ? $body->volcanismType
                             : null,
 
-                        'terraforming_state' => property_isset($body, 'radius')
+                        'terraforming_state' => property_isset($body, 'terraformingState')
                             ? $body->terraformingState
                             : null,
 
-                        'is_landable' => property_isset($body, 'radius')
+                        'is_landable' => property_isset($body, 'isLandable')
                             ? $body->isLandable
                             : false,
 
-                        'orbital_period' => property_isset($body, 'radius')
+                        'orbital_period' => property_isset($body, 'orbitalPeriod')
                             ? $body->orbitalPeriod
                             : null,
 
-                        'orbital_eccentricity' => property_isset($body, 'radius')
+                        'orbital_eccentricity' => property_isset($body, 'orbitalEccentricity')
                             ? $body->orbitalEccentricity
                             : null,
 
-                        'orbital_inclination' => property_isset($body, 'radius')
+                        'orbital_inclination' => property_isset($body, 'orbitalInclination')
                             ? $body->orbitalInclination
                             : null,
 
-                        'arg_of_periapsis' => property_isset($body, 'radius')
+                        'arg_of_periapsis' => property_isset($body, 'argOfPeriapsis')
                             ? $body->argOfPeriapsis
                             : null,
 
@@ -313,19 +313,19 @@ class EdsmApiService extends ApiService
                                 ? $station->economy
                                 : null,
 
-                            'second_economy' => property_isset($station, 'economy')
+                            'second_economy' => property_isset($station, 'secondEconomy')
                                 ? $station->secondEconomy
                                 : null,
 
-                            'has_market' => property_isset($station, 'economy')
+                            'has_market' => property_isset($station, 'haveMarket')
                                 ? $station->haveMarket
                                 : null,
 
-                            'has_shipyard' => property_isset($station, 'economy')
+                            'has_shipyard' => property_isset($station, 'haveShipyard')
                                 ?  $station->haveShipyard
                                 : null,
 
-                            'has_outfitting' => property_isset($station, 'economy')
+                            'has_outfitting' => property_isset($station, 'haveOutfitting')
                                 ? $station->haveOutfitting
                                 : null,
 
