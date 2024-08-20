@@ -66,7 +66,7 @@ class EdsmApiService extends ApiService
 
         $system->body_count = property_isset($response, 'bodyCount')
             ? $response->bodyCount
-            : 0;
+            : null;
 
         $system->save();
 
