@@ -26,7 +26,10 @@ class FleetCarrierController extends Controller
 
         $this->setAllowedQueryRelations([
             'withCommanderInformation' => 'commander',
-            'withScheduleInformation' => ['schedule.departure', 'schedule.destination'],
+            'withCarrierJourneyScheduleInformation' => [
+                'carrierJourneySchedule.departure',
+                'carrierJourneySchedule.destination'
+            ],
         ]);
     }
 
@@ -38,7 +41,7 @@ class FleetCarrierController extends Controller
      * name: - Filter carriers by name.
      * identifier: - Filter carriers by identifier.
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * limit: - page limit.
      * 
@@ -63,7 +66,7 @@ class FleetCarrierController extends Controller
      * User can provide the following request parameters.
      * 
      * withCommanderInformation: 0 or 1 - Return carrier with associated commander information.
-     * withScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
+     * withCarrierJourneyScheduleInformation: 0 or 1  - Return carrier with associated schedule information.
      * 
      * @param string $slug
      * @param SearchFleetCarrierRequest $request
@@ -114,7 +117,9 @@ class FleetCarrierController extends Controller
 
         $carrier->update($request->toArray());
 
-        return new FleetCarrierResource($carrier->load(['commander', 'schedule']));
+        return new FleetCarrierResource(
+            $carrier->load(['commander', 'carrierJourneySchedule'])
+        );
     }
 
     /**

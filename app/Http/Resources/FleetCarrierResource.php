@@ -27,7 +27,9 @@ class FleetCarrierResource extends JsonResource
                 'outfitting' => !!$this->has_outfitting,
                 'cartographics' => !!$this->has_cartographics,
             ],
-            'schedule' => FleetCarrierJourneyScheduleResource::collection($this->whenLoaded('schedule')),
+            'schedule' => FleetCarrierJourneyScheduleResource::collection(
+                $this->whenLoaded('carrierJourneySchedule')
+            ),
             'slug' => $this->slug
         ];
     }

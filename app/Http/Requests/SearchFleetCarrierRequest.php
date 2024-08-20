@@ -15,7 +15,7 @@ class SearchFleetCarrierRequest extends ApiRequest
             'name' => 'sometimes|string',
             'identifier' => 'sometimes|string|max:7',
             'withCommanderInformation' => 'sometimes|int|max:1',
-            'withScheduleInformation' => 'sometimes|int|max:1',
+            'withCarrierJourneyScheduleInformation' => 'sometimes|int|max:1',
             'exactSearch' => 'sometimes|int|max:1',
             'limit' => 'sometimes|int|max:100',
         ];

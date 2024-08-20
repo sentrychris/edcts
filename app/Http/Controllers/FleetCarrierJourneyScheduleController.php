@@ -145,7 +145,7 @@ class FleetCarrierJourneyScheduleController extends Controller
         $schedule->delete();
         
         return response([
-            'message' => 'Scheduled carrier trip has been deleted'
+            'message' => 'Scheduled carrier journey has been deleted'
         ]);
     }
 }
