@@ -32,12 +32,9 @@ Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
 Route::resource('stations', App\Http\Controllers\StationController::class);
 Route::resource('statistics', App\Http\Controllers\StatisticsController::class);
 
-Route::prefix('fleet')->group(function() {
+Route::prefix('fleet-carriers')->group(function() {
     Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);
-    
-    Route::prefix('carriers')->group(function() {
-        Route::resource('journey-schedule', App\Http\Controllers\FleetCarrierJourneyScheduleController::class);
-    });
+    Route::resource('schedule', App\Http\Controllers\FleetCarrierJourneyScheduleController::class);
 });
 
 Route::prefix('galnet')->group(function() {
