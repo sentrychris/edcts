@@ -8,9 +8,10 @@ use ZMQ;
 use ZMQContext;
 use ZMQSocketException;
 
-class EDDNListen extends Command
+class EddnListen extends Command
 {
     protected $signature = 'eddn:listen';
+
     protected $description = 'Listen to the Elite Dangerous Data Network';
 
     protected $relay = 'tcp://eddn.edcd.io:9500';
@@ -54,7 +55,7 @@ class EDDNListen extends Command
                         $data = json_decode($decompressedMessage, true);
 
                         if ($data) {
-                            $this->processEDDNData($data);
+                            $this->processData($data);
                             $messages['messages'][] = $data;
                         }
 
@@ -80,7 +81,7 @@ class EDDNListen extends Command
         }
     }
 
-    protected function processEDDNData(array $data)
+    protected function processData(array $data)
     {
         $this->info('Received EDDN data ' . json_encode($data));
         // Your logic to handle EDDN data
