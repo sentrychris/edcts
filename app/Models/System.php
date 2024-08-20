@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class System extends Model
 {
@@ -34,22 +33,6 @@ class System extends Model
     }
 
     /**
-     * Accessor to cache system information
-     * 
-     * @return mixed
-     */
-    public function getInformationAttribute()
-    {        
-        $information = Cache::remember($this->getAttributeCacheKey('information'), 3600, function() {
-            return $this->getRelationValue('information');
-        });
-
-        $this->setRelation('information', $information);
-
-        return $information;
-    }
-
-    /**
      * Get bodies related to the system
      * 
      * @return HasMany
@@ -59,44 +42,12 @@ class System extends Model
     }
 
     /**
-     * Accessor to cache system bodies
-     * 
-     * @return mixed
-     */
-    public function getBodiesAttribute()
-    {        
-        $bodies = Cache::remember($this->getAttributeCacheKey('bodies'), 3600, function() {
-            return $this->getRelationValue('bodies');
-        });
-
-        $this->setRelation('bodies', $bodies);
-
-        return $bodies;
-    }
-
-    /**
      * Get stations related to the system
      * 
      * @return HasMany
      */
     public function stations(): HasMany {
         return $this->hasMany(SystemStation::class);
-    }
-
-    /**
-     * Aceessor to cache system stations
-     * 
-     * @return mixed
-     */
-    public function getStationsAttribute()
-    {        
-        $stations = Cache::remember($this->getAttributeCacheKey('stations'), 3600, function() {
-            return $this->getRelationValue('stations');
-        });
-
-        $this->setRelation('stations', $stations);
-
-        return $stations;
     }
 
     /**
