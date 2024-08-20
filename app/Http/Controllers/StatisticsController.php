@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\UsesStatistics;
+use App\Traits\UseStatistics;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class StatisticsController extends Controller
 {
-    use UsesStatistics;
+    use UseStatistics;
     
     /**
      * Get statistics.

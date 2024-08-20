@@ -11,7 +11,7 @@ use App\Http\Resources\SystemResource;
 use App\Services\EdsmApiService;
 use Illuminate\Support\Facades\Cache;
 
-trait UsesStatistics
+trait UseStatistics
 {
     public function getAllStatistics(string $key, array $options)
     {

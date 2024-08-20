@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Traits\UsesStatistics;
+use App\Traits\UseStatistics;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -10,7 +10,7 @@ use Exception;
 class RefreshAllStatistics extends Command
 {
 
-    use UsesStatistics;
+    use UseStatistics;
 
     /**
      * The name and signature of the console command.
