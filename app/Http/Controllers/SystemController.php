@@ -49,6 +49,7 @@ class SystemController extends Controller
      * withDepartures: 0 or 1 - Return systems with associated carrier departures schedule.
      * withArrivals: 0 or 1 - Return systems with associated carrier arrivals schedule.
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
+     * page: - page number.
      * limit: - page limit.
      * 
      * @param SearchSystemRequest $request
