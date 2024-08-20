@@ -19,7 +19,7 @@ class StationController extends Controller
      */
     public function __construct()
     {
-        $this->setAllowedRelations([
+        $this->setAllowedQueryRelations([
             'withSystem' => 'system'
         ]);
     }
@@ -46,7 +46,7 @@ class StationController extends Controller
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        $stations = $this->loadValidatedRelations($validated, $stations);
+        $stations = $this->loadValidatedRelationsForQuery($validated, $stations);
 
         return SystemStationResource::collection($stations);
     }
@@ -74,7 +74,7 @@ class StationController extends Controller
         }
 
         // Load related data for the station depending on query parameters passed.
-        $station = $this->loadValidatedRelations($validated, $station);
+        $station = $this->loadValidatedRelationsForQuery($validated, $station);
 
         return response(new SystemStationResource($station));
     }

@@ -19,7 +19,7 @@ class SystemBodyController extends Controller
      */
     public function __construct()
     {
-        $this->setAllowedRelations([
+        $this->setAllowedQueryRelations([
             'withSystem' => 'system',
             'withStations' => 'system.stations'
         ]);
@@ -49,7 +49,7 @@ class SystemBodyController extends Controller
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        $bodies = $this->loadValidatedRelations($validated, $bodies);
+        $bodies = $this->loadValidatedRelationsForQuery($validated, $bodies);
 
         return SystemBodyResource::collection($bodies);
     }
@@ -78,7 +78,7 @@ class SystemBodyController extends Controller
         }
 
         // Load related data for the system depending on query parameters passed.
-        $body = $this->loadValidatedRelations($validated, $body);
+        $body = $this->loadValidatedRelationsForQuery($validated, $body);
 
         return response(new SystemBodyResource($body));
     }

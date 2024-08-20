@@ -28,7 +28,7 @@ class SystemController extends Controller
     {
         $this->edsmApiService = $service;
 
-        $this->setAllowedRelations([
+        $this->setAllowedQueryRelations([
             'withInformation' => 'information',
             'withBodies' => 'bodies',
             'withStations' => 'stations',
@@ -84,7 +84,7 @@ class SystemController extends Controller
         }
 
         // Load the requested and validated query relations for the collection
-        $systems = $this->loadValidatedRelations($validated, $systems);
+        $systems = $this->loadValidatedRelationsForQuery($validated, $systems);
 
         // Return a collection of system resources
         return SystemResource::collection($systems);
@@ -125,7 +125,7 @@ class SystemController extends Controller
         }
 
         // Update the system with the requested relations
-        foreach ($this->getAllowedRelations() as $query => $relation)
+        foreach ($this->getAllowedQueryRelations() as $query => $relation)
         {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 // TODO: Instead of not updating if records already exist, set a timer flag somewhere in the database

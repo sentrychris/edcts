@@ -14,7 +14,7 @@ trait HasValidatedQueryRelations
      *
      * @return array
      */
-    public function getAllowedRelations(): array
+    public function getAllowedQueryRelations(): array
     {
         return $this->allowedRelations;
     }
@@ -25,7 +25,7 @@ trait HasValidatedQueryRelations
      * @param array
      * @return void
      */
-    public function setAllowedRelations(array $allowedRelations): void
+    public function setAllowedQueryRelations(array $allowedRelations): void
     {
         $this->allowedRelations = $allowedRelations;
     }
@@ -38,7 +38,7 @@ trait HasValidatedQueryRelations
      * 
      * @return Model|LengthAwarePaginator $data
      */
-    public function loadValidatedRelations(array $validated, Model | LengthAwarePaginator $data): Model | LengthAwarePaginator
+    public function loadValidatedRelationsForQuery(array $validated, Model | LengthAwarePaginator $data): Model | LengthAwarePaginator
     {
         foreach ($this->allowedRelations as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {

@@ -25,7 +25,7 @@ class FleetScheduleController extends Controller
             'only' => ['store', 'update', 'destroy']
         ]);
 
-        $this->setAllowedRelations([
+        $this->setAllowedQueryRelations([
             'withCarrierInformation' => 'carrier.commander',
             'withSystemInformation' => ['departure.information', 'destination.information'],
         ]);
@@ -56,7 +56,7 @@ class FleetScheduleController extends Controller
             ->paginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
-        $this->loadValidatedRelations($validated, $schedule);
+        $this->loadValidatedRelationsForQuery($validated, $schedule);
         
         return FleetScheduleResource::collection($schedule);
     }
@@ -85,7 +85,7 @@ class FleetScheduleController extends Controller
             return response(null, JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $this->loadValidatedRelations($validated, $schedule);
+        $this->loadValidatedRelationsForQuery($validated, $schedule);
         
         return response(new FleetScheduleResource($schedule));
     }

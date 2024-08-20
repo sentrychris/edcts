@@ -106,7 +106,7 @@ class PreCacheSystems implements ShouldQueue
                     ->paginate($limit, ['*'], 'page', $page)
                     ->appends($request->all());
 
-                $systems = $this->loadValidatedRelations($validated, $systems);
+                $systems = $this->loadValidatedRelationsForQuery($validated, $systems);
 
                 Cache::set("systems_page_{$page}", $systems, $this->ttl);
             } catch (Exception $e) {
