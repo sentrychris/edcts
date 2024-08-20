@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Services\EdsmApiService;
 use App\Traits\HasQueryFilter;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Cviebrock\EloquentSluggable\SluggableScopeHelpers;
