@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class SearchStationRequest extends APIRequest
+class SearchStationRequest extends ApiRequest
 {
     /**
      * Get the validation rules that apply to the request.

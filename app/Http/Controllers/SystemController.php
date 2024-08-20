@@ -134,7 +134,7 @@ class SystemController extends Controller
                 //       the API every time a user requests a system with all relations)
 
                 // Check for existing system bodies and update if necessary
-                if ($relation === 'bodies' && !$system->bodies()->exists() && $system->body_count > 0) {
+                if ($relation === 'bodies' && !$system->bodies()->exists() && $system->body_count === null) {
                     $this->edsmApiService->updateSystemBodiesData($system);
                 }
 

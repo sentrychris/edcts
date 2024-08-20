@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class SearchSystemBodyRequest extends APIRequest
+class SearchSystemBodyRequest extends ApiRequest
 {
     /**
      * Get the validation rules that apply to the request.
