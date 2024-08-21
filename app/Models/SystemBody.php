@@ -17,22 +17,47 @@ class SystemBody extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'systems_bodies';
 
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
 
+    /**
+     * Whether or not `created_at` and updated_at should be handled automatically.
+     * 
+     * @var boolean - whether or not the model should be timestamped
+     */
     public $timestamps = false;
 
     /**
-     * System relation
+     * Get the system these bodies belong to.
+     * 
+     * @return BelongsTo - the system these bodies belong to
      */
-    public function system(): BelongsTo {
+    public function system(): BelongsTo
+    {
         return $this->belongsTo(System::class);
     }
 
     /**
-    * Filter scope
-    */
+     * Add a query filter scope to filter system bodies.
+     * 
+     * This scope also allows for exact search or `like` search based on the passed options.
+     * 
+     * @param Builder $builder - the query builder
+     * @param array $options - the filter options including the search term
+     * @param bool $exact - whether or not to use exact search or `like` search
+     * @return Builder - the query builder
+     */
     public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
         if (!empty($options['search'])) {
@@ -56,7 +81,9 @@ class SystemBody extends Model
     }
 
     /**
-     * Fetch rings as array
+     * Fetch the rings attribute as array.
+     * 
+     * @return Attribute - the rings attribute
      */
     protected function rings(): Attribute
     {
@@ -66,7 +93,9 @@ class SystemBody extends Model
     }
 
     /**
-     * Fetch parents as array
+     * Fetch the parents attribute as array.
+     * 
+     * @return Attribute - the parents attribute
      */
     protected function parents(): Attribute
     {
@@ -76,7 +105,9 @@ class SystemBody extends Model
     }
 
     /**
-     * configure slug
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {

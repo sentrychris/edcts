@@ -12,12 +12,24 @@ class Commander extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'commanders';
 
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
 
     /**
-     * User relation
+     * Get the user that owns the commander.
+     * 
+     * @return BelongsTo - the user that owns the commander
      */
     public function user(): BelongsTo
     {
@@ -25,7 +37,9 @@ class Commander extends Model
     }
 
     /**
-     * Carriers relation
+     * Get fleet carriers owned by the commander.
+     * 
+     * @return HasMany - the fleet carriers owned by the commander
      */
     public function carriers(): HasMany
     {
@@ -33,7 +47,9 @@ class Commander extends Model
     }
 
     /**
-     * Carriers journey schedule relation
+     * Get the fleet carrier journey schedules for the commander's fleet carriers.
+     * 
+     * @return HasManyThrough - the fleet carrier journey schedules
      */
     public function carriersJourneySchedule(): HasManyThrough
     {

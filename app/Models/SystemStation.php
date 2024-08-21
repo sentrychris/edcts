@@ -16,14 +16,31 @@ class SystemStation extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
     
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'systems_stations';
     
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
     
+    /**
+     * Whether or not `created_at` and updated_at should be handled automatically.
+     * 
+     * @var boolean - whether or not the model should be timestamped
+     */
     public $timestamps = false;
     
     /**
-     * System relation
+     * Get the system these stations belong to.
+     * 
+     * @return BelongsTo - the system these stations belong to
      */
     public function system(): BelongsTo
     {
@@ -31,8 +48,15 @@ class SystemStation extends Model
     }
     
     /**
-    * Filter scope
-    */
+     * Add a query filter scope to filter stations.
+     * 
+     * This scope also allows for exact search or `like` search based on the passed options.
+     * 
+     * @param Builder $builder - the query builder
+     * @param array $options - the filter options including the search term
+     * @param bool $exact - whether or not to use exact search or `like` search
+     * @return Builder - the query builder
+     */
     public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
         if (!empty($options['search'])) {
@@ -46,7 +70,9 @@ class SystemStation extends Model
     }
 
     /**
-     * Fetch body as object
+     * Fetch body attribute as an array.
+     * 
+     * @return Attribute - the body attribute
      */
     protected function body(): Attribute
     {
@@ -56,7 +82,9 @@ class SystemStation extends Model
     }
 
     /**
-     * Fetch other services as array
+     * Fetch the other_services attribute as an array.
+     * 
+     * @return Attribute - the other_services attribute
      */
     protected function otherServices(): Attribute
     {
@@ -66,7 +94,9 @@ class SystemStation extends Model
     }
 
     /**
-     * configure slug
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {

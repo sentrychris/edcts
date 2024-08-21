@@ -16,16 +16,34 @@ class System extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
     
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'systems';
     
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
     
+    /**
+     * Whether or not `created_at` and updated_at should be handled automatically.
+     * 
+     * @var boolean - whether or not the model should be timestamped
+     */
     public $timestamps = false;
     
     /**
-     * Get information related to the system
+     * Get information related to the system.
      * 
-     * @return HasOne
+     * This will retrieve the information relation for the system which includes stuff such
+     * as government, allegiance, economy, population etc.
+     * 
+     * @return HasOne - the information for the system
      */
     public function information(): HasOne
     {
@@ -33,27 +51,31 @@ class System extends Model
     }
 
     /**
-     * Get bodies related to the system
+     * Get bodies related to the system.
      * 
-     * @return HasMany
+     * This will retrieve the celestial bodies in the system.
+     * 
+     * @return HasMany - the bodies in the system
      */
     public function bodies(): HasMany {
         return $this->hasMany(SystemBody::class);
     }
 
     /**
-     * Get stations related to the system
+     * Get stations related to the system.
      * 
-     * @return HasMany
+     * This will retrieve the stations in the system.
+     * 
+     * @return HasMany - the stations in the system
      */
     public function stations(): HasMany {
         return $this->hasMany(SystemStation::class);
     }
 
     /**
-     * Get fleet carrier departures from the system
+     * Get fleet carrier departures from the system.
      * 
-     * @return HasMany
+     * @return HasMany - the fleet carrier departures from the system
      */
     public function departures(): HasMany
     {
@@ -61,9 +83,9 @@ class System extends Model
     }
 
     /**
-     * Get fleet carrier arrivals to the system
+     * Get fleet carrier arrivals to the system.
      * 
-     * @return HasMany
+     * @return HasMany - the fleet carrier arrivals to the system
      */
     public function arrivals(): HasMany
     {
@@ -71,13 +93,15 @@ class System extends Model
     }
     
     /**
-    * Add a query filter scope to filter systems.
-    * 
-    * @param Builder $builder - the query builder
-    * @param array $options - the filter options
-    * @param bool $exact - whether to use exact match
-    * @return Builder - the query builder
-    */
+     * Add a query filter scope to filter systems by name.
+     * 
+     * This scope also allows for exact search or `like` search based on the passed options.
+     * 
+     * @param Builder $builder - the query builder
+     * @param array $options - the filter options including the search term
+     * @param bool $exact - whether or not to use exact search or `like` search
+     * @return Builder - the query builder
+     */
     public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
         if (!empty($options['search'])) {
@@ -90,7 +114,9 @@ class System extends Model
     }
 
     /**
-     * configure the URL slug.
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {

@@ -16,7 +16,7 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var array - the mass assignable attributes
      */
     protected $fillable = [
         'name',
@@ -27,7 +27,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var array - the hidden attributes
      */
     protected $hidden = [
         'password',
@@ -35,20 +35,27 @@ class User extends Authenticatable
     ];
 
     /**
-     * Load commander relation
+     * Eager load the commander with the user.
+     * 
+     * @var array - the eager loaded relation
      */
     protected $with = ['commander'];
 
     /**
      * The attributes that should be cast.
      *
-     * @var array<string, string>
+     * @var array - the casted attributes
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
+    /**
+     * Get the commander that belongs to the user.
+     * 
+     * @return HasOne - the commander that belongs to the user
+     */
     public function commander(): HasOne
     {
         return $this->hasOne(Commander::class);

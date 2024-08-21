@@ -16,12 +16,27 @@ class FleetCarrier extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'fleet_carriers';
 
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
 
     /**
-     * Boot model
+     * Boot method for the model.
+     * 
+     * Adds a deleting event to remove the associated carrier journey schedule
+     * when a carrier is deleted.
+     * 
+     * @return void
      */
     protected static function booted(): void
     {
@@ -31,7 +46,9 @@ class FleetCarrier extends Model
     }
 
     /**
-     * Commander relation
+     * Get the commander this fleet carrier belongs to.
+     * 
+     * @return BelongsTo - the commander this fleet carrier belongs to
      */
     public function commander(): BelongsTo
     {
@@ -39,7 +56,9 @@ class FleetCarrier extends Model
     }
 
     /**
-     * Carrier journey schedule relation
+     * Get the scheduled journeys for the fleet carrier.
+     * 
+     * @return HasMany - the scheduled journeys for the fleet carrier
      */
     public function carrierJourneySchedule(): HasMany
     {
@@ -47,7 +66,14 @@ class FleetCarrier extends Model
     }
     
     /**
-     * Filter scope
+     * Add a query filter scope to filter fleet carriers by name and/or identifier.
+     * 
+     * This scope also allows for exact search or `like` search based on the passed options.
+     * 
+     * @param Builder $builder - the query builder
+     * @param array $options - the filter options including the search term
+     * @param bool $exact - whether or not to use exact search or `like` search
+     * @return Builder - the query builder
      */
     public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
@@ -62,7 +88,9 @@ class FleetCarrier extends Model
     }
 
     /**
-     * Configure slug
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {

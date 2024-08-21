@@ -16,14 +16,33 @@ class FleetCarrierJourneySchedule extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'fleet_carriers_journey_schedule';
 
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
 
+    /**
+     * Whether or not `created_at` and updated_at should be handled automatically.
+     * 
+     * @var boolean - whether or not the model should be timestamped
+     */
     public $timestamps = false;
 
     /**
-     * Boot model
+     * Boot method for the model.
+     * 
+     * Addds a global scope to automatically order the results by departure date.
+     * 
+     * @return void
      */
     protected static function boot(): void
     {
@@ -34,7 +53,9 @@ class FleetCarrierJourneySchedule extends Model
     }
 
     /**
-     * Departure system relation
+     * Get the system the fleet carrier departs from.
+     * 
+     * @return BelongsTo - the system the fleet carrier departs from
      */
     public function departure(): BelongsTo
     {
@@ -42,7 +63,9 @@ class FleetCarrierJourneySchedule extends Model
     }
 
     /**
-     * Destination system relation
+     * Get the system the fleet carrier is heading to.
+     * 
+     * @return BelongsTo - the system the fleet carrier is heading to
      */
     public function destination(): BelongsTo
     {
@@ -50,7 +73,9 @@ class FleetCarrierJourneySchedule extends Model
     }
 
     /**
-     * Carrier relation
+     * Get the fleet carrier responsible for the journey.
+     * 
+     * @return BelongsTo - the fleet carrier making the journey
      */
     public function carrier(): BelongsTo
     {
@@ -58,7 +83,14 @@ class FleetCarrierJourneySchedule extends Model
     }
 
     /**
-     * Filter scope
+     * Add a query filter scope to filter carrier journeys by departure and/or destination.
+     * 
+     * This scope also allows for exact search or `like` search based on the passed options.
+     * 
+     * @param Builder $builder - the query builder
+     * @param array $options - the filter options including the search term
+     * @param bool $exact - whether or not to use exact search or `like` search
+     * @return Builder - the query builder
      */
     public function scopeFilter(Builder $builder, array $options, bool $exact): Builder
     {
@@ -89,6 +121,12 @@ class FleetCarrierJourneySchedule extends Model
         return $builder;
     }
 
+    /**
+     * Get the number of fleet carriers leaving in the next number of days.
+     * 
+     * @param int $days - the number of days to check
+     * @return mixed
+     */
     public static function leavingInNextNumberOfDays(int $days)
     {
         return self::whereIsCancelled(0)
@@ -98,7 +136,9 @@ class FleetCarrierJourneySchedule extends Model
     }
 
     /**
-     * Configure slug
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {

@@ -14,14 +14,33 @@ class GalnetNews extends Model
 {
     use HasFactory, HasQueryFilter, Sluggable, SluggableScopeHelpers, SoftDeletes;
 
+    /**
+     * The table associated with the model.
+     * 
+     * @var string - the table name
+     */
     protected $table = 'galnet_news';
 
+    /**
+     * Guarded attributes that should not be mass assignable.
+     * 
+     * @var array - the guarded attributes
+     */
     protected $guarded = [];
 
+    /**
+     *  Whether or not `created_at` and updated_at should be handled automatically.
+     * 
+     * @var boolean - whether or not the model should be timestamped
+     */
     public $timestamps = false;
 
     /**
-     * Boot model
+     * Boot method for the model.
+     * 
+     * Adds a global scope to automatically order the results by ID (lol why did I do this?)
+     * 
+     * @return void
      */
     protected static function boot(): void
     {
@@ -32,7 +51,9 @@ class GalnetNews extends Model
     }
 
     /**
-     * Configure slug
+     * Configure the URL slug.
+     * 
+     * @return array - the configuration for the slug
      */
     public function sluggable(): array
     {
