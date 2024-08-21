@@ -17,17 +17,21 @@ class SystemController extends Controller
     use HasValidatedQueryRelations;
 
     /**
-     * The EDSM API Service
+     * EDSM API Service
      */
     private EdsmApiService $edsmApiService;
 
     /**
      * Constructor
+     * 
+     * @param EdsmApiService $service - injected EDSM API service
      */
     public function __construct(EdsmApiService $service)
     {
         $this->edsmApiService = $service;
 
+        // Map the allowed query parameters to the relations that can be loaded
+        // for the system model e.g. withBodies will load bodies for the system
         $this->setAllowedQueryRelations([
             'withInformation' => 'information',
             'withBodies' => 'bodies',
@@ -143,11 +147,8 @@ class SystemController extends Controller
         // Update the system with the requested relations e.g. withBodies, withInformation, etc.
         foreach ($this->getAllowedQueryRelations() as $query => $relation)
         {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
-                // TODO: Instead of not updating if records already exist, set a timer flag somewhere in the database
-                //       and check it, and if the timer allows, make an update request to EDSM (we don't want to spam
-                //       the API every time a user requests a system with all relations)
-
+            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1)
+            {
                 // Check for existing system bodies and update if necessary
                 if ($relation === 'bodies' && !$system->bodies()->exists() && $system->body_count === null) {
                     $this->edsmApiService->updateSystemBodiesData($system);
