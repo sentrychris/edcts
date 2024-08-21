@@ -57,17 +57,20 @@ class SystemController extends Controller
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
+        // Get the request parameters
         $page = $request->get('page', 1);
         $limit = $request->get('limit', config('app.pagination.limit'));
         $validated = $request->validated();
 
+        // Handle the request
         if ($request->get('name') !== null) {
-            // Handle queries for specific systems based on system name
+            // Handle queries for systems if searching for systems by name, with
+            // or without exact search
             $systems = System::filter($validated, (int)$request->exactSearch)
                 ->paginate($limit)
                 ->appends($request->all());
         } else {
-            // Otherwise retrieve the current page from the cache
+            // Otherwise attempt to retrieve the current page from the cache
             $systems = Cache::get("systems_page_{$page}");
 
             // If the page does not exist in the cache, then retrieve it from the database
@@ -84,7 +87,7 @@ class SystemController extends Controller
             }
         }
 
-        // Load the requested and validated query relations for the collection
+        // Load the query relations for the collection e.g withInformation, withBodies, etc.
         $systems = $this->loadValidatedRelationsForQuery($validated, $systems);
 
         // Return a collection of system resources
@@ -108,24 +111,24 @@ class SystemController extends Controller
      */
     public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
     {
-        // Attempt to retrieve the system from the cache if it exists
+        // Attempt to retrieve the system from the cache
         $system = Cache::get("system_detail_{$slug}");
+
+        // If it exists in the cache, then return it
         if ($system) {
             return new SystemResource($system);
-        } else {
-            Log::channel('pages:cache')
-                    ->info("system_detail_{$slug} cache MISS - refreshing cache for this page");
         }
 
-        // Retrieve the system based on the slug (id64-name composite).
-        // TODO: Cache the id64 and name, if just a name is passed here, use the cache to retrieve
-        //       the corresponding id64 and construct the slug
+        // Otherwise it's a cache MISS
+        Log::channel('pages:cache')
+                    ->info("system_detail_{$slug} cache MISS - refreshing cache for this page");
+
+        // Attempt to retrieve the system from our database
         $system = System::whereSlug($slug)->first();
-        $validated = $request->validated();
         
         if (!$system) {
-            // If the system doesn't exist in our database, query EDSM for it and then
-            // update our records
+            // If the system doesn't exist in our database, query EDSM for it
+            // and then update our records
             $system = $this->edsmApiService->updateSystemData($slug);
         }
 
@@ -133,8 +136,11 @@ class SystemController extends Controller
         if (!$system) {
             return response([], 404);
         }
+        
+        // Get the request parameters
+        $validated = $request->validated();
 
-        // Update the system with the requested relations
+        // Update the system with the requested relations e.g. withBodies, withInformation, etc.
         foreach ($this->getAllowedQueryRelations() as $query => $relation)
         {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
@@ -157,13 +163,15 @@ class SystemController extends Controller
                     $this->edsmApiService->updateSystemStationsData($system);
                 }
 
+                // Load the relation
                 $system->load($relation);
             }
         }
 
-        // Cache the system for 1 hour
+        // Cache the system details for 1 hour
         Cache::set("system_detail_{$slug}", $system, 3600);
 
+        // Return the system resource
         return new SystemResource($system);
     }
 }
