@@ -11,16 +11,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class GalnetNewsController extends Controller
 {
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->middleware(['auth:sanctum', 'has.cmdr'], [
-            'only' => ['store', 'update', 'destroy']
-        ]);
-    }
-
-    /**
      * List galnet news articles.
      * 
      * @param Request $request
@@ -34,7 +24,7 @@ class GalnetNewsController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display a galnet news article.
      * 
      * @param string $slug
      * @return GalnetNewsResource|Response
@@ -48,26 +38,5 @@ class GalnetNewsController extends Controller
         }
 
         return new GalnetNewsResource($article);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * 
-     * @param string $id
-     * @return Response
-     */
-    public function destroy(string $id): Response
-    {
-        $article = GalnetNews::find($id);
-
-        if  (!$article) {
-            return response([], 404);
-        }
-
-        $article->delete();
-
-        return response([
-            'message' => 'Galnet news article has been successfully deleted.'
-        ]);
     }
 }
