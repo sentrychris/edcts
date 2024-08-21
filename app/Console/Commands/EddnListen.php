@@ -13,8 +13,6 @@ class EddnListen extends Command
     protected $signature = 'eddn:listen';
 
     protected $description = 'Listen to the Elite Dangerous Data Network';
-
-    protected $relay = 'tcp://eddn.edcd.io:9500';
     
     public function __construct()
     {
@@ -37,8 +35,9 @@ class EddnListen extends Command
         $lastTimeMessages = time();
 
         try {
-            $socket->connect($this->relay);
-            $this->info('Connected to: ' . $this->relay);
+            $relay = config('elite.eddn.relay.listener');
+            $socket->connect($relay);
+            $this->info('Connected to: ' . $relay);
 
             while (true) {
                 try {

@@ -1,6 +1,48 @@
 <?php
 
 return [
+    'eddn' => [
+        'relay' => [
+            'listener' => 'tcp://eddn.edcd.io:9500',
+        ],
+
+        'schemas' => [
+            'valid' => [
+                'approachsettlement' => 'https://eddn.edcd.io/schemas/approachsettlement/1',
+                'blackmarket' => 'https://eddn.edcd.io/schemas/blackmarket/1',
+                'codexentry' => 'https://eddn.edcd.io/schemas/codexentry/1',
+                'commodity' => 'https://eddn.edcd.io/schemas/commodity/3',
+                'dockingdenied' => 'https://eddn.edcd.io/schemas/dockingdenied/1',
+                'dockinggranted' => 'https://eddn.edcd.io/schemas/dockinggranted/1',
+                'fcmaterialscapi'=> 'https://eddn.edcd.io/schemas/fcmaterials_capi/1',
+                'fcmaterialsjournal' => 'https://eddn.edcd.io/schemas/fcmaterials_journal/1',
+                'fssallbodiesfound' => 'https://eddn.edcd.io/schemas/fssallbodiesfound/1',
+                'fssbodysignals' => 'https://eddn.edcd.io/schemas/fssbodysignals/1',
+                'fssdiscoveryscan' => 'https://eddn.edcd.io/schemas/fssdiscoveryscan/1',
+                'fsssignaldiscovered' => 'https://eddn.edcd.io/schemas/fsssignaldiscovered/1',
+                'journal' => 'https://eddn.edcd.io/schemas/journal/1',
+                'navbeaconscan' => 'https://eddn.edcd.io/schemas/navbeaconscan/1',
+                'navroute' => 'https://eddn.edcd.io/schemas/navroute/1',
+                'outfitting' => 'https://eddn.edcd.io/schemas/outfitting/2',
+                'shipyard' => 'https://eddn.edcd.io/schemas/shipyard/2',
+            ]
+        ],
+
+        'software' => [
+            'blacklist' => [
+                'GameGlass' => '*',
+            ],
+            'whitelist' => [
+                'E:D Market Connector [Linux]' => '>5.*',
+                'E:D Market Connector [Windows]' => '>5.*',
+                'EDDI' => '>4.*',
+                'EDDiscovery' => '>17.*',
+                'EDDLite' => '>2.*',
+                'EDO Materials Helper' => '*',
+            ],
+        ]
+    ],
+
     'galnet' => [
         'rss' => 'https://community.elitedangerous.com/galnet-rss',
         'json' => 'https://cms.zaonce.net/en-GB/jsonapi/node/galnet_article?sort=-published_at'
