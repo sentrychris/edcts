@@ -28,7 +28,7 @@ class EddnListen extends Command
         $socket->setSockOpt(ZMQ::SOCKOPT_SUBSCRIBE, ""); // Subscribe to all messages
 
         $messagesDefault = ["batch" => true, "messages" => []];
-        $messagesBatch = 100;
+        $messagesBatch = 500;
         $messagesBatchTime = 20;
 
         $messages = $messagesDefault;
@@ -94,37 +94,48 @@ class EddnListen extends Command
         $cachedSystemsToProcess = Redis::smembers("eddn_system_scans");
 
         if (count($cachedSystemsToProcess) > 100) {
+            $this->warn(count($cachedSystemsToProcess) . " systems to process.");
             throw new \RuntimeException("Cache limit reached, process existing systems first");
         }
 
         // Implement your logic for batch processing here
         $this->info("Processing batch of " . count($data["messages"]) . " messages");
 
+        // Loop through and keep track of duplicate systems
         $duplicateSystems = [];
         foreach ($data["messages"] as $receivedMessage)
         {
+            // Check the software name and version
             $softwareName = $receivedMessage["header"]["softwareName"];
             $softwareVersion = $receivedMessage["header"]["softwareVersion"];
             if (! $this->isSoftwareAllowed($softwareName, $softwareVersion)) {
                 continue;
             }
 
+            // Check the schema reference is valid
             $schemaRef = $receivedMessage['$schemaRef'];
             if (! in_array($schemaRef, config("elite.eddn.schemas.valid"))) {
                 continue;
             }
 
+            // Check the schema reference to determine the event
             if ($schemaRef === "https://eddn.edcd.io/schemas/journal/1") {
                 $message = $receivedMessage["message"];
                 $event = $message["event"];
 
+                // If the event is a scan and the system is not a duplicate in this batch of messages then process it
                 if ($event === "Scan" && !in_array($message["StarSystem"], $duplicateSystems)) {
                     $starSystem = $message["StarSystem"];
                     $starSystemId64 = $message["SystemAddress"];
 
                     $this->line("System scan journal event received for {$starSystem}");
-                    Redis::sadd("eddn_system_scans", $starSystemId64."-".str_replace(" ", "+", $starSystem));
 
+                    $cacheValue = $starSystemId64."-".str_replace(" ", "+", $starSystem);
+                    if(!in_array($cacheValue, $cachedSystemsToProcess)) { // Check if the system already exists in the cache
+                        Redis::sadd("eddn_system_scans", $starSystemId64."-".str_replace(" ", "+", $starSystem));
+                    }
+
+                    // Add the system to the list for the next iteration in this batch
                     $duplicateSystems[] = $starSystem;
                 }
             }
