@@ -76,10 +76,10 @@ class EddnService
                             'updated_at' => now(),
                         ]);
 
-                        if (!$system) {
-                            if(!in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))) {
-                                Redis::sadd("eddn_systems_not_inserted", $starSystemId64);
-                            }    
+                        if (!$system
+                            && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))
+                        ) {
+                            Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
                         }
                     }
                 }

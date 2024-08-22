@@ -95,10 +95,9 @@ class EddnListen extends Command
 
     protected function processBatch(array $data)
     {
-        // Implement your logic for batch processing here
-        $this->info("Processing batch of EDDN messages...");
+        $this->line("Processing batch of EDDN messages...");
 
-        // Cache system names with their ID64s for later processing
+        // Update systems data from EDDN messages
         $this->eddnService->updateSystemsData($data);
 
         $this->info("Batch processed, moving on to the next batch...");
