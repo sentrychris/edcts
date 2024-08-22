@@ -7,20 +7,30 @@ use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use App\Services\Eddn\EddnService;
 
 class EddnListen extends Command
 {
     protected $signature = "eddn:listen";
 
     protected $description = "Listen to the Elite Dangerous Data Network";
+
+    private EddnService $eddnService;
     
-    public function __construct()
+    public function __construct(EddnService $eddnService)
     {
         parent::__construct();
+        $this->eddnService = $eddnService;
     }
 
     public function handle()
     {
+        $numCachedSystems = count(Redis::smembers("eddn_systems_from_listener"));
+        if ($numCachedSystems > 100) {
+            $this->error("Cache limit reached, process existing systems first");
+            return false;
+        }
+    
         $this->info("Starting EDDN listener...");
 
         $context = new ZMQContext();
@@ -28,8 +38,8 @@ class EddnListen extends Command
         $socket->setSockOpt(ZMQ::SOCKOPT_SUBSCRIBE, ""); // Subscribe to all messages
 
         $messagesDefault = ["batch" => true, "messages" => []];
-        $messagesBatch = 500;
-        $messagesBatchTime = 20;
+        $messagesBatch = 100;
+        $messagesBatchTime = 10;
 
         $messages = $messagesDefault;
         $lastTimeMessages = time();
@@ -55,10 +65,11 @@ class EddnListen extends Command
                         $data = json_decode($decompressedMessage, true);
 
                         if ($data) {
-                            $this->processData($data);
+                            // $this->processData($data);
                             $messages["messages"][] = $data;
                         }
 
+                        // If we have more than 500 messages or 20 seconds have passed since the last messages were received, process the batch
                         if (count($messages["messages"]) >= $messagesBatch || time() > ($lastTimeMessages + $messagesBatchTime)) {
                             // Process the batch of messages
                             $this->processBatch($messages);
@@ -83,94 +94,25 @@ class EddnListen extends Command
 
     protected function processData(array $data)
     {
-        // dd($data);
-        // $this->info("Received EDDN data " . json_encode($data));
-        // Your logic to handle EDDN data
-        // For example, save to a database, send notifications, etc.
+        // 
     }
 
     protected function processBatch(array $data)
     {
-        $cachedSystemsToProcess = Redis::smembers("eddn_system_scans");
+        $numCachedSystems = count(Redis::smembers("eddn_systems_from_listener"));
 
-        if (count($cachedSystemsToProcess) > 100) {
-            $this->warn(count($cachedSystemsToProcess) . " systems to process.");
-            throw new \RuntimeException("Cache limit reached, process existing systems first");
+        if ($numCachedSystems > 100) {
+            throw new \RuntimeException("Cache limit reached, process existing systems first.");
         }
+
+        $this->line("{$numCachedSystems} systems in cache.\n");
 
         // Implement your logic for batch processing here
-        $this->info("Processing batch of " . count($data["messages"]) . " messages");
+        $this->info("Processing batch of EDDN messages...");
 
-        // Loop through and keep track of duplicate systems
-        $duplicateSystems = [];
-        foreach ($data["messages"] as $receivedMessage)
-        {
-            // Check the software name and version
-            $softwareName = $receivedMessage["header"]["softwareName"];
-            $softwareVersion = $receivedMessage["header"]["softwareVersion"];
-            if (! $this->isSoftwareAllowed($softwareName, $softwareVersion)) {
-                continue;
-            }
-
-            // Check the schema reference is valid
-            $schemaRef = $receivedMessage['$schemaRef'];
-            if (! in_array($schemaRef, config("elite.eddn.schemas.valid"))) {
-                continue;
-            }
-
-            // Check the schema reference to determine the event
-            if ($schemaRef === "https://eddn.edcd.io/schemas/journal/1") {
-                $message = $receivedMessage["message"];
-                $event = $message["event"];
-
-                // If the event is a scan and the system is not a duplicate in this batch of messages then process it
-                if ($event === "Scan" && !in_array($message["StarSystem"], $duplicateSystems)) {
-                    $starSystem = $message["StarSystem"];
-                    $starSystemId64 = $message["SystemAddress"];
-
-                    $this->line("System scan journal event received for {$starSystem}");
-
-                    $cacheValue = $starSystemId64."-".str_replace(" ", "+", $starSystem);
-                    if(!in_array($cacheValue, $cachedSystemsToProcess)) { // Check if the system already exists in the cache
-                        Redis::sadd("eddn_system_scans", $starSystemId64."-".str_replace(" ", "+", $starSystem));
-                    }
-
-                    // Add the system to the list for the next iteration in this batch
-                    $duplicateSystems[] = $starSystem;
-                }
-            }
-        }
+        // Cache system names with their ID64s for later processing
+        $this->eddnService->cacheSystemNamesWithId64s($data);
 
         $this->info("Batch processed, moving on to the next batch...");
-    }
-
-    /**
-     * Check if the software that sent the message is allowed.
-     * 
-     * @param string $softwareName
-     * @param string $softwareVersion
-     * @return bool
-     */
-    protected function isSoftwareAllowed(string $softwareName, string $softwareVersion): bool
-    {
-        $software = config("elite.eddn.software");
-
-        if (array_key_exists($softwareName, $software["blacklist"])) {
-            return false;
-        }
-
-        if (array_key_exists($softwareName, $software["whitelist"])) {
-            $version = $software["whitelist"][$softwareName];
-
-            if ($version === "*") {
-                return true;
-            }
-
-            if (version_compare($softwareVersion, $version, ">=")) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

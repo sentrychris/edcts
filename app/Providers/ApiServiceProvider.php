@@ -12,8 +12,6 @@ class ApiServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(EdsmApiService::class, function() {
-          return new EdsmApiService();
-        });
+        $this->app->bind(EdsmApiService::class, fn() => new EdsmApiService());
     }
 }

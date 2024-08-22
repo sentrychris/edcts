@@ -28,7 +28,7 @@ class ImportSystemsFromRedis extends Command
      */
     public function handle()
     {
-        $cacheKey = "eddn_system_scans";
+        $cacheKey = "eddn_systems_from_listener";
         $cachedSystems = Redis::smembers($cacheKey);
         $edsmApiService = app(EdsmApiService::class);
 
@@ -57,7 +57,7 @@ class ImportSystemsFromRedis extends Command
             $system = $edsmApiService->updateSystemData($systemId64WithName);
             if ($system !== false && $system instanceof System) {
                 $this->info("Record for {$system->name} successfully updated.");
-                Redis::srem("eddn_system_scans", $systemId64WithName);
+                Redis::srem("eddn_systems_from_listener", $systemId64WithName);
                 $inserts++;
             }
 
