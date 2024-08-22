@@ -37,7 +37,7 @@ class EddnListener
             Log::channel('eddn')->info("Connected to: {$relay}");
             Log::channel('eddn')->info("Messages batch size: {$messagesBatch}");
             Log::channel('eddn')->info("Messages batch time: {$messagesBatchTime} seconds");
-            Log::channel('eddn')->info("Processing messages, check eddn.log for any import errors...");
+            Log::channel('eddn')->info("Processing messages...");
 
             while (true) {
                 try {
