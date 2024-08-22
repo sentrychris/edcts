@@ -2,7 +2,7 @@
 
 namespace App\Services\Eddn;
 
-class EddnService
+abstract class EddnService
 {
     /**
      * Software
