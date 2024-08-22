@@ -113,4 +113,36 @@ class EddnSystemService extends EddnService
             }
         }
     }
+
+    /**
+     * Format message attributes.
+     * 
+     * @param string $attribute
+     * @return string
+     */
+    protected function sanitizeMessageAttribute (string $attribute)
+    {
+        $value = "";
+
+        if (str_contains($attribute, '$')) {
+            if (str_starts_with($attribute, '$SYSTEM_SECURITY_')) {
+                $value = str_replace(";", "", trim(str_replace('$SYSTEM_SECURITY_', '', $attribute)));
+            } else if (str_starts_with($attribute, '$GAlAXY_MAP_INFO_state_')) {
+                $value = str_replace(";", "", trim(str_replace('$GAlAXY_MAP_INFO_state_', '', $attribute)));
+            } else {
+                $parts = explode("_", $attribute);
+                $value = count($parts) === 2
+                    ? str_replace(";", "", $parts[1])
+                    : str_replace(";", "", $attribute);
+            }
+        } else {
+            $value = str_replace(";", "", $attribute);
+        }
+
+        if (ctype_digit($value)) {
+            return (int) $value;
+        } else {
+            return ucfirst(camel_to_spaces(trim($value)));
+        }
+    }
 }
