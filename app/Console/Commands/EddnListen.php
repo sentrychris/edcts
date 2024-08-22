@@ -6,7 +6,6 @@ use ZMQ;
 use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Redis;
 use App\Services\Eddn\EddnService;
 
 class EddnListen extends Command
@@ -24,13 +23,7 @@ class EddnListen extends Command
     }
 
     public function handle()
-    {
-        $numCachedSystems = count(Redis::smembers("eddn_systems_from_listener"));
-        if ($numCachedSystems > 100) {
-            $this->error("Cache limit reached, process existing systems first");
-            return false;
-        }
-    
+    {    
         $this->info("Starting EDDN listener...");
 
         $context = new ZMQContext();
@@ -94,24 +87,16 @@ class EddnListen extends Command
 
     protected function processData(array $data)
     {
-        // 
+        //
     }
 
     protected function processBatch(array $data)
     {
-        $numCachedSystems = count(Redis::smembers("eddn_systems_from_listener"));
-
-        if ($numCachedSystems > 100) {
-            throw new \RuntimeException("Cache limit reached, process existing systems first.");
-        }
-
-        $this->line("{$numCachedSystems} systems in cache.\n");
-
         // Implement your logic for batch processing here
         $this->info("Processing batch of EDDN messages...");
 
         // Cache system names with their ID64s for later processing
-        $this->eddnService->cacheSystemNamesWithId64s($data);
+        $this->eddnService->updateSystemsData($data);
 
         $this->info("Batch processed, moving on to the next batch...");
     }

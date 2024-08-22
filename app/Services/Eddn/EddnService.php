@@ -2,6 +2,7 @@
 
 namespace App\Services\Eddn;
 
+use App\Models\System;
 use Illuminate\Support\Facades\Redis;
 
 class EddnService
@@ -38,12 +39,8 @@ class EddnService
      * @param array $data
      * @return void
      */
-    public function cacheSystemNamesWithId64s(array $data)
+    public function updateSystemsData(array $data)
     {
-        $cachedSystemsToProcess = Redis::smembers("eddn_systems_from_listener");
-
-        // Loop through and keep track of duplicate systems
-        $duplicateSystems = [];
         foreach ($data["messages"] as $receivedMessage)
         {
             // Check the software name and version
@@ -56,23 +53,48 @@ class EddnService
             if ($this->validateSchemaRef($schemaRef)) {
                 $message = $receivedMessage["message"];
 
-                // If the event is a scan and the system is not a duplicate in this batch of messages then process it
-                if (
-                    isset($message["StarSystem"])
+                if (isset($message["StarSystem"])
                     && isset($message["SystemAddress"])
-                    && !in_array($message["StarSystem"], $duplicateSystems)
+                    && isset($message["StarPos"]) && count($message["StarPos"]) === 3
                 ) {
                     $starSystem = $message["StarSystem"];
                     $starSystemId64 = $message["SystemAddress"];
 
-                    $cacheValue = $starSystemId64."-".str_replace(" ", "+", $starSystem);
-                    if(!in_array($cacheValue, $cachedSystemsToProcess)) { // Check if the system already exists in the cache
-                        Redis::sadd("eddn_systems_from_listener", $starSystemId64."-".str_replace(" ", "+", $starSystem));
-                    }
+                    $systemRecordExists = System::whereId64($starSystemId64)
+                        ->whereName($starSystem)
+                        ->exists();
 
-                    // Add the system to the list for the next iteration in this batch
-                    $duplicateSystems[] = $starSystem;
+                    if (! $systemRecordExists) {
+                        System::create([
+                            'id64' => $starSystemId64,
+                            'name' => $starSystem,
+                            'coords' => json_encode([
+                                'x' => $message["StarPos"][0],
+                                'y' => $message["StarPos"][1],
+                                'z' => $message["StarPos"][2],
+                            ]),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
+
+                // // If the event is a scan and the system is not a duplicate in this batch of messages then process it
+                // if (
+                //     isset($message["StarSystem"])
+                //     && isset($message["SystemAddress"])
+                //     && !in_array($message["StarSystem"], $duplicateSystems)
+                // ) {
+                //     $starSystem = $message["StarSystem"];
+                //     $starSystemId64 = $message["SystemAddress"];
+
+                //     $cacheValue = $starSystemId64."-".str_replace(" ", "+", $starSystem);
+                //     if(!in_array($cacheValue, $cachedSystemsToProcess)) { // Check if the system already exists in the cache
+                //         Redis::sadd("eddn_systems_from_listener", $starSystemId64."-".str_replace(" ", "+", $starSystem));
+                //     }
+
+                //     // Add the system to the list for the next iteration in this batch
+                //     $duplicateSystems[] = $starSystem;
+                // }
             }
         }
     }
