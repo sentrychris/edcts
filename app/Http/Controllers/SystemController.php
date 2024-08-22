@@ -175,4 +175,27 @@ class SystemController extends Controller
         // Return the system resource
         return new SystemResource($system);
     }
+
+    /**
+     * Get the last added system
+     * 
+     * @return SystemResource
+     */
+    public function getLastAddedSystem() {
+        $lastAddedSystem = System::with(['information'])
+            ->orderBy('id', 'desc')
+            ->first();
+    
+        if ($lastAddedSystem instanceof System) {
+            $this->edsmApiService->updateSystemBodiesData($lastAddedSystem);
+            $this->edsmApiService->updateSystemInformationData($lastAddedSystem);
+        }
+
+        $this->loadValidatedRelationsForQuery(
+            ['withBodies' => 1, 'withInformation' => 1],
+            $lastAddedSystem
+        );
+
+        return new SystemResource($lastAddedSystem);
+    }
 }

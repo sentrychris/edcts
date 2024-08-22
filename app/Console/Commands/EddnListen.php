@@ -43,6 +43,7 @@ class EddnListen extends Command
         try {
             $relay = config("elite.eddn.relay.listener");
             $socket->connect($relay);
+
             $this->info("Connected to: {$relay}");
             $this->line("Messages batch size: {$messagesBatch}");
             $this->line("Processing messages...");

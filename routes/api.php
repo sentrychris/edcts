@@ -40,3 +40,5 @@ Route::prefix('fleet-carriers')->group(function() {
 Route::prefix('galnet')->group(function() {
     Route::resource('news', App\Http\Controllers\GalnetNewsController::class);
 });
+
+Route::get('last-added-system', [\App\Http\Controllers\SystemController::class, 'getLastAddedSystem']);
