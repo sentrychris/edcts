@@ -3,6 +3,8 @@
 namespace App\Services\Eddn;
 
 use App\Models\System;
+use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class EddnService
@@ -65,21 +67,27 @@ class EddnService
                         ->exists();
 
                     if (! $systemRecordExists) {
-                        $system = System::create([
-                            'id64' => $starSystemId64,
-                            'name' => $starSystem,
-                            'coords' => json_encode([
-                                'x' => $message["StarPos"][0],
-                                'y' => $message["StarPos"][1],
-                                'z' => $message["StarPos"][2],
-                            ]),
-                            'updated_at' => now(),
-                        ]);
-
-                        if (!$system
-                            && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))
-                        ) {
-                            Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
+                        try {
+                            $system = System::create([
+                                'id64' => $starSystemId64,
+                                'name' => $starSystem,
+                                'coords' => json_encode([
+                                    'x' => $message["StarPos"][0],
+                                    'y' => $message["StarPos"][1],
+                                    'z' => $message["StarPos"][2],
+                                ]),
+                                'updated_at' => now(),
+                            ]);
+    
+                            if (!$system
+                                && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))
+                            ) {
+                                Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
+                            }
+                        } catch (Exception $e) {
+                            Log::channel('eddn')->error("Failed to insert system: {$starSystem} ({$starSystemId64})", [
+                                'error' => $e->getMessage(),
+                            ]);
                         }
                     }
                 }

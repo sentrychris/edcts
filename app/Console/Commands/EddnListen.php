@@ -45,6 +45,7 @@ class EddnListen extends Command
             $socket->connect($relay);
             $this->info("Connected to: {$relay}");
             $this->line("Messages batch size: {$messagesBatch}");
+            $this->line("Processing messages...");
 
             while (true) {
                 try {
@@ -95,11 +96,7 @@ class EddnListen extends Command
 
     protected function processBatch(array $data)
     {
-        $this->line("Processing batch of EDDN messages...");
-
         // Update systems data from EDDN messages
         $this->eddnService->updateSystemsData($data);
-
-        $this->info("Batch processed, moving on to the next batch...");
     }
 }

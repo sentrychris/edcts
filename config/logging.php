@@ -65,6 +65,13 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'eddn' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/eddn.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
+
         'import:system' => [
             'driver' => 'single',
             'path' => storage_path('logs/imports/systems.log'),
