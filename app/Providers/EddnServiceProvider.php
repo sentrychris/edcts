@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Eddn\EddnListener;
-use App\Services\Eddn\EddnService;
+use App\Services\Eddn\EddnSystemService;
 use Illuminate\Support\ServiceProvider;
 
 class EddnServiceProvider extends ServiceProvider
@@ -14,6 +14,6 @@ class EddnServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(EddnListener::class, fn() => new EddnListener());
-        $this->app->bind(EddnService::class, fn() => new EddnService());
+        $this->app->bind(EddnSystemService::class, fn() => new EddnSystemService());
     }
 }

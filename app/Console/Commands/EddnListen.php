@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Eddn\EddnListener;
 use Illuminate\Console\Command;
-use App\Services\Eddn\EddnService;
+use App\Services\Eddn\EddnSystemService;
 use Illuminate\Support\Facades\Redis;
 
 class EddnListen extends Command
@@ -33,16 +33,16 @@ class EddnListen extends Command
     /**
      * EDDN data management service.
      * 
-     * @var EddnService
+     * @var EddnSystemService
      */
-    private EddnService $eddnService;
+    private EddnSystemService $eddnSystemService;
     
-    public function __construct(EddnListener $eddnListener, EddnService $eddnService)
+    public function __construct(EddnListener $eddnListener, EddnSystemService $eddnSystemService)
     {
         parent::__construct();
 
         $this->eddnListener = $eddnListener;
-        $this->eddnService = $eddnService;
+        $this->eddnSystemService = $eddnSystemService;
     }
 
     public function handle()
@@ -60,6 +60,6 @@ class EddnListen extends Command
      */
     public function processBatch(array $data)
     {
-        $this->eddnService->updateSystemsData($data);
+        $this->eddnSystemService->updateSystemsData($data);
     }
 }
