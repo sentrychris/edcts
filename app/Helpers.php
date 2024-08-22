@@ -29,3 +29,9 @@ if (!function_exists('property_isset')) {
             && $object->{$property} !== null;
     }
 }
+
+if (!function_exists('camel_to_spaces')) {
+    function camel_to_spaces($str) {
+        return preg_replace('/(?|([A-Z])([A-Z][a-z])|([a-z])([A-Z]))/', '$1$3 $2$4', $str);
+    }
+}

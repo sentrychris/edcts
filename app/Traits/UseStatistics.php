@@ -24,25 +24,13 @@ trait UseStatistics
             : 3600;
 
         return Cache::remember($key, $ttl, function ()
-        {
-            $api = app(EdsmApiService::class);
-
-            $lastAddedSystem = System::with(['information'])
-                ->orderBy('id', 'desc')
-                ->first();
-            
-            if ($lastAddedSystem instanceof System) {
-                $api->updateSystemBodiesData($lastAddedSystem);
-                $api->updateSystemInformationData($lastAddedSystem);
-            }
-            
+        {            
             $data = [
                 'cartographical' => [
                     'systems' => System::count(),
                     'bodies' => SystemBody::count(),
                     'stars' => SystemBody::whereType('Star')->count(),
-                    'orbiting' => SystemBody::whereType('planet')->count(),
-                    'latest_system' => new SystemResource($lastAddedSystem->load(['information', 'bodies'])),
+                    'orbiting' => SystemBody::whereType('planet')->count()
                 ],
                 
                 'carriers' => FleetCarrier::count(),

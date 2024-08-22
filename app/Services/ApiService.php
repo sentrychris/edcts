@@ -104,6 +104,8 @@ abstract class ApiService
                 'url' => $url,
                 'config' => $this->config,
             ]);
+
+            return false;
         }
 
 

@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Services\Eddn;
+
+use RuntimeException;
+use ZMQ;
+use ZMQContext;
+use ZMQSocketException;
+use Illuminate\Support\Facades\Log;
+
+class EddnListener
+{
+    /**
+     *  Batch process messages from EDDN
+     * 
+     * @param callable $callback
+     * @return void
+     * @throws RuntimeException
+     */
+    public function collectMessagesForBatchProcess(Callable $callback)
+    {
+        $context = new ZMQContext();
+        $socket = $context->getSocket(ZMQ::SOCKET_SUB);
+        $socket->setSockOpt(ZMQ::SOCKOPT_SUBSCRIBE, ""); // Subscribe to all messages
+
+        $messagesDefault = ["batch" => true, "messages" => []];
+        $messagesBatch = 100;
+        $messagesBatchTime = 10;
+
+        $messages = $messagesDefault;
+        $lastTimeMessages = time();
+
+        try {
+            $relay = config("elite.eddn.relay.listener");
+            $socket->connect($relay);
+
+            Log::channel('eddn')->info("Connected to: {$relay}");
+            Log::channel('eddn')->info("Messages batch size: {$messagesBatch}");
+            Log::channel('eddn')->info("Messages batch time: {$messagesBatchTime} seconds");
+            Log::channel('eddn')->info("Processing messages...");
+
+            while (true) {
+                try {
+                    $message = $socket->recv();
+
+                    if ($message !== false) {
+                        $decompressedMessage = zlib_decode($message);
+
+                        if ($decompressedMessage === false) {
+                            Log::channel('eddn')->error("Failed to decompress message");
+                            continue;
+                        }
+
+                        $data = json_decode($decompressedMessage, true);
+
+                        if ($data) {
+                            $messages["messages"][] = $data;
+                        }
+
+                        // If we have more than 500 messages or 20 seconds have passed since the last messages were received, process the batch
+                        if (count($messages["messages"]) >= $messagesBatch || time() > ($lastTimeMessages + $messagesBatchTime)) {
+                            // Process the batch of messages
+                            $callback($messages);
+
+                            // Reset messages and timer
+                            $messages = $messagesDefault;
+                            $lastTimeMessages = time();
+                        }
+                    } else {
+                        // If no message received, sleep a bit to avoid tight loop
+                        usleep(10000); // 10 ms
+                    }
+                } catch (ZMQSocketException $e) {
+                    Log::channel('eddn')->error("ZMQSocketException: " . $e->getMessage());
+                    throw new RuntimeException("ZMQSocketException: " . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            Log::channel('eddn')->error("Could not connect: " . $e->getMessage());
+            throw new RuntimeException("Could not connect to EDDN");
+        }
+    }
+}
