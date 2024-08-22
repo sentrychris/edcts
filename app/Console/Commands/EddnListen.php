@@ -7,6 +7,7 @@ use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Console\Command;
 use App\Services\Eddn\EddnService;
+use Illuminate\Support\Facades\Redis;
 
 class EddnListen extends Command
 {
@@ -25,6 +26,8 @@ class EddnListen extends Command
     public function handle()
     {    
         $this->info("Starting EDDN listener...");
+
+        Redis::del("eddn_systems_not_inserted");
 
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_SUB);
