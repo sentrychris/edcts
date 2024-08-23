@@ -38,11 +38,26 @@ class EddnSystemService extends EddnService
                 $lastSystem = end($route);
                 $lastSystemName = $lastSystem['StarSystem'];
 
-                $cachedRoutes = Redis::smembers("eddn_navroutes");
-                if(count($cachedRoutes) < 10) {
-                    Redis::sadd("eddn_navroutes", "{$firstSystemName} to {$lastSystemName}");
-                } else {
-                    Redis::del("eddn_navroutes");
+                $cacheKey = "eddn_navroutes";
+                $maxCacheSize = 10;
+
+                $latestRoute = json_encode([
+                    "from" => $firstSystemName,
+                    "to" => $lastSystemName
+                ]);
+
+                $cachedRoutes = Redis::lrange($cacheKey, 0, -1);
+
+                // Check if the latest route is already in the cache
+                if (!in_array($latestRoute, $cachedRoutes))
+                {
+                    if(count($cachedRoutes) >= $maxCacheSize) {
+                        // Remove the oldest route (last entry in the list) if the cache is full
+                        Redis::rpop($cacheKey);
+                    }
+
+                    // Add the newest route to the front of the list
+                    Redis::lpush($cacheKey, $latestRoute);
                 }
             }
         }

@@ -30,7 +30,9 @@ Route::prefix('auth')->group(function() {
 Route::resource('systems', App\Http\Controllers\SystemController::class);
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
 Route::resource('stations', App\Http\Controllers\StationController::class);
-Route::resource('statistics', App\Http\Controllers\StatisticsController::class);
+
+Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
+Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLastTenNavRoutes']);
 
 Route::prefix('fleet-carriers')->group(function() {
     Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);
