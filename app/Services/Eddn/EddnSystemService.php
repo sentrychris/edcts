@@ -2,6 +2,7 @@
 
 namespace App\Services\Eddn;
 
+use App\Events\EddnRelayMessage;
 use Exception;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
@@ -56,6 +57,7 @@ class EddnSystemService extends EddnService
                             if (!$system && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))) {
                                 Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
                             } else {
+                                event(new EddnRelayMessage(["type" => "system-added", "system" => $system->toArray()]));
                                 $this->updateSystemInformationData($system, $message);
                             }
                         } catch (Exception $e) {
