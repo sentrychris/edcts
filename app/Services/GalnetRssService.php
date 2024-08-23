@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\GalnetNews;
-use Symfony\Component\Console\Helper\ProgressBar;
 
 class GalnetRssService
 {   
@@ -23,11 +22,9 @@ class GalnetRssService
     /**
      * Import Galnet news articles
      * 
-     * @param ProgressBar $progress
-     * 
      * @return void
      */
-    public function import(ProgressBar $progress): void
+    public function import(): void
     {
         $url = $this->resolveFeed($this->url);
         
@@ -35,26 +32,21 @@ class GalnetRssService
             return;
         }
         
-        $progress->start(count($x->channel->item));
         $i = 0;
         foreach ($x->channel->item as $item) {
             if (GalnetNews::whereTitle($item->title)->exists()) {
-                $progress->advance();
                 continue;
             }
-            
-            $article = new GalnetNews();
-            $article->title  = $item->title;  
-            $article->content = $item->description;
-            $article->uploaded_at = $item->pubDate;
-            $article->banner_image = $i % 2 === 0 ? '/sunrise.jpg' : '/helios.jpg';
-            $article->save();
-            
-            $progress->advance();
+
+            GalnetNews::updateOrCreate(['title' => $item->title], [
+                'title' => $item->title,
+                'content' => $item->description,
+                'uploaded_at' => $item->pubDate,
+                'banner_image' => $i % 2 === 0 ? '/sunrise.jpg' : '/helios.jpg'
+            ]);
+
             ++$i;
         }
-        
-        $progress->finish();
     }
     
     /**

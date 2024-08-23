@@ -41,10 +41,8 @@ class ImportGalnet extends Command
             ? new GalnetRssService(config('elite.galnet.rss'))
             : new GalnetJsonService(config('elite.galnet.json'));
 
-        $progress = $this->output->createProgressBar();
+        $parser->import();
 
-        $parser->import($progress);
-
-        $this->info("\nImport completed.");
+        $this->info("\nImported galnet news articles.");
     }
 }
