@@ -39,7 +39,7 @@ class EddnSystemService extends EddnService
                 $lastSystemName = $lastSystem['StarSystem'];
 
                 $cacheKey = "eddn_navroutes";
-                $maxCacheSize = 10;
+                $maxCacheSize = 50;
 
                 $latestRoute = json_encode([
                     "from" => $firstSystemName,

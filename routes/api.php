@@ -32,7 +32,7 @@ Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
 Route::resource('stations', App\Http\Controllers\StationController::class);
 
 Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
-Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLastTenNavRoutes']);
+Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLatestNavRoutes']);
 
 Route::prefix('fleet-carriers')->group(function() {
     Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);

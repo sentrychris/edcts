@@ -32,9 +32,13 @@ class StatisticsController extends Controller
      * 
      * @return Response
      */
-    public function getLastTenNavRoutes(): Response
+    public function getLatestNavRoutes(Request $request): Response
     {
-        $navRoutes = Redis::lrange("eddn_navroutes", 0, -1);
+        $limit = $request->get('limit')
+            ? $request->get('limit') - 1
+            : -1;
+
+        $navRoutes = Redis::lrange("eddn_navroutes", 0, $limit);
 
         foreach($navRoutes as $key => $route) {
             $navRoutes[$key] = json_decode($route, true);
