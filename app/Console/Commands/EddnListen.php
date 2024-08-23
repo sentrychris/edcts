@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Eddn\EddnListener;
 use Illuminate\Console\Command;
+use App\Services\Eddn\EddnListener;
 use App\Services\Eddn\EddnSystemService;
-use Illuminate\Support\Facades\Redis;
 
 class EddnListen extends Command
 {
@@ -21,7 +20,7 @@ class EddnListen extends Command
      * 
      * @var string
      */
-    protected $description = "Listen to EDDN and import system data";
+    protected $description = "Listen to EDDN and process incoming data";
 
     /**
      * EDDN listener.
@@ -45,11 +44,15 @@ class EddnListen extends Command
         $this->eddnSystemService = $eddnSystemService;
     }
 
+    /**
+     * Execute the console command.
+     * 
+     * @return void
+     */
     public function handle()
     {    
         $this->info("Starting EDDN listener...");
-        Redis::del("eddn_systems_not_inserted");
-        $this->eddnListener->collectMessagesForBatchProcess([$this, "processBatch"]);
+        $this->eddnListener->process([$this, "processBatch"]);
     }
 
     /**
@@ -60,6 +63,7 @@ class EddnListen extends Command
      */
     public function processBatch(array $data)
     {
+        $this->eddnSystemService->updateLastTenNavRoutes($data);
         $this->eddnSystemService->updateSystemsData($data);
     }
 }

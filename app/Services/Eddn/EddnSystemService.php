@@ -2,14 +2,52 @@
 
 namespace App\Services\Eddn;
 
-use App\Events\EddnRelayMessage;
 use Exception;
+// use App\Events\EddnRelayMessage;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class EddnSystemService extends EddnService
 {
+    /**
+     * Update the last ten nav routes.
+     * 
+     * @param array $data
+     * @return void
+     */
+    public function updateLastTenNavRoutes(array $data)
+    {
+        foreach($data['messages'] as $receivedMessage)
+        {
+            // Check the software name and version
+            if (! $this->isSoftwareAllowed($receivedMessage["header"])) {
+                continue;
+            }
+
+            $schemaRef = $receivedMessage['$schemaRef'];
+
+            if ($this->validateSchemaRef($schemaRef) && $schemaRef === 'https://eddn.edcd.io/schemas/navroute/1') {
+                $message = $receivedMessage['message'];
+                $route = $message['Route'];
+                
+                $firstSystem = reset($route);
+                $firstSystemName = $firstSystem['StarSystem'];
+
+
+                $lastSystem = end($route);
+                $lastSystemName = $lastSystem['StarSystem'];
+
+                $cachedRoutes = Redis::smembers("eddn_navroutes");
+                if(count($cachedRoutes) < 10) {
+                    Redis::sadd("eddn_navroutes", "{$firstSystemName} to {$lastSystemName}");
+                } else {
+                    Redis::del("eddn_navroutes");
+                }
+            }
+        }
+    }
+
     /**
      * Cache system names with their ID64s.
      * 
@@ -57,7 +95,7 @@ class EddnSystemService extends EddnService
                             if (!$system && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))) {
                                 Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
                             } else {
-                                event(new EddnRelayMessage(["type" => "system-added", "system" => $system->toArray()]));
+                                // event(new EddnRelayMessage(["type" => "system-added", "system" => $system->toArray()]));
                                 $this->updateSystemInformationData($system, $message);
                             }
                         } catch (Exception $e) {

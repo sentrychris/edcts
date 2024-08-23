@@ -36,7 +36,7 @@ abstract class EddnService
      * @param string $schemaRef
      * @return bool
      */
-    protected function validateSchemaRef(string $schemaRef) {
+    public function validateSchemaRef(string $schemaRef) {
         if (! in_array($schemaRef, $this->schemas["valid"])) {
             return false;
         }
@@ -52,7 +52,7 @@ abstract class EddnService
      * @param array $messageHeaders
      * @return bool
      */
-    protected function isSoftwareAllowed(array $messageHeader): bool
+    public function isSoftwareAllowed(array $messageHeader): bool
     {
         $softwareName = $messageHeader["softwareName"];
         $softwareVersion = $messageHeader["softwareVersion"];
