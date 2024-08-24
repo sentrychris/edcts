@@ -67,9 +67,12 @@ class EdsmApiService extends ApiService
             ]);
 
         if ($response) {
-            $bodies = property_isset($response, 'bodies')
-                ? $response->bodies
-                : (isset($response['bodies']) ? $response['bodies'] : []);
+            $bodies = [];
+            if (property_isset($response, 'bodies')) {
+                $bodies = $response->bodies;
+            } elseif (is_array($response) && isset($response['bodies'])) {
+                $bodies = $response['bodies'];
+            }
 
             $system->body_count = property_isset($response, 'bodyCount')
                 ? $response->bodyCount
