@@ -38,12 +38,15 @@ class GalnetRssService
                 continue;
             }
 
-            GalnetNews::updateOrCreate(['title' => $item->title], [
+            $article = GalnetNews::updateOrCreate(['title' => $item->title], [
                 'title' => $item->title,
                 'content' => $item->description,
                 'uploaded_at' => $item->pubDate,
-                'banner_image' => $i % 2 === 0 ? '/sunrise.jpg' : '/helios.jpg'
+                'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg'
             ]);
+
+            $article->audio_file = "/audio/galnet-article-id-{$article->id}.mp3";
+            $article->save();
 
             ++$i;
         }

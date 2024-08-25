@@ -43,12 +43,15 @@ class GalnetJsonService extends ApiService
                     continue;
                 }
 
-                GalnetNews::updateOrCreate(['title' => $article->title], [
+                $article = GalnetNews::updateOrCreate(['title' => $article->title], [
                     'title' => $article->title,
                     'content' => $article->body->processed,
                     'uploaded_at' => $article->field_galnet_date,
-                    'banner_image' => $i % 2 === 0 ? '/sunrise.jpg' : '/helios.jpg'
+                    'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg'
                 ]);
+
+                $article->audio_file = "/audio/galnet-article-id-{$article->id}.mp3";
+                $article->save();
 
                 ++$i;
             }
