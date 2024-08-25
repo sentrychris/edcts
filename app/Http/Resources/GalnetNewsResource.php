@@ -25,6 +25,7 @@ class GalnetNewsResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'content' =>  $content,
+            'audio_file' => $this->audio_file,
             'uploaded_at' => $this->uploaded_at,
             'banner_image' => $this->banner_image,
             'slug' => $this->slug
