@@ -15,6 +15,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class PreCacheSystems implements ShouldQueue
 {
@@ -79,13 +80,14 @@ class PreCacheSystems implements ShouldQueue
         $limit = config("app.pagination.limit");
         $pages = ceil($count / $limit);
 
-        Log::channel($this->channel)->info("Systems pagination metadata: ", [
+        $metadata = [
             "Total" => number_format($count),
             "Number per page" => number_format($limit),
             "Number of pages" => number_format($pages),
-        ]);
+        ];
 
-        Log::channel($this->channel)->info("Pre-caching systems pages, please wait...");
+        Log::channel($this->channel)->info("Systems pagination metadata: ", $metadata);
+        DiscordAlert::to('pages-cache')->message("```" . json_encode($metadata, 128) . "```");
 
         $errors = 0;
         for ($page = 1; $page <= $pages; $page++) {
@@ -120,11 +122,18 @@ class PreCacheSystems implements ShouldQueue
             } catch (Exception $e) {
                 Log::channel($this->channel)
                     ->error("Failed to pre-cache systems_page_{$page} of {$pages}: " . $e->getMessage());
+
+                DiscordAlert::to('pages-cache')
+                    ->message("Failed to pre-cache systems_page_{$page} of {$pages}: `" . $e->getMessage() . "`");
+
                 $errors++;
             }
         }
 
         Log::channel($this->channel)
             ->info("Systems page pre-caching completed with " . number_format($errors) . " errors.");
+
+        DiscordAlert::to('pages-cache')
+            ->message("Systems page pre-caching completed with " . number_format($errors) . " errors.");
     }
 }

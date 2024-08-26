@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
+use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EdsmApiService extends ApiService
 {
@@ -43,11 +44,17 @@ class EdsmApiService extends ApiService
                 ]);
             } else {
                 Log::channel('import:system')
-                    ->error('updateSystemDataError: No response from EDSM.');
+                    ->error('updateSystemDataError: `No response from EDSM`.');
+
+                DiscordAlert::to('eddn-listener')
+                    ->message('*ERROR* [updateSystemDataError]: `No response from EDSM`.');
             }
         } catch (Exception $e) {
             Log::channel('import:system')
                 ->error('updateSystemDataError: ' . $e->getMessage());
+
+            DiscordAlert::to('eddn-listener')
+                ->message('*ERROR* [updateSystemDataError]: `' . $e->getMessage() . '`');
         }
 
         return $system;
@@ -213,12 +220,18 @@ class EdsmApiService extends ApiService
                     } catch (Exception $e) {
                         Log::channel('import:system')
                             ->error('updateSystemBodiesDataError: ' . $e->getMessage());
+
+                        DiscordAlert::to('eddn-listener')
+                            ->message('*ERROR* [updateSystemBodiesDataError]: `' . $e->getMessage() . '`');
                     }
                 }
             }
         } else {
             Log::channel('import:system')
                 ->error('updateSystemBodiesDataError: No response from EDSM.');
+            
+            DiscordAlert::to('eddn-listener')
+                ->message('*ERROR* [updateSystemBodiesDataError]: No response from EDSM.');
         }
     }
 
@@ -273,10 +286,16 @@ class EdsmApiService extends ApiService
             } catch (Exception $e) {
                 Log::channel('import:system')
                     ->error('updateSystemInformationDataError: ' . $e->getMessage());
+
+                DiscordAlert::to('eddn-listener')
+                    ->message('*ERROR* [updateSystemInformationDataError]: `' . $e->getMessage() . '`');
             }
         } else {
             Log::channel('import:system')
                 ->error('updateSystemInformationDataError: No response from EDSM.');
+
+            DiscordAlert::to('eddn-listener')
+                ->message('*ERROR* [updateSystemInformationDataError]: No response from EDSM.');
         }
     }
 
@@ -374,11 +393,17 @@ class EdsmApiService extends ApiService
                 } catch (Exception $e) {
                     Log::channel('import:system')
                         ->error('updateSystemsStationDataError: ' . $e->getMessage());
+
+                    DiscordAlert::to('eddn-listener')
+                        ->message('*ERROR* [updateSystemsStationDataError]: `' . $e->getMessage() . '`');
                 }
             }
         } else {
             Log::channel('import:system')
                 ->error('updateSystemsStationDataError: No response from EDSM.');
+
+            DiscordAlert::to('eddn-listener')
+                ->message('*ERROR* [updateSystemsStationDataError]: No response from EDSM.');
         }
     }
 }
