@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
-class PreCacheSystems implements ShouldQueue
+class PreCacheSystemsPages implements ShouldQueue
 {
     use Dispatchable, HasValidatedQueryRelations, InteractsWithQueue, Queueable, SerializesModels;
 

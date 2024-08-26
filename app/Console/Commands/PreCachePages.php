@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\PreCacheSystems;
+use App\Jobs\PreCacheSystemsPages;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Console\Command;
 
-class PreCacheData extends Command
+class PreCachePages extends Command
 {
     use HasValidatedQueryRelations;
 
@@ -15,9 +15,9 @@ class PreCacheData extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:precache:data
+    protected $signature = "edcts:precache:pages
         {--type= : The type of data to pre-cache.}
-        {--channel= : The log channel for the dispatch job.}
+        {--channel=pages:cache : The log channel for the dispatch job.}
         {--flush : Force flush the cache before pre-caching.}
         {--ttl=3600 : Time to live (default: 3600).}";
 
@@ -26,7 +26,7 @@ class PreCacheData extends Command
      *
      * @var string
      */
-    protected $description = "Pre-cache data for the frontend";
+    protected $description = "Pre-cache pages for the frontend";
 
     /**
      * Execute the console command.
@@ -39,7 +39,7 @@ class PreCacheData extends Command
         if (in_array($this->option('type'), ['sys', 'system', 'systems'])) {
             $this->info('Dispatching job to pre-cache system pages...');
 
-            PreCacheSystems::dispatch(
+            PreCacheSystemsPages::dispatch(
                 $this->option('channel'),
                 $this->option('flush'),
                 $ttl

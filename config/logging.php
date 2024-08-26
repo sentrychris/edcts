@@ -74,7 +74,7 @@ return [
 
         'import:system' => [
             'driver' => 'single',
-            'path' => storage_path('logs/imports/systems.log'),
+            'path' => storage_path('logs/systems-imports.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
