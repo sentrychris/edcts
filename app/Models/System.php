@@ -135,16 +135,8 @@ class System extends Model
             ) AS distance
         SQL;
 
-        $orderBy = <<<SQL
-            SQRT(
-                POW(JSON_EXTRACT(coords, '$.x') - ?, 2) +
-                POW(JSON_EXTRACT(coords, '$.y') - ?, 2) +
-                POW(JSON_EXTRACT(coords, '$.z') - ?, 2)
-            ) ASC
-        SQL;
-
         return self::selectRaw($selectRaw, [$coords['x'], $coords['y'], $coords['z']])
-            ->orderByRaw($orderBy, [$coords['x'], $coords['y'], $coords['z']])
+            ->orderByRaw("distance ASC")
             ->limit($limit);
     }
 
