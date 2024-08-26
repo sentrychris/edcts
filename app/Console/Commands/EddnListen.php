@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Services\Eddn\EddnListener;
 use App\Services\Eddn\EddnSystemService;
+use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnListen extends Command
 {
@@ -52,6 +53,8 @@ class EddnListen extends Command
     public function handle()
     {    
         $this->info("Starting EDDN listener...");
+        DiscordAlert::to("eddn-listener")->message("**Restarting EDDN listener...**");
+
         $this->eddnListener->process([$this, "processBatch"]);
     }
 
