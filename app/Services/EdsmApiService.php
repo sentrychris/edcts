@@ -23,8 +23,6 @@ class EdsmApiService extends ApiService
         $systemName = $parts[1];
     
         try {
-            throw new Exception('Testing exception handling.');
-
             // Set the API config and make the request
             $response = $this->setConfig(config('elite.edsm'))
                 ->setCategory('systems')
@@ -85,8 +83,6 @@ class EdsmApiService extends ApiService
             if ($bodies) {
                 foreach($bodies as $body) {
                     try {
-                        throw new Exception('Testing exception handling.');
-
                         $id = random_int(100000000, 999999999);
                         $bodyId = $id;
 
@@ -243,7 +239,6 @@ class EdsmApiService extends ApiService
 
         if ($response && property_isset($response, 'information')) {
             try {
-                throw new Exception('Testing exception handling.');
                 $information = $response->information;
 
                 $system->information()->updateOrCreate([
