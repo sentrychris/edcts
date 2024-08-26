@@ -7,7 +7,6 @@ use Exception;
 use App\Models\System;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnSystemService extends EddnService
 {
@@ -118,9 +117,6 @@ class EddnSystemService extends EddnService
                             Log::channel('eddn')->error("Failed to insert system: {$starSystem} ({$starSystemId64})", [
                                 'error' => $e->getMessage(),
                             ]);
-
-                            DiscordAlert::to('eddn-listener')
-                                ->message('*ERROR* [updateSystemsData]: `' . $e->getMessage() . '`');
                         }
                     } else {
                         $this->updateSystemInformationData($existingSystem, $message);
@@ -169,9 +165,6 @@ class EddnSystemService extends EddnService
                 Log::channel('eddn')->error("Failed to insert information for: {$system->name} ({$system->id64})", [
                     'error' => $e->getMessage(),
                 ]);
-
-                DiscordAlert::to('eddn-listener')
-                    ->message('*ERROR* [updateSystemInformationData]: `' . $e->getMessage() . '`');
             }
         }
     }
