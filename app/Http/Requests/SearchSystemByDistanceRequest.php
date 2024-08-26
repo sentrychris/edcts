@@ -12,9 +12,9 @@ class SearchSystemByDistanceRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'x' => 'required|int',
-            'y' => 'required|int',
-            'z' => 'required|int',
+            'x' => 'required|numeric',
+            'y' => 'required|numeric',
+            'z' => 'required|numeric',
             'limit' => 'sometimes|int|max:1000',
         ];
     }
