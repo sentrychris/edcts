@@ -114,6 +114,41 @@ class System extends Model
     }
 
     /**
+     * Search for systems by distance.
+     * 
+     * @param array $coords - the coordinates to search by
+     * @param int $limit - the limit of systems to return
+     */
+    public static function findNearest(array $coords, int $limit = 100)
+    {
+        $selectRaw = <<<SQL
+            id,
+            id64,
+            name,
+            coords,
+            slug,
+            updated_at,
+            SQRT(
+                POW(JSON_EXTRACT(coords, '$.x') - ?, 2) +
+                POW(JSON_EXTRACT(coords, '$.y') - ?, 2) +
+                POW(JSON_EXTRACT(coords, '$.z') - ?, 2)
+            ) AS distance
+        SQL;
+
+        $orderBy = <<<SQL
+            SQRT(
+                POW(JSON_EXTRACT(coords, '$.x') - ?, 2) +
+                POW(JSON_EXTRACT(coords, '$.y') - ?, 2) +
+                POW(JSON_EXTRACT(coords, '$.z') - ?, 2)
+            ) ASC
+        SQL;
+
+        return self::selectRaw($selectRaw, [$coords['x'], $coords['y'], $coords['z']])
+            ->orderByRaw($orderBy, [$coords['x'], $coords['y'], $coords['z']])
+            ->limit($limit);
+    }
+
+    /**
      * Configure the URL slug.
      * 
      * @return array - the configuration for the slug

@@ -44,3 +44,4 @@ Route::prefix('galnet')->group(function() {
 });
 
 Route::get('last-added-system', [\App\Http\Controllers\SystemController::class, 'getLastAddedSystem']);
+Route::get('find-nearest-systems', [App\Http\Controllers\SystemController::class, 'findByDistance']);

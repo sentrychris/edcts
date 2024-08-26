@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchSystemByDistanceRequest;
 use App\Http\Requests\SearchSystemRequest;
+use App\Http\Resources\SystemDistanceResource;
 use App\Http\Resources\SystemResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
@@ -197,5 +199,18 @@ class SystemController extends Controller
         );
 
         return new SystemResource($lastAddedSystem);
+    }
+
+    /**
+     * Find systems by distance.
+     * 
+     * @param SearchSystemByDistanceRequest $request
+     */
+    public function findByDistance(SearchSystemByDistanceRequest $request)
+    {
+        return SystemDistanceResource::collection(System::findNearest(
+            $request->except('limit'),
+            $request->get('limit', 100)
+        )->get());
     }
 }
