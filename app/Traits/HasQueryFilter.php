@@ -23,7 +23,11 @@ trait HasQueryFilter
                     $value = explode(',', $options[$attr]);
                     if ($value) {
                         if (!$exact) {
-                            $builder->where($attr, 'RLIKE', $value);
+                            if ($attr === "name") {
+                                $builder->whereFullText($attr, $value);
+                            } else {
+                                $builder->where($attr, 'RLIKE', $value);
+                            }
                         } else {
                             $builder->whereIn($attr, $value);
                         }
@@ -35,7 +39,11 @@ trait HasQueryFilter
                 $value = explode(',', $options[$attribute]);
                 if ($value) {
                     if (!$exact) {
-                        $builder->where($attribute, 'RLIKE', $value);
+                        if ($attribute === "name") {
+                            $builder->whereFullText($attribute, $value);
+                        } else {
+                            $builder->where($attribute, 'RLIKE', $value);
+                        }
                     } else {
                         $builder->whereIn($attribute, $value);
                     }
