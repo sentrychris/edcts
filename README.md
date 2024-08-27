@@ -2,9 +2,34 @@
 
 Backend services for ED:CTS - responsible for communicating with Elite 3rd party services and providing data to the [ED:CTS frontend](https://github.com/sentrychris/edcts-frontend).
 
+## Requirements
+
+- Nginx or Apache:
+    - (If using Nginx): php-fpm
+    - (If using Apache): mod_php
+- PHP 8.3 with extensions:
+    - Ctype
+    - cURL
+    - DOM
+    - Fileinfo
+    - Filter
+    - Hash
+    - Mbstring
+    - OpenSSL
+    - PCRE
+    - PDO
+    - Session
+    - Tokenizer
+    - XML
+    - Zip
+    - ZMQ
+- MySQL
+- Redis
+- Supervisor
+
 ## Development
 
-ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage.
+ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage, [Redis](https://redis.io/) for caching, and [Supervisor](http://supervisord.org/) for managing queue workers and long-running artisan commands.
 
 [Docker](https://www.docker.com/) is used for local development.
 
@@ -54,6 +79,19 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     QUEUE_CONNECTION=database
     SESSION_DRIVER=database
     SESSION_LIFETIME=120
+    
+    MEMCACHED_HOST=127.0.0.1
+
+    REDIS_HOST=edcts-redis-1
+    REDIS_PASSWORD=null
+    REDIS_PORT=6379
+
+    REVERB_APP_ID=appid
+    REVERB_APP_KEY=key
+    REVERB_APP_SECRET=secret
+    REVERB_HOST="localhost"
+    REVERB_PORT=8080
+    REVERB_SCHEME=http
     ... # the rest should be fine
     ```
 
@@ -109,10 +147,21 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     ./vendor/bin/sail artisan queue:work --daemon
     ```
 
-## Swagger Documentation
+### Credits
 
-To access swagger UI, run `npm run docs` and access on http://localhost:8888.
+ED:CTS wouldn't be possible without the work of hundreds of talented members of the Elite: Dangerous community.
 
-## Credits
+_"Standing on the shoulders of giants"_.
 
--   [AnthorNet/EDSM](https://github.com/EDSM-NET) - for the wonderful cartographical data and API.
+Special thanks to:
+
+
+- [ED:CD](https://edcd.github.io/)  - for all of their projects, data, guidance and more.
+- [EDSM](https://github.com/EDSM-NET) - for the wonderful data and API.
+- [Spansh](https://www.spansh.co.uk) - for the wonderful data and API.
+
+### Legal
+
+"Elite", the Elite logo, the Elite: Dangerous logo, "Frontier" and the Frontier logo are registered trademarks of Frontier Developments plc. All rights reserved. All other trademarks and copyrights are acknowledged as the property of their respective owners.
+
+ED:CTS is free, open source software released under the MIT License.
