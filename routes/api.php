@@ -28,7 +28,14 @@ Route::prefix('auth')->group(function() {
 });
 
 Route::resource('systems', App\Http\Controllers\SystemController::class);
+
+Route::prefix('system')->group(function() {
+    Route::get('last-updated', [\App\Http\Controllers\SystemController::class, 'getLastUpdated']);
+    Route::get('find-nearest', [App\Http\Controllers\SystemController::class, 'findNearest']);
+});
+
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
+
 Route::resource('stations', App\Http\Controllers\StationController::class);
 
 Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
@@ -42,6 +49,3 @@ Route::prefix('fleet-carriers')->group(function() {
 Route::prefix('galnet')->group(function() {
     Route::resource('news', App\Http\Controllers\GalnetNewsController::class);
 });
-
-Route::get('last-added-system', [\App\Http\Controllers\SystemController::class, 'getLastAddedSystem']);
-Route::get('find-nearest-systems', [App\Http\Controllers\SystemController::class, 'findByDistance']);

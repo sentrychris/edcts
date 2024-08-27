@@ -117,9 +117,10 @@ class System extends Model
      * Search for systems by distance.
      * 
      * @param array $coords - the coordinates to search by
+     * @param int $distance - the distance to search by in light years
      * @param int $limit - the limit of systems to return
      */
-    public static function findNearest(array $coords, int $limit = 100)
+    public static function findNearest(array $coords, int $distance, int $limit = 100)
     {
         $selectRaw = <<<SQL
             id,
@@ -136,6 +137,7 @@ class System extends Model
         SQL;
 
         return self::selectRaw($selectRaw, [$coords['x'], $coords['y'], $coords['z']])
+            ->havingRaw("distance <= ?", [$distance])
             ->orderByRaw("distance ASC")
             ->limit($limit);
     }

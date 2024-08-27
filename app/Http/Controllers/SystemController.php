@@ -179,38 +179,50 @@ class SystemController extends Controller
     }
 
     /**
-     * Get the last added system
+     * Get the last updated system
      * 
      * @return SystemResource
      */
-    public function getLastAddedSystem() {
-        $lastAddedSystem = System::with(['information'])
-            ->orderBy('id', 'desc')
+    public function getLastUpdated()
+    {
+        $system = System::with(['information'])
+            ->orderBy('updated_at', 'desc')
             ->first();
     
-        if ($lastAddedSystem instanceof System) {
-            $this->edsmApiService->updateSystemBodiesData($lastAddedSystem);
-            $this->edsmApiService->updateSystemInformationData($lastAddedSystem);
+        if ($system instanceof System) {
+            $this->edsmApiService->updateSystemBodiesData($system);
+            $this->edsmApiService->updateSystemInformationData($system);
         }
 
         $this->loadValidatedRelationsForQuery(
             ['withBodies' => 1, 'withInformation' => 1],
-            $lastAddedSystem
+            $system
         );
 
-        return new SystemResource($lastAddedSystem);
+        return new SystemResource($system);
     }
 
     /**
-     * Find systems by distance.
+     * Find systems by distance in light years.
      * 
      * @param SearchSystemByDistanceRequest $request
      */
-    public function findByDistance(SearchSystemByDistanceRequest $request)
+    public function findNearest(SearchSystemByDistanceRequest $request)
     {
-        return SystemDistanceResource::collection(System::findNearest(
-            $request->except('limit'),
-            $request->get('limit', 100)
-        )->get());
+        $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
+        $systems = Cache::get($cacheKey);
+
+        if (! $systems) {
+            $systems = System::findNearest(
+                $request->only(['x','y','z']),
+                $request->get('ly', 1000),
+            )
+                ->with('information')
+                ->paginate($request->get('limit', 20));
+                
+            Cache::set($cacheKey, $systems, 86400);
+        }
+
+        return SystemDistanceResource::collection($systems);
     }
 }

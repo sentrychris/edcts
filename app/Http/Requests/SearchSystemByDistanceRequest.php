@@ -15,6 +15,7 @@ class SearchSystemByDistanceRequest extends ApiRequest
             'x' => 'required|numeric',
             'y' => 'required|numeric',
             'z' => 'required|numeric',
+            'ly' => 'sometimes|int|max:5000',
             'limit' => 'sometimes|int|max:1000',
         ];
     }
