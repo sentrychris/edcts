@@ -35,11 +35,15 @@ trait HasQueryFilter
                 }
             }
         } else {
-            if (Arr::exists($attribute, $attribute) && $options[$attribute]) {
+            if (Arr::exists($options, $attribute) && $options[$attribute]) {
                 $value = explode(',', $options[$attribute]);
                 if ($value) {
                     if (!$exact) {
-                        $builder->where($attribute, 'LIKE', "{$value}%");
+                        if(count($value) === 1) {
+                            $builder->where($attribute, 'LIKE', "{$value[0]}%");
+                        } else {
+                            $builder->where($attribute, 'RLIKE', $value);  
+                        }
                     } else {
                         $builder->whereIn($attribute, $value);
                     }
