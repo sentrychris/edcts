@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Frontier auth client.
@@ -97,17 +98,27 @@ class FrontierApiManager
         // Retrieve the code verifier from the session
         $codeVerifier = Cache::get('code_verifier');
 
+        Log::info('params', [
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'client_id' => config('elite.frontier.auth.client_id'),
+                'code_verifier' => $codeVerifier,
+                'code' => $code,
+                'redirect_uri' => $redirectUri
+            ]
+        ]);
+
         
         // Use it to obtain a valid access token
         $response = $this->client->request('POST', '/token', [
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
             ],
-            'body' => [
+            'form_params' => [
                 'grant_type' => 'authorization_code',
                 'client_id' => config('elite.frontier.auth.client_id'),
-                'code' => $code,
                 'code_verifier' => $codeVerifier,
+                'code' => $code,
                 'redirect_uri' => $redirectUri
             ]
         ]);
