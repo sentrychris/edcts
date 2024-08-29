@@ -94,6 +94,8 @@ class FrontierApiManager
         $codeVerifier = $request->get('code_verifier');
         $redirectUri = urlencode(route('frontier.auth.callback'));
 
+        dd($code, $codeVerifier, $redirectUri);
+
         // Retrieve the code verifier from the session
         $codeVerifier = $request->get('code_verifier');
 
