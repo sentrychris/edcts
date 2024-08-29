@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Services\Frontier\FrontierApiManager;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
+use App\Services\Frontier\FrontierAuthService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,19 +14,19 @@ class FrontierAuthController extends Controller
     /**
      * The Frontier API manager.
      * 
-     * @var FrontierApiManager
+     * @var FrontierAuthService
      */
-    private $frontierApiManager;
+    private $frontierAuthService;
 
-    public function __construct(FrontierApiManager $frontierApiManager)
+    public function __construct(FrontierAuthService $frontierAuthService)
     {
-        $this->frontierApiManager = $frontierApiManager;
+        $this->frontierAuthService = $frontierAuthService;
     }
 
     public function login()
     {
         return response()->json([
-            'data' => $this->frontierApiManager
+            'data' => $this->frontierAuthService
                 ->getAuthorizationServerInformation()
         ]);
     }
@@ -34,7 +34,7 @@ class FrontierAuthController extends Controller
     public function callback(Request $request)
     {
         try {
-            $accessToken = $this->frontierApiManager
+            $accessToken = $this->frontierAuthService
                 ->issueAccessToken($request);
 
             $expiresOn = Carbon::parse(Carbon::now())

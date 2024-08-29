@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Frontier auth client.
  */
-class FrontierApiManager
+class FrontierAuthService
 {
     /** @var Client $client */
     protected Client $client;
@@ -27,7 +27,7 @@ class FrontierApiManager
     protected $clientKey;
 
     /**
-     * ESIClient constructor.
+     * APIManager constructor.
      *
      * @param string|null $server
      */

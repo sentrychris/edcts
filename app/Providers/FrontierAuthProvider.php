@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Services\Frontier\FrontierApiManager;
+use App\Services\Frontier\FrontierAuthService;
 use Illuminate\Support\ServiceProvider;
 
 class FrontierAuthProvider extends ServiceProvider
@@ -12,6 +12,6 @@ class FrontierAuthProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(FrontierApiManager::class, fn() => new FrontierApiManager());
+        $this->app->bind(FrontierAuthService::class, fn() => new FrontierAuthService());
     }
 }
