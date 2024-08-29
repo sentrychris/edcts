@@ -25,9 +25,10 @@ class FrontierAuthController extends Controller
 
     public function login()
     {
-        $authorizationUrl = $this->frontierApiManager->getAuthorizationServerURL();
-        dd($authorizationUrl);
-        return redirect($authorizationUrl);
+        $authorizationData = $this->frontierApiManager
+            ->getAuthorizationServerInformation();
+        
+        dd($authorizationData);
     }
 
     public function callback(Request $request)
