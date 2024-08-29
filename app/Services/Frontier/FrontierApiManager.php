@@ -65,7 +65,7 @@ class FrontierApiManager
         // Test for now
         Cache::put('code_verifier', $codeVerifier, 300);
 
-        $url = config('elite.frontier.auth.url') . '/auth?audience=frontier';
+        $url = config('elite.frontier.auth.url') . '/auth?audience=frontier,steam,epic';
         $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
         $url .= '&response_type=code';
         $url .= '&client_id=' . config('elite.frontier.auth.client_id');
