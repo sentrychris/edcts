@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained();
             $table->string('frontier_id')->unique();
+            $table->text('access_token')->nullable();
+            $table->text('refresh_token')->nullable();
             $table->timestamps();
         });
     }

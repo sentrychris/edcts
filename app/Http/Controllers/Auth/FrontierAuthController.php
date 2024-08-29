@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use Exception;
-use Carbon\Carbon;
 use App\Services\Frontier\FrontierAuthService;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -59,13 +58,11 @@ class FrontierAuthController extends Controller
             $auth = $this->frontierAuthService->authorize($request);
             $profile = $this->frontierAuthService->decode($auth->access_token);
 
-            $user = $this->createUserIfNotExists($profile);
+            $user = $this->verifyUser($profile, $auth->access_token);
 
             return response()->json([
-                'access_token' => $auth->access_token,
-                'expires_on' => Carbon::parse(Carbon::now())
-                    ->addSeconds($auth->expires_in)
-                    ->toIso8601String(),
+                'access_token' => $user->createToken('frontier')->plainTextToken,
+                'expires_in' => config('sanctum.expiration') * 60,
                 'profile' => $user->load('frontierUser')
             ]);
         } catch (Exception $e) {
@@ -78,12 +75,13 @@ class FrontierAuthController extends Controller
     }
 
     /**
-     *  Create a user if they do not exist.
+     *  Verify the user.
      * 
      * @param mixed $profile - the user details from the decoded token
+     * @param string $accessToken - the access token
      * @return User - the user model
      */
-    private function createUserIfNotExists(mixed $profile): User
+    private function verifyUser(mixed $profile, string $accessToken): User
     {
         $user = User::whereEmail($profile->usr->email)->first();
 
@@ -96,6 +94,18 @@ class FrontierAuthController extends Controller
 
             $user->frontierUser()->create([
                 'frontier_id' => $profile->usr->customer_id,
+                'access_token' => $accessToken
+            ]);
+        }
+
+        if ($user->frontierUser) {
+            $user->frontierUser()->update([
+                'access_token' => $accessToken
+            ]);
+        } else {
+            $user->frontierUser()->create([
+                'frontier_id' => $profile->usr->customer_id,
+                'access_token' => $accessToken
             ]);
         }
 

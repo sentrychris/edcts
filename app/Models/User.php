@@ -4,7 +4,6 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,7 +39,7 @@ class User extends Authenticatable
      * 
      * @var array - the eager loaded relation
      */
-    protected $with = ['commander'];
+    protected $with = ['frontierUser', 'commander'];
 
     /**
      * The attributes that should be cast.
@@ -52,9 +51,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function frontierUser(): HasMany
+    public function frontierUser(): HasOne
     {
-        return $this->hasMany(FrontierUser::class);
+        return $this->hasOne(FrontierUser::class);
     }
 
     /**

@@ -18,7 +18,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'commander' => new CommanderResource($this->whenLoaded('commander'), true)
+            'commander' => new CommanderResource($this->whenLoaded('commander'), true),
+            'frontier_user' => new FrontierUserResource($this->whenLoaded('frontierUser')),
         ];
     }
 }
