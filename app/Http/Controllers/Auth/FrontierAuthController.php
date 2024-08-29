@@ -35,7 +35,7 @@ class FrontierAuthController extends Controller
     {
         try {
             $auth = $this->frontierAuthService->authorize($request);
-            $profile = $this->frontierAuthService->verify($auth->access_token);
+            $profile = $this->frontierAuthService->decode($auth->access_token);
 
             return response()->json([
                 'access_token' => $auth->access_token,

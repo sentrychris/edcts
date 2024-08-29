@@ -120,9 +120,9 @@ class FrontierAuthService
         return json_decode($response->getBody()->getContents());
     }
 
-    public function verify(string $token)
+    public function decode(string $token)
     {
-        $response = $this->client->request('GET', '/verify', [
+        $response = $this->client->request('GET', '/decode', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
                 'Content-Type' => 'application/json'
