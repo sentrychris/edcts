@@ -40,7 +40,7 @@ class User extends Authenticatable
      * 
      * @var array - the eager loaded relation
      */
-    protected $with = ['frontierUser'];
+    protected $with = ['commander'];
 
     /**
      * The attributes that should be cast.

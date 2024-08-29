@@ -31,9 +31,9 @@ class Commander extends Model
      * 
      * @return BelongsTo - the user that owns the commander
      */
-    public function frontierUser(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(FrontierUser::class);
+        return $this->belongsTo(User::class);
     }
 
     /**
