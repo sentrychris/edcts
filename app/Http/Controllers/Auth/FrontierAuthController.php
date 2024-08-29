@@ -40,18 +40,7 @@ class FrontierAuthController extends Controller
             $auth = $this->frontierAuthService->authorize($request);
             $profile = $this->frontierAuthService->decode($auth->access_token);
 
-            $user = User::whereEmail($profile->usr->email)->first();
-            if (! $user) {
-                $user = User::create([
-                    'name' => $profile->usr->firstname . ' ' . $profile->usr->lastname,
-                    'email' => $profile->usr->email,
-                    'password' => bcrypt(Str::random(32))
-                ]);
-
-                $user->frontierUser()->create([
-                    'frontier_id' => $profile->usr->customer_id,
-                ]);
-            }
+            $user = $this->createUserIfNotExists($profile);
 
             return response()->json([
                 'access_token' => $auth->access_token,
@@ -65,5 +54,30 @@ class FrontierAuthController extends Controller
 
             abort(401, 'Unauthorized');
         }
+    }
+
+    /**
+     *  Create a user if they do not exist.
+     * 
+     * @param mixed $profile
+     * @return User
+     */
+    private function createUserIfNotExists(mixed $profile): User
+    {
+        $user = User::whereEmail($profile->usr->email)->first();
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $profile->usr->firstname . ' ' . $profile->usr->lastname,
+                'email' => $profile->usr->email,
+                'password' => bcrypt(Str::random(32))
+            ]);
+
+            $user->frontierUser()->create([
+                'frontier_id' => $profile->usr->customer_id,
+            ]);
+        }
+
+        return $user;
     }
 }
