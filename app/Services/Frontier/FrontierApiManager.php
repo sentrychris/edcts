@@ -75,7 +75,7 @@ class FrontierApiManager
         $url .= '&code_challenge=' . $codeChallenge;
         $url .= '&code_challenge_method=S256';
         $url .= '&state=' . Str::random(32);
-        $url .= '&redirect_uri=' . urlencode(route('frontier.auth.callback'));
+        $url .= '&redirect_uri=' . route('frontier.auth.callback');
 
         return [
             'authorization_url' => $url,
