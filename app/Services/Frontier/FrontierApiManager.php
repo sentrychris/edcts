@@ -21,9 +21,6 @@ class FrontierApiManager
     /** @var string $code */
     protected string $code;
 
-    /** @var mixed $clientId */
-    protected $clientId;
-
     /** @var mixed $clientKey */
     protected $clientKey;
 
@@ -34,7 +31,6 @@ class FrontierApiManager
      */
     public function __construct()
     {
-        $this->clientId = config('elite.frontier.auth.client_id');
         $this->clientKey = config('elite.frontier.auth.client_key');
         $this->client = new Client([
             'base_uri' => $this->url ?? config('elite.frontier.auth.url') 
@@ -67,7 +63,7 @@ class FrontierApiManager
         $url = config('elite.frontier.auth.url') . '/auth?audience=frontier';
         $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
         $url .= '&response_type=code';
-        $url .= '&client_id=' . $this->clientId;
+        $url .= '&client_id=' . config('elite.frontier.auth.client_id');
         $url .= '&code_challenge=' . $codeChallenge;
         $url .= '&code_challenge_method=S256';
         $url .= '&state=' . Str::random(32);
@@ -105,9 +101,9 @@ class FrontierApiManager
             ],
             'form_params' => [
                 'grant_type' => 'authorization_code',
+                'client_id' => config('elite.frontier.auth.client_id'),
                 'code' => $code,
                 'code_verifier' => $codeVerifier,
-                'client_id' => $this->clientId,
                 'redirect_uri' => $redirectUri
             ]
         ]);
