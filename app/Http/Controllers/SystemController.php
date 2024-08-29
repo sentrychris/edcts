@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SearchSystemByDistanceRequest;
+
 use App\Http\Requests\SearchSystemRequest;
-use App\Http\Resources\SystemDistanceResource;
+use App\Http\Requests\SearchSystemByDistanceRequest;
+use App\Http\Requests\SearchSystemByInformationRequest;
 use App\Http\Resources\SystemResource;
+use App\Http\Resources\SystemDistanceResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
 use App\Traits\HasValidatedQueryRelations;
@@ -36,10 +38,10 @@ class SystemController extends Controller
         // for the system model e.g. withBodies will load bodies for the system
         $this->setAllowedQueryRelations([
             'withInformation' => 'information',
-            'withBodies' => 'bodies',
-            'withStations' => 'stations',
-            'withDepartures' => 'departures.destination',
-            'withArrivals' => 'arrivals.departure'
+            'withBodies'      => 'bodies',
+            'withStations'    => 'stations',
+            'withDepartures'  => 'departures.destination',
+            'withArrivals'    => 'arrivals.departure'
         ]);
     }
 
@@ -207,7 +209,7 @@ class SystemController extends Controller
      * 
      * @param SearchSystemByDistanceRequest $request
      */
-    public function findNearest(SearchSystemByDistanceRequest $request)
+    public function searchByDistance(SearchSystemByDistanceRequest $request)
     {
         $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
         $systems = Cache::get($cacheKey);
@@ -224,5 +226,38 @@ class SystemController extends Controller
         }
 
         return SystemDistanceResource::collection($systems);
+    }
+
+    /**
+     * Search for systems by information.
+     * 
+     * User can provide the following request parameters.
+     * 
+     * population: - Filter systems by population.
+     * allegiance: - Filter systems by allegiance.
+     * government: - Filter systems by government.
+     * economy: - Filter systems by economy.
+     * security: - Filter systems by security.
+     * 
+     * @param SearchSystemByInformationRequest $request
+     * @return AnonymousResourceCollection
+     */
+    public function searchByInformation(SearchSystemByInformationRequest $request)
+    {
+        $validated = $request->validated();
+
+        $systems = System::query()
+            ->when($request->has('population'), fn ($query) => $query->whereHas('information', fn ($query) => $query->where('population', '>=', $validated['population'])))
+            ->when($request->has('allegiance'), fn ($query) => $query->whereHas('information', fn ($query) => $query->where('allegiance', 'LIKE', $validated['allegiance'] . "%")))
+            ->when($request->has('government'), fn ($query) => $query->whereHas('information', fn ($query) => $query->where('government', 'LIKE', $validated['government'] . "%")))
+            ->when($request->has('economy'),    fn ($query) => $query->whereHas('information', fn ($query) => $query->where('economy', 'LIKE', $validated['economy'] . "%")))
+            ->when($request->has('security'),   fn ($query) => $query->whereHas('information', fn ($query) => $query->where('security', 'LIKE', $validated['security'] . "%")))
+            ->paginate();
+        
+        $this->loadValidatedRelationsForQuery([
+            'withInformation' => 1
+        ], $systems);
+        
+        return SystemResource::collection($systems);
     }
 }

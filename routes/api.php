@@ -37,7 +37,10 @@ Route::resource('systems', App\Http\Controllers\SystemController::class);
 
 Route::prefix('system')->group(function() {
     Route::get('last-updated', [\App\Http\Controllers\SystemController::class, 'getLastUpdated']);
-    Route::get('find-nearest', [App\Http\Controllers\SystemController::class, 'findNearest']);
+    Route::prefix('search')->group(function() {
+        Route::get('distance', [App\Http\Controllers\SystemController::class, 'searchByDistance']);
+        Route::get('information', [App\Http\Controllers\SystemController::class, 'searchByInformation']);
+    });
 });
 
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
