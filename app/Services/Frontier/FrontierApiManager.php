@@ -114,6 +114,10 @@ class FrontierApiManager
         
         // Use it to obtain a valid access token
         $response = $this->client->request('POST', '/token', [
+            'auth' => [
+                config('elite.frontier.auth.client_id'),
+                config('elite.frontier.auth.client_secret')
+            ],
             'headers' => [
                 'User-Agent' => 'EDCTS-carrier-transport-services-v1.0.0',
                 'Content-Type' => 'application/x-www-form-urlencoded',
