@@ -6,7 +6,6 @@ use Exception;
 use Carbon\Carbon;
 use App\Services\Frontier\FrontierAuthService;
 use App\Http\Controllers\Controller;
-use App\Models\FrontierUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -21,11 +20,21 @@ class FrontierAuthController extends Controller
      */
     private $frontierAuthService;
 
+    /**
+     * Create a new controller instance.
+     * 
+     * @param FrontierAuthService $frontierAuthService - the frontier auth service
+     */
     public function __construct(FrontierAuthService $frontierAuthService)
     {
         $this->frontierAuthService = $frontierAuthService;
     }
 
+    /**
+     * Return the login URL.
+     * 
+     * @return mixed - the response
+     */
     public function login()
     {
         return response()->json([
@@ -34,6 +43,16 @@ class FrontierAuthController extends Controller
         ]);
     }
 
+    /**
+     * Frontier SSO callback endpoint.
+     * 
+     * This method receives the callback from the Frontier oauth server, containing the
+     * authorization grant code. This code is then exchanged for an access token which
+     * is then used to retrieve the user profile.
+     *
+     * @param Request $request - the request object
+     * @return mixed - the response
+     */
     public function callback(Request $request)
     {
         try {
@@ -52,15 +71,17 @@ class FrontierAuthController extends Controller
         } catch (Exception $e) {
             Log::error('Frontier Auth Error: ' . $e->getMessage());
 
-            abort(401, 'Unauthorized');
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
         }
     }
 
     /**
      *  Create a user if they do not exist.
      * 
-     * @param mixed $profile
-     * @return User
+     * @param mixed $profile - the user details from the decoded token
+     * @return User - the user model
      */
     private function createUserIfNotExists(mixed $profile): User
     {

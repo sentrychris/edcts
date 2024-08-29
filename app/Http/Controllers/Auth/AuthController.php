@@ -33,7 +33,6 @@ class AuthController extends Controller
 
         return response()->json([
             'name' => $user->name,
-            'avatar' => $user->avatar,
             'token' => $token,
             'expiry' => (config('sanctum.expiration') * 60),
         ]);
@@ -94,7 +93,7 @@ class AuthController extends Controller
     {
         if ($request->user()) {
             return response()->json(
-              new UserResource($request->user()->load('commander.carriers'))
+                new UserResource($request->user()->load('commander.carriers'))
             );
         }
 

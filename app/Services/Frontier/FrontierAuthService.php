@@ -3,11 +3,9 @@
 namespace App\Services\Frontier;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Frontier auth client.
@@ -43,9 +41,9 @@ class FrontierAuthService
     }
 
     /**
-     * Set the base URL for the client
+     * Set the base URL for the client.
      * 
-     * @param string $url
+     * @param string $url - the base URL
      * @return void
      */
     public function setURL(string $url): void
@@ -54,11 +52,9 @@ class FrontierAuthService
     }
 
     /**
-     * Redirect to login to obtain an authorization token.
+     * Generate the authorization details for the Frontier auth server.
      *
-     * return mixed
-     * @param array $scopes
-     * @return array
+     * @return array - the authorization details
      */
     public function getAuthorizationServerInformation(): array
     {
@@ -84,12 +80,13 @@ class FrontierAuthService
     }
 
     /**
-     * Callback method to receive the authorization code from Frontier Auth
+     * Callback method for Frontier auth.
+     * 
+     * This method is called when the Frontier auth server redirects back to the application,
+     * it retrieves the authorization code and exchanges it for an access token.
      *
-     * @param Request $request
-     * @return mixed
-     *
-     * @throws ClientException
+     * @param Request $request - the request object
+     * @return mixed - the response
      */
     public function authorize(Request $request): mixed
     {
@@ -120,6 +117,12 @@ class FrontierAuthService
         return json_decode($response->getBody()->getContents());
     }
 
+    /**
+     * Decode the token to retrieve the user profile.
+     * 
+     * @param string $token - the access token
+     * @return mixed - the user profile
+     */
     public function decode(string $token)
     {
         $response = $this->client->request('GET', '/decode', [
@@ -133,10 +136,10 @@ class FrontierAuthService
     }
 
     /**
-     * Generate query string for ESI scopes.
+     * Generate query string for oauth scopes.
      *
-     * @param array $scopes
-     * @return string
+     * @param array $scopes - the scopes to attach
+     * @return string - the query string
      */
     private function attachAuthorizationScopes(array $scopes): string
     {
@@ -154,7 +157,7 @@ class FrontierAuthService
     /**
      * Generate a secure random string for the code verifier.
      *
-     * @return string
+     * @return string - the code verifier
      */
     private function generateCodeVerifier(): string
     {
@@ -164,8 +167,8 @@ class FrontierAuthService
     /**
      * Generate the code challenge from the code verifier.
      *
-     * @param string $codeVerifier
-     * @return string
+     * @param string $codeVerifier - the code verifier
+     * @return string - the code challenge
      */
     private function generateCodeChallenge(string $codeVerifier): string
     {
