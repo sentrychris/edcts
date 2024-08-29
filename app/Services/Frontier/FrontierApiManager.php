@@ -130,11 +130,6 @@ class FrontierApiManager
                 'redirect_uri' => $redirectUri
             ]
         ]);
-
-        // TODO check somewhere on FrontierUser, if the user is not in the database, create
-        //      the user record and the frontier user record.
-
-        dd($response->getBody()->getContents());
         
 
         return json_decode($response->getBody()->getContents());
