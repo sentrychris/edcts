@@ -48,7 +48,7 @@ class FrontierAuthController extends Controller
                     'password' => bcrypt(Str::random(32))
                 ]);
 
-                $user->frontierUser()->create([
+                $user = $user->frontierUser()->create([
                     'frontier_id' => $profile->usr->customer_id,
                 ]);
             } else {
@@ -60,7 +60,7 @@ class FrontierAuthController extends Controller
                 'expires_on' => Carbon::parse(Carbon::now())
                     ->addSeconds($auth->expires_in)
                     ->toIso8601String(),
-                'profile' => $profile
+                'profile' => $user
             ]);
         } catch (Exception $e) {
             Log::error('Frontier Auth Error: ' . $e->getMessage());
