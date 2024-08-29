@@ -106,12 +106,12 @@ class FrontierApiManager
      * @param array $scopes
      * @return string
      */
-    public function getAuthorizationServerURL(array $scopes = []): string
+    public function getAuthorizationServerURL(): string
     {
         $url = config('elite.frontier.auth.url') . '/v2/oauth/authorize?response_type=code';
         $url .= '&redirect_uri=' . urlencode(route('esi.sso.callback'));
         $url .= '&client_id=' . $this->clientId;
-        $url .= !empty($scopes) ? $this->attachAuthorizationScopes($scopes) : '';
+        $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
         $url .= '&state=' . Str::random();
 
         return $url;
