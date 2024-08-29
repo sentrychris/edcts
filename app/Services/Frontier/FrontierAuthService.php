@@ -15,15 +15,6 @@ class FrontierAuthService
     /** @var Client $client */
     protected Client $client;
 
-    /** @var string $base */
-    protected string $url;
-
-    /** @var string $code */
-    protected string $code;
-
-    /** @var mixed $clientKey */
-    protected $clientKey;
-
     /**
      * APIManager constructor.
      *
@@ -31,24 +22,12 @@ class FrontierAuthService
      */
     public function __construct()
     {
-        $this->clientKey = config('elite.frontier.auth.client_key');
         $this->client = new Client([
             'headers' => [
                 'User-Agent' => 'EDCTS-carrier-transport-services-v1.0.0'
             ],
-            'base_uri' => $this->url ?? config('elite.frontier.auth.url') 
+            'base_uri' => config('elite.frontier.auth.url') 
         ]);
-    }
-
-    /**
-     * Set the base URL for the client.
-     * 
-     * @param string $url - the base URL
-     * @return void
-     */
-    public function setURL(string $url): void
-    {
-        $this->url = $url;
     }
 
     /**
