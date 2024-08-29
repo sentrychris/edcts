@@ -35,12 +35,14 @@ class FrontierAuthController extends Controller
     {
         try {
             $auth = $this->frontierAuthService->authorize($request);
+            $profile = $this->frontierAuthService->verify($auth->access_token);
 
             return response()->json([
                 'access_token' => $auth->access_token,
                 'expires_on' => Carbon::parse(Carbon::now())
                     ->addSeconds($auth->expires_in)
-                    ->toIso8601String()
+                    ->toIso8601String(),
+                'profile' => $profile
             ]);
         } catch (Exception $e) {
             Log::error('Frontier Auth Error: ' . $e->getMessage());

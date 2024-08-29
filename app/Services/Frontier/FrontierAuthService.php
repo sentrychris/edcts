@@ -101,16 +101,6 @@ class FrontierAuthService
         // Retrieve the code verifier from the session
         $codeVerifier = Cache::get('code_verifier');
 
-        Log::info('params', [
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'client_id' => config('elite.frontier.auth.client_id'),
-                'code_verifier' => $codeVerifier,
-                'code' => $code,
-                'redirect_uri' => $redirectUri
-            ]
-        ]);
-
         
         // Use it to obtain a valid access token
         $response = $this->client->request('POST', '/token', [
@@ -126,6 +116,18 @@ class FrontierAuthService
             ]
         ]);
         
+
+        return json_decode($response->getBody()->getContents());
+    }
+
+    public function verify(string $token)
+    {
+        $response = $this->client->request('GET', '/verify', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type' => 'application/json'
+            ]
+        ]);
 
         return json_decode($response->getBody()->getContents());
     }
