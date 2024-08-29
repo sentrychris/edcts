@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Frontier auth client.
@@ -60,6 +61,9 @@ class FrontierApiManager
         $codeVerifier = $this->generateCodeVerifier();
         $codeChallenge = $this->generateCodeChallenge($codeVerifier);
 
+        // Test for now
+        Cache::put('code_verifier', $codeVerifier, 300);
+
         $url = config('elite.frontier.auth.url') . '/auth?audience=frontier';
         $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
         $url .= '&response_type=code';
@@ -91,7 +95,7 @@ class FrontierApiManager
         $redirectUri = urlencode(route('frontier.auth.callback'));
 
         // Retrieve the code verifier from the session
-        $codeVerifier = $request->get('code_verifier');
+        $codeVerifier = Cache::get('code_verifier');
 
         
         // Use it to obtain a valid access token
