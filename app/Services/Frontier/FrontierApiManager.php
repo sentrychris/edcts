@@ -91,6 +91,7 @@ class FrontierApiManager
     {
         // Get the authorization code from the callback request
         $code = $request->get('code');
+        $codeVerifier = $request->get('code_verifier');
         $redirectUri = urlencode(route('frontier.auth.callback'));
 
         // Retrieve the code verifier from the session
@@ -105,7 +106,7 @@ class FrontierApiManager
                 $this->clientId,
                 $this->clientKey
             ],
-            'body' => "redirect_uri={$redirectUri}&code={$code}&grant_type=authorization_code&client_id={$this->clientId}"
+            'body' => "redirect_uri={$redirectUri}&code={$code}&grant_type=authorization_code&code_verifier={$codeVerifier}client_id={$this->clientId}"
         ]);
 
         // TODO check somewhere on FrontierUser, if the user is not in the database, create
