@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Api\FrontierApiManager;
+use App\Services\Frontier\FrontierApiManager;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
@@ -26,6 +26,7 @@ class FrontierAuthController extends Controller
     public function login()
     {
         $authorizationUrl = $this->frontierApiManager->getAuthorizationServerURL();
+        dd($authorizationUrl);
         return redirect($authorizationUrl);
     }
 

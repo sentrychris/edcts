@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\Api\FrontierApiManager;
+use App\Services\Frontier\FrontierApiManager;
 use Illuminate\Support\ServiceProvider;
 
 class FrontierAuthProvider extends ServiceProvider

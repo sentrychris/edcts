@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Api;
+namespace App\Services\Frontier;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -61,11 +61,18 @@ class FrontierApiManager
      */
     public function getAuthorizationServerURL(): string
     {
-        $url = config('elite.frontier.auth.url') . '/v2/oauth/authorize?response_type=code';
-        $url .= '&redirect_uri=' . urlencode(route('esi.sso.callback'));
-        $url .= '&client_id=' . $this->clientId;
+        $codeVerifier = $this->generateCodeVerifier();
+        session(['code_verifier' => $codeVerifier]);
+        $codeChallenge = $this->generateCodeChallenge($codeVerifier);
+
+        $url = config('elite.frontier.auth.url') . '/auth?audience=frontier';
         $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
-        $url .= '&state=' . Str::random();
+        $url .= '&response_type=code';
+        $url .= '&client_id=' . $this->clientId;
+        $url .= '&code_challenge=' . $codeChallenge;
+        $url .= '&code_challenge_method=S256';
+        $url .= '&state=' . Str::random(32);
+        $url .= '&redirect_uri=' . urlencode(route('frontier.auth.callback'));
 
         return $url;
     }
@@ -81,18 +88,22 @@ class FrontierApiManager
     public function issueAccessToken(Request $request): mixed
     {
         // Get the authorization code from the callback request
-        $this->code = $request->get('code');
+        $code = $request->get('code');
+        $redirectUri = urlencode(route('frontier.auth.callback'));
+
+        // Retrieve the code verifier from the session
+        $codeVerifier = session('code_verifier');
 
         // Use it to obtain a valid access token
-        $response = $this->client->request('POST', '/v2/oauth/token', [
+        $response = $this->client->request('POST', '/token', [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
             'auth' => [
                 $this->clientId,
                 $this->clientKey
             ],
-            'form_params' => [
-                'grant_type' => 'authorization_code',
-                'code' => $this->code,
-            ]
+            'body' => "redirect_uri={$redirectUri}&code={$code}&grant_type=authorization_code&code_verifier={$codeVerifier}&client_id={$this->clientId}"
         ]);
 
         // TODO check somewhere on FrontierUser, if the user is not in the database, create
@@ -119,5 +130,26 @@ class FrontierApiManager
         }
 
         return $query;
+    }
+
+    /**
+     * Generate a secure random string for the code verifier.
+     *
+     * @return string
+     */
+    private function generateCodeVerifier(): string
+    {
+        return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+    }
+
+    /**
+     * Generate the code challenge from the code verifier.
+     *
+     * @param string $codeVerifier
+     * @return string
+     */
+    private function generateCodeChallenge(string $codeVerifier): string
+    {
+        return rtrim(strtr(base64_encode(hash('sha256', $codeVerifier, true)), '+/', '-_'), '=');
     }
 }

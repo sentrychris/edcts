@@ -21,6 +21,12 @@ Route::prefix('auth')->group(function() {
     Route::post('register', [\App\Http\Controllers\Auth\AuthController::class, 'register']);
     Route::post('login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
 
+
+    Route::prefix('frontier')->group(function() {
+        Route::get('login', [\App\Http\Controllers\Auth\FrontierAuthController::class, 'login'])->name('frontier.auth.login');
+        Route::get('callback', [\App\Http\Controllers\Auth\FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
+    });
+
     Route::middleware('auth:sanctum')->group(function() {
         Route::get('me', [\App\Http\Controllers\Auth\AuthController::class, 'me']);
         Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout']);

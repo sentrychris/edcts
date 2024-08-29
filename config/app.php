@@ -170,6 +170,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ApiServiceProvider::class,
+        App\Providers\FrontierAuthProvider::class,
     ])->toArray(),
 
     /*
