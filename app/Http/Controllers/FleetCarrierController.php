@@ -20,10 +20,6 @@ class FleetCarrierController extends Controller
      */
     public function __construct()
     {
-        $this->middleware(['auth:sanctum', 'has.cmdr'], [
-            'only' => ['store', 'update', 'destroy']
-        ]);
-
         $this->setAllowedQueryRelations([
             'withCommanderInformation' => 'commander',
             'withCarrierJourneyScheduleInformation' => [
