@@ -102,10 +102,6 @@ class FrontierApiManager
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
             ],
-            'auth' => [
-                $this->clientId,
-                $this->clientKey
-            ],
             'body' => "redirect_uri={$redirectUri}&code={$code}&grant_type=authorization_code&code_verifier={$codeVerifier}client_id={$this->clientId}"
         ]);
 
