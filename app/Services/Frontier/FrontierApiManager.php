@@ -94,8 +94,6 @@ class FrontierApiManager
         $codeVerifier = $request->get('code_verifier');
         $redirectUri = urlencode(route('frontier.auth.callback'));
 
-        dd($code, $codeVerifier, $redirectUri);
-
         // Retrieve the code verifier from the session
         $codeVerifier = $request->get('code_verifier');
 
@@ -106,6 +104,8 @@ class FrontierApiManager
             ],
             'body' => "redirect_uri={$redirectUri}&code={$code}&grant_type=authorization_code&code_verifier={$codeVerifier}client_id={$this->clientId}"
         ]);
+
+        dd($response);
 
         // TODO check somewhere on FrontierUser, if the user is not in the database, create
         //      the user record and the frontier user record.
