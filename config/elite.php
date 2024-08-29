@@ -90,5 +90,14 @@ return [
         ],
 
         'status' => 'api-status-v1/elite-server'
+    ],
+
+    'frontier' => [
+        'auth' => [
+            'url' => env('FRONTIER_AUTH_URL'),
+            'client_id' => env('FRONTIER_CLIENT_ID'),
+            'client_key' => env('FRONTIER_CLIENT_KEY'),
+            'scopes' => ['auth', 'capi']
+        ]
     ]
 ];
