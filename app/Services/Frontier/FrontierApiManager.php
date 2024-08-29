@@ -96,7 +96,7 @@ class FrontierApiManager
         // Get the authorization code from the callback request
         $code = $request->get('code');
         $codeVerifier = $request->get('code_verifier');
-        $redirectUri = urlencode(route('frontier.auth.callback'));
+        $redirectUri = route('frontier.auth.callback');
 
         // Retrieve the code verifier from the session
         $codeVerifier = Cache::get('code_verifier');
