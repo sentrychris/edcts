@@ -103,7 +103,7 @@ class FrontierApiManager
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
             ],
-            'form_params' => [
+            'body' => [
                 'grant_type' => 'authorization_code',
                 'client_id' => config('elite.frontier.auth.client_id'),
                 'code' => $code,
