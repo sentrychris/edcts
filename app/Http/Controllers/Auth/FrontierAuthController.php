@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Exception;
 use App\Services\Frontier\FrontierAuthService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -63,7 +64,7 @@ class FrontierAuthController extends Controller
             return response()->json([
                 'access_token' => $user->createToken('frontier')->plainTextToken,
                 'expires_in' => config('sanctum.expiration') * 60,
-                'profile' => $user->load('frontierUser')
+                'profile' => new UserResource($user->load('frontierUser'))
             ]);
         } catch (Exception $e) {
             Log::error('Frontier Auth Error: ' . $e->getMessage());
