@@ -253,43 +253,41 @@ class SystemController extends Controller
 
         $systems = System::query()
             ->when($request->has('population'),
-                fn ($query) => $query->whereHas(
-                    $relation,
+                fn ($query) => $query->whereHas($relation,
                     fn ($query) => $query->where('population', '>=', $validated['population'])
                 )
             )
 
             ->when($request->has('allegiance'),
-                fn ($query) => $query->whereHas(
-                    $relation,
+                fn ($query) => $query->whereHas($relation,
                     fn ($query) => $query->where('allegiance', 'LIKE', $validated['allegiance'] . "%")
                 )
             )
 
             ->when($request->has('government'),
-                fn ($query) => $query->whereHas(
-                    $relation,
+                fn ($query) => $query->whereHas($relation,
                     fn ($query) => $query->where('government', 'LIKE', $validated['government'] . "%")
                 )
             )
 
             ->when(
                 $request->has('economy'),
-                fn ($query) => $query->whereHas(
-                    $relation,
+                fn ($query) => $query->whereHas($relation,
                     fn ($query) => $query->where('economy', 'LIKE', $validated['economy'] . "%")
                 )
             )
 
             ->when($request->has('security'),
-                fn ($query) => $query->whereHas(
-                    $relation,
+                fn ($query) => $query->whereHas($relation,
                     fn ($query) => $query->where('security', 'LIKE', $validated['security'] . "%")
                 )
             )
             ->paginate();
         
-        $this->loadValidatedRelationsForQuery($request->only(['withInformation', 'withBodies', 'withStations']), $systems);
+        $this->loadValidatedRelationsForQuery(
+            $request->only(['withInformation', 'withBodies', 'withStations']),
+            $systems
+        );
         
         return SystemResource::collection($systems);
     }
