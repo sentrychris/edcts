@@ -8,9 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class FrontierAuthController extends Controller
 {
@@ -90,8 +92,15 @@ class FrontierAuthController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
-        
-        return response()->json(['token' => $token]);
+
+        if ($token) {
+            $accessToken = PersonalAccessToken::findToken($token);
+            if ($accessToken && $accessToken->tokenable) {
+                Auth::login($accessToken->tokenable);
+
+                return response()->json(new UserResource(Auth::user()));
+            }
+        }
     }
 
     /**
