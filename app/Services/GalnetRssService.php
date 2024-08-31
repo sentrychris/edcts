@@ -31,6 +31,10 @@ class GalnetRssService
         if (!($x = simplexml_load_file($url))) {
             return;
         }
+
+        // Get the last added article
+        $lastArticle = GalnetNews::orderBy('order_added', 'desc')->first();
+        $lastArticleOrder = $lastArticle ? $lastArticle->order_added : 0;
         
         $i = 0;
         foreach ($x->channel->item as $item) {
@@ -41,6 +45,7 @@ class GalnetRssService
             $article = GalnetNews::updateOrCreate(['title' => $item->title], [
                 'title' => $item->title,
                 'content' => $item->description,
+                'order_added' => ++$lastArticleOrder,
                 'uploaded_at' => $item->pubDate,
                 'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg'
             ]);
