@@ -109,9 +109,12 @@ class FrontierAuthController extends Controller
      */
     public function me(Request $request)
     {
-        return response()->json(
-            new UserResource($request->user()->load('commander.carriers'))
-        );
+        return response()->json([
+            'data' => [
+                'user' => new UserResource($request->user()->load('commander.carriers')),
+                'token' => $request->cookie('cmdr_token')
+            ]
+        ]);
     }
 
     /**
