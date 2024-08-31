@@ -98,7 +98,12 @@ class FrontierAuthController extends Controller
             if ($accessToken && $accessToken->tokenable) {
                 Auth::login($accessToken->tokenable);
 
-                return response()->json(new UserResource(Auth::user()));
+                return response()->json([
+                    'data' => [
+                        'user' => new UserResource(Auth::user()),
+                        'token' => $token
+                    ]
+                ]);
             }
         }
     }
@@ -138,7 +143,7 @@ class FrontierAuthController extends Controller
             ]);
         }
 
-        Redis::set("user_{$user->id}_token", $accessToken, 'EX', 3600*3);
+        Redis::set("user_{$user->id}_frontier_token", $accessToken, 'EX', 3600*3);
 
         return $user;
     }

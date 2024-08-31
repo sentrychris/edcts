@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Resources\UserResource;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,17 +17,13 @@ class FrontierAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->cookie('cmdr_token');
+        $token = $request->cookie('cmdr_token') ?? $request->get('access_token');
 
         if ($token) {
             $accessToken = PersonalAccessToken::findToken($token);
             if ($accessToken && $accessToken->tokenable) {
                 Auth::setUser($accessToken->tokenable);
-
-                return $next($request->merge([
-                    'user' => new UserResource(Auth::user())
-                ]));
-
+                return $next($request);
             } else {
                 return response()->json([
                     'message' => 'Unauthorized'

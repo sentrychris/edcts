@@ -50,8 +50,8 @@ class FrontierCApiService
      */
     public function getCommanderProfile(User $user)
     {
-        try {
-            $frontierToken = Redis::get("user_{$user->id}_token");
+        try {    
+            $frontierToken = Redis::get("user_{$user->id}_frontier_token");;
 
             $response = $this->client->request('GET', '/profile', [
                 'headers' => [

@@ -29,7 +29,7 @@ class FrontierCApiController extends Controller
      * 
      * @param FrontierCApiService $frontierCApiService - the frontier auth service
      */
-    public function __construct(FrontierAuthService $frontierCApiService)
+    public function __construct(FrontierCApiService $frontierCApiService)
     {
         $this->frontierCApiService = $frontierCApiService;
 
@@ -43,7 +43,8 @@ class FrontierCApiController extends Controller
      */
     public function profile(Request $request)
     {
-        $profile = $this->frontierCApiService->getCommanderProfile($request->user());
+        $profile = $this->frontierCApiService
+            ->getCommanderProfile($request->user());
 
         dd($profile);
 

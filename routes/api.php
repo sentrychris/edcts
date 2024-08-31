@@ -34,6 +34,12 @@ Route::prefix('auth')->group(function() {
     });
 });
 
+Route::prefix('frontier')->group(function() {
+    Route::prefix('capi')->group(function() {
+        Route::get('profile', [\App\Http\Controllers\Auth\FrontierCApiController::class, 'profile']);
+    });
+});
+
 Route::resource('systems', App\Http\Controllers\SystemController::class);
 
 Route::prefix('system')->group(function() {
