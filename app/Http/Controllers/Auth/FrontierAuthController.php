@@ -8,11 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class FrontierAuthController extends Controller
 {
@@ -31,6 +29,8 @@ class FrontierAuthController extends Controller
     public function __construct(FrontierAuthService $frontierAuthService)
     {
         $this->frontierAuthService = $frontierAuthService;
+
+        $this->middleware('frontier.auth')->only('me');
     }
 
     /**
@@ -85,27 +85,9 @@ class FrontierAuthController extends Controller
      */
     public function me(Request $request)
     {
-        $token = $request->cookie('cmdr_token');
-
-        if (! $token) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if ($token) {
-            $accessToken = PersonalAccessToken::findToken($token);
-            if ($accessToken && $accessToken->tokenable) {
-                Auth::login($accessToken->tokenable);
-
-                return response()->json([
-                    'data' => [
-                        'user' => new UserResource(Auth::user()),
-                        'token' => $token
-                    ]
-                ]);
-            }
-        }
+        return response()->json(
+            new UserResource($request->user()->load('commander.carriers'))
+        );
     }
 
     /**
@@ -121,12 +103,14 @@ class FrontierAuthController extends Controller
         $user = User::whereEmail($email)->first();
 
         if (! $user) {
+            // If the user does not exist, create a new user
             $user = User::create([
                 'name' => $profile->usr->customer_id,
                 'email' => $email,
                 'password' => bcrypt(Str::random(32))
             ]);
 
+            // Create a new associated Frontier user
             $user->frontierUser()->create([
                 'frontier_id' => $profile->usr->customer_id,
                 'access_token' => $accessToken
@@ -134,10 +118,12 @@ class FrontierAuthController extends Controller
         }
 
         if ($user->frontierUser) {
+            // Update the Frontier user's access token
             $user->frontierUser()->update([
                 'access_token' => $accessToken
             ]);
         } else {
+            // Just in case the user does exist but does not have an associated Frontier user
             $user->frontierUser()->create([
                 'frontier_id' => $profile->usr->customer_id,
                 'access_token' => $accessToken
