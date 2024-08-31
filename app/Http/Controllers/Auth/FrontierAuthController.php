@@ -78,12 +78,12 @@ class FrontierAuthController extends Controller
     }
 
     /**
-     * Access the user token based on cookie.
+     * Access the user based on cookie.
      * 
      * @param \Illuminate\Http\Request $request
      * @return void
      */
-    public function token(Request $request)
+    public function me(Request $request)
     {
         $token = $request->cookie('cmdr_token');
 
