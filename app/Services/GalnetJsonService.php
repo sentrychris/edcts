@@ -36,6 +36,10 @@ class GalnetJsonService extends ApiService
         $content = $this->getContents($response);
         
         if ($content) {
+            // Get the last added article
+            $lastArticle = GalnetNews::orderBy('order_added', 'desc')->first();
+            $lastArticleOrder = $lastArticle ? $lastArticle->order_added : 0;
+
             $i = 0;
             foreach($content->data as $article) {
                 $article = $article->attributes;
@@ -47,6 +51,7 @@ class GalnetJsonService extends ApiService
                     'title' => $article->title,
                     'content' => $article->body->processed,
                     'uploaded_at' => $article->field_galnet_date,
+                    'order_added' => ++$lastArticleOrder,
                     'banner_image' => $i % 2 === 0 ? '/images/sunrise.jpg' : '/images/helios.jpg'
                 ]);
 

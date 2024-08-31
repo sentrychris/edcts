@@ -38,7 +38,7 @@ class GalnetNews extends Model
     /**
      * Boot method for the model.
      * 
-     * Adds a global scope to automatically order the results by ID (lol why did I do this?)
+     * Adds a global scope to automatically order the results by the `order_added` column.
      * 
      * @return void
      */
@@ -46,7 +46,7 @@ class GalnetNews extends Model
     {
         parent::boot();
         static::addGlobalScope('order', function(Builder $builder) {
-            $builder->orderBy('id', 'asc');
+            $builder->orderBy('order_added', 'desc');
         });
     }
 
