@@ -2,6 +2,7 @@
 
 namespace App\Services\Frontier;
 
+use App\Models\User;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
@@ -42,15 +43,15 @@ class FrontierCApiService
     }
 
     /**
-     * Get the user's profile information.
+     * Get the commander's profile information.
      * 
      * @param string $token - the access token
      * @return mixed - the user profile
      */
-    public function profile(Request $request)
+    public function getCommanderProfile(User $user)
     {
         try {
-            $frontierToken = Redis::get('user_' . $request->user->id . '_token');
+            $frontierToken = Redis::get("user_{$user->id}_token");
 
             $response = $this->client->request('GET', '/profile', [
                 'headers' => [
