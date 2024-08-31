@@ -18,9 +18,13 @@ class EdsmApiService extends ApiService
     {
         $system = false;
 
-        // Split the string in case it's a slug prefixed with the id64
-        $parts = explode('-', $name, 2);
-        $systemName = $parts[1];
+        if (strlen($name) > 0 && ctype_digit(substr($name, 0, 1))) {
+            // Split the string in case it's a slug prefixed with the id64
+            $parts = explode('-', $name, 2);
+            $systemName = $parts[1];
+        } else {
+            $systemName = $name;
+        }
     
         try {
             // Set the API config and make the request

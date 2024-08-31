@@ -6,7 +6,9 @@ use Exception;
 use App\Services\Frontier\FrontierAuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\System;
 use App\Models\User;
+use App\Services\EdsmApiService;
 use App\Services\Frontier\FrontierCApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,30 +18,41 @@ use Illuminate\Support\Facades\Redis;
 class FrontierAuthController extends Controller
 {
     /**
-     * The Frontier API manager.
+     * Frontier Auth service.
      * 
      * @var FrontierAuthService
      */
     private $frontierAuthService;
 
     /**
-     * The Frontier CAPI manager.
+     * Frontier CAPI service.
      * 
      * @var FrontierCApiService
      */
     private $frontierCApiService;
 
     /**
+     * EDSM API Service.
+     *
+     * @var EdsmApiService
+     */
+    private EdsmApiService $edsmApiService;
+
+    /**
      * Create a new controller instance.
      * 
      * @param FrontierAuthService $frontierAuthService - the frontier auth service
+     * @param FrontierCApiService $frontierCApiService - the frontier CAPI service
+     * @param EdsmApiService $edsmApiService - the EDSM API service
      */
     public function __construct(
         FrontierAuthService $frontierAuthService,
-        FrontierCApiService $frontierCApiService
+        FrontierCApiService $frontierCApiService,
+        EdsmApiService $edsmApiService
     ) {
         $this->frontierAuthService = $frontierAuthService;
         $this->frontierCApiService = $frontierCApiService;
+        $this->edsmApiService = $edsmApiService;
 
         $this->middleware('frontier.auth')->only('me');
     }
@@ -69,41 +82,23 @@ class FrontierAuthController extends Controller
      */
     public function callback(Request $request)
     {
-        try {
-            // Authorize the user and decode the token to get their Frontier profile
-            $auth = $this->frontierAuthService->authorize($request);
-            $frontierProfile = $this->frontierAuthService->decode($auth->access_token);
+        // Authorize the user and decode the token to get their Frontier profile
+        $auth = $this->frontierAuthService->authorize($request);
+        $frontier = $this->frontierAuthService->decode($auth->access_token);
 
-            // Confirm the user
-            $user = $this->confirmUser($frontierProfile, $auth->access_token);
+        // Confirm the user, creates a new user if they do not exist
+        $user = $this->confirmUser($frontier, $auth->access_token);
 
-            // Get the commander profile
-            $commanderProfile = $this->frontierCApiService
-                ->getCommanderProfile($user);
+        // Confirm the user's commander, creates a new commander if they do not exist
+        $this->confirmCommander($user);
 
-            if (!property_isset($commanderProfile, 'commander')) {
-                throw new Exception('Commander profile not found.');
-            }
+        // Create a sanctum access token, we're using BFF proxy to handle the auth
+        // between the front-end, the back-end, and Frontier.
+        $token = $user->createToken('frontier')->plainTextToken;
 
-            // Update or create the user's commander profile
-            $user->commander()->updateOrCreate([
-                'cmdr_name' => $commanderProfile->commander->name,
-            ]);
-
-            // Create a sanctum access token, we're using BFF proxy to handle the auth
-            // between the front-end, the back-end, and Frontier.
-            $token = $user->createToken('frontier')->plainTextToken;
-
-            return redirect()->to('http://localhost:4201/api/auth/callback')->cookie(
-                'cmdr_token', $token, 60, '/', null, true, true
-            );
-        } catch (Exception $e) {
-            Log::error('Frontier Auth Error: ' . $e->getMessage());
-
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        return redirect()->to('http://localhost:4201/api/auth/callback')->cookie(
+            'cmdr_token', $token, 60, '/', null, true, true
+        );
     }
 
     /**
@@ -162,5 +157,51 @@ class FrontierAuthController extends Controller
         Redis::set("user_{$user->id}_frontier_token", $accessToken, 'EX', 3600*3);
 
         return $user;
+    }
+
+    /**
+     * Confirm the user's commander profile.
+     * 
+     * @param User $user - the user model
+     * @return void
+     */
+    private function confirmCommander(User $user)
+    {
+        // Get the commander profile
+        $profile = $this->frontierCApiService->getCommanderProfile($user);
+        if (!property_isset($profile, 'commander')) {
+            throw new Exception('Commander profile not found.');
+        }
+
+        // Update or create the user's commander profile
+        $commander = $profile->commander;
+        $user->commander()->updateOrCreate([
+            'cmdr_name' => $commander->name
+        ], [
+            'cmdr_name' => $commander->name,
+            'credits' => $commander->credits,
+            'debt' => $commander->debt,
+            'alive' => $commander->alive,
+            'docked' => $commander->docked,
+            'onfoot' => $commander->onfoot,
+            'rank' => json_encode($commander->rank)
+        ]);
+
+        // Check the commander's last system and add to our records if it does not exist
+        if (property_isset($profile, 'lastSystem')) {
+            $lastSystem = $profile->lastSystem;
+            $system = System::whereId64($lastSystem->id)
+                ->whereName($lastSystem->name)
+                ->first();
+
+            if (!$system) {
+                $system = $this->edsmApiService->updateSystemData($lastSystem->name);
+            }
+
+            // Update the commander's last system
+            $user->commander()->update([
+                'last_system_id64' => $system->id64
+            ]);
+        }
     }
 }
