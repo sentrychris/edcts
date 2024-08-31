@@ -98,6 +98,9 @@ return [
             'client_id' => env('FRONTIER_CLIENT_ID'),
             'client_key' => env('FRONTIER_CLIENT_KEY'),
             'scopes' => ['auth', 'capi']
+        ],
+        'capi' => [
+            'url' => env('FRONTIER_CAPI_URL'),
         ]
     ]
 ];
