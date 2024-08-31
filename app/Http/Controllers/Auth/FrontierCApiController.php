@@ -43,10 +43,19 @@ class FrontierCApiController extends Controller
      */
     public function profile(Request $request)
     {
-        $profile = $this->frontierCApiService
-            ->getCommanderProfile($request->user());
+        $user = $request->user();
 
-        dd($profile);
+        $profile = $this->frontierCApiService->getCommanderProfile($user);
+        if (!property_isset($profile, 'commander')) {
+            throw new Exception('Commander profile not found.');
+        }
+
+        $commander = $profile->commander;
+
+        // Check if the user has a commander profile
+        $user->commander()->updateOrCreate([
+            'cmdr_name' => $commander->name,
+        ]);
 
         return response()->json([
             'data' => $profile
