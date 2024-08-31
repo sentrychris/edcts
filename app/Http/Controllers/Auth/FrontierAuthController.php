@@ -62,7 +62,7 @@ class FrontierAuthController extends Controller
             $user = $this->verifyUser($profile, $auth->access_token);
             $token = $user->createToken('frontier')->plainTextToken;
 
-            return redirect()->to('http://localhost:4201')->cookie(
+            return redirect()->to('http://localhost:4201/api/auth/callback')->cookie(
                 'cmdr_token', $token, 60, '/', null, true, true
             );
         } catch (Exception $e) {
@@ -72,6 +72,25 @@ class FrontierAuthController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
+    }
+
+    /**
+     * Access the user token based on cookie.
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
+    public function token(Request $request)
+    {
+        $token = $request->cookie('cmdr_token');
+
+        if (! $token) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+        
+        return response()->json(['token' => $token]);
     }
 
     /**
