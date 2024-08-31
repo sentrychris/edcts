@@ -117,12 +117,13 @@ class FrontierAuthController extends Controller
      */
     private function verifyUser(mixed $profile, string $accessToken): User
     {
-        $user = User::whereEmail($profile->usr->email)->first();
+        $email = $profile->usr->customer_id  . '@versyx.net';
+        $user = User::whereEmail($email)->first();
 
         if (! $user) {
             $user = User::create([
-                'name' => $profile->usr->firstname . ' ' . $profile->usr->lastname,
-                'email' => $profile->usr->email,
+                'name' => $profile->usr->customer_id,
+                'email' => $email,
                 'password' => bcrypt(Str::random(32))
             ]);
 
