@@ -96,7 +96,7 @@ class FrontierAuthController extends Controller
         // between the front-end, the back-end, and Frontier.
         $token = $user->createToken('frontier')->plainTextToken;
 
-        return redirect()->to('http://localhost:4201/api/auth/callback')->cookie(
+        return redirect()->to(config('app.frontend_url').'/api/auth/callback')->cookie(
             'cmdr_token', $token, 60, '/', null, true, true
         );
     }
