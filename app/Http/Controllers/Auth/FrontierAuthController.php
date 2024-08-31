@@ -60,12 +60,11 @@ class FrontierAuthController extends Controller
             $profile = $this->frontierAuthService->decode($auth->access_token);
 
             $user = $this->verifyUser($profile, $auth->access_token);
+            $token = $user->createToken('frontier')->plainTextToken;
 
-            return response()->json([
-                'access_token' => $user->createToken('frontier')->plainTextToken,
-                'expires_in' => config('sanctum.expiration') * 60,
-                'profile' => new UserResource($user->load('frontierUser'))
-            ]);
+            return redirect()->to('http://localhost:4201')->cookie(
+                'cmdr_token', $token, 60, '/', null, true, true
+            );
         } catch (Exception $e) {
             Log::error('Frontier Auth Error: ' . $e->getMessage());
 
