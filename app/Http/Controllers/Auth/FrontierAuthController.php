@@ -7,6 +7,7 @@ use App\Services\Frontier\FrontierAuthService;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\Frontier\FrontierCApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -22,13 +23,23 @@ class FrontierAuthController extends Controller
     private $frontierAuthService;
 
     /**
+     * The Frontier CAPI manager.
+     * 
+     * @var FrontierCApiService
+     */
+    private $frontierCApiService;
+
+    /**
      * Create a new controller instance.
      * 
      * @param FrontierAuthService $frontierAuthService - the frontier auth service
      */
-    public function __construct(FrontierAuthService $frontierAuthService)
-    {
+    public function __construct(
+        FrontierAuthService $frontierAuthService,
+        FrontierCApiService $frontierCApiService
+    ) {
         $this->frontierAuthService = $frontierAuthService;
+        $this->frontierCApiService = $frontierCApiService;
 
         $this->middleware('frontier.auth')->only('me');
     }
@@ -59,10 +70,28 @@ class FrontierAuthController extends Controller
     public function callback(Request $request)
     {
         try {
+            // Authorize the user and decode the token to get their Frontier profile
             $auth = $this->frontierAuthService->authorize($request);
-            $profile = $this->frontierAuthService->decode($auth->access_token);
+            $frontierProfile = $this->frontierAuthService->decode($auth->access_token);
 
-            $user = $this->verifyUser($profile, $auth->access_token);
+            // Confirm the user
+            $user = $this->confirmUser($frontierProfile, $auth->access_token);
+
+            // Get the commander profile
+            $commanderProfile = $this->frontierCApiService
+                ->getCommanderProfile($user);
+
+            if (!property_isset($commanderProfile, 'commander')) {
+                throw new Exception('Commander profile not found.');
+            }
+
+            // Update or create the user's commander profile
+            $user->commander()->updateOrCreate([
+                'cmdr_name' => $commanderProfile->commander->name,
+            ]);
+
+            // Create a sanctum access token, we're using BFF proxy to handle the auth
+            // between the front-end, the back-end, and Frontier.
             $token = $user->createToken('frontier')->plainTextToken;
 
             return redirect()->to('http://localhost:4201/api/auth/callback')->cookie(
@@ -91,28 +120,28 @@ class FrontierAuthController extends Controller
     }
 
     /**
-     *  Verify the user.
+     *  Confirm the user.
      * 
-     * @param mixed $profile - the user details from the decoded token
+     * @param mixed $frontierProfile - the user details from the decoded token
      * @param string $accessToken - the access token
      * @return User - the user model
      */
-    private function verifyUser(mixed $profile, string $accessToken): User
+    private function confirmUser(mixed $frontierProfile, string $accessToken): User
     {
-        $email = $profile->usr->customer_id  . '@versyx.net';
+        $email = $frontierProfile->usr->customer_id  . '@versyx.net';
         $user = User::whereEmail($email)->first();
 
         if (! $user) {
             // If the user does not exist, create a new user
             $user = User::create([
-                'name' => $profile->usr->customer_id,
+                'name' => $frontierProfile->usr->customer_id,
                 'email' => $email,
                 'password' => bcrypt(Str::random(32))
             ]);
 
             // Create a new associated Frontier user
             $user->frontierUser()->create([
-                'frontier_id' => $profile->usr->customer_id,
+                'frontier_id' => $frontierProfile->usr->customer_id,
                 'access_token' => $accessToken
             ]);
         }
@@ -125,7 +154,7 @@ class FrontierAuthController extends Controller
         } else {
             // Just in case the user does exist but does not have an associated Frontier user
             $user->frontierUser()->create([
-                'frontier_id' => $profile->usr->customer_id,
+                'frontier_id' => $frontierProfile->usr->customer_id,
                 'access_token' => $accessToken
             ]);
         }
