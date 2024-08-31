@@ -2,11 +2,11 @@
 
 namespace App\Services\Frontier;
 
+use App\Models\System;
 use App\Models\User;
+use App\Services\EdsmApiService;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
@@ -65,5 +65,54 @@ class FrontierCApiService
             Log::error($e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Confirm the user's commander profile.
+     * 
+     * @param User $user - the user model
+     * @return mixed
+     */
+    public function confirmCommander(User $user): mixed
+    {
+        // Get the commander profile
+        $profile = $this->getCommanderProfile($user);
+        if (!property_isset($profile, 'commander')) {
+            throw new Exception('Commander profile not found.');
+        }
+
+        // Update or create the user's commander profile
+        $commander = $profile->commander;
+        $user->commander()->updateOrCreate([
+            'cmdr_name' => $commander->name
+        ], [
+            'cmdr_name' => $commander->name,
+            'credits' => $commander->credits,
+            'debt' => $commander->debt,
+            'alive' => $commander->alive,
+            'docked' => $commander->docked,
+            'onfoot' => $commander->onfoot,
+            'rank' => json_encode($commander->rank)
+        ]);
+
+        // Check the commander's last system and add to our records if it does not exist
+        if (property_isset($profile, 'lastSystem')) {
+            $lastSystem = $profile->lastSystem;
+            $system = System::whereId64($lastSystem->id)
+                ->whereName($lastSystem->name)
+                ->first();
+
+            if (!$system) {
+                // Resolve EDSM API service from the container to update the system data
+                $system = app(EdsmApiService::class)->updateSystemData($lastSystem->name);
+            }
+
+            // Update the commander's last system
+            $user->commander()->update([
+                'last_system_id64' => $system->id64
+            ]);
+        }
+
+        return $profile;
     }
 }

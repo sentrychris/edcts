@@ -2,10 +2,12 @@
 
 namespace App\Services\Frontier;
 
+use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * Frontier auth client.
@@ -112,6 +114,51 @@ class FrontierAuthService
         ]);
 
         return json_decode($response->getBody()->getContents());
+    }
+
+    /**
+     *  Confirm the user.
+     * 
+     * @param mixed $frontierProfile - the user details from the decoded token
+     * @param string $accessToken - the access token
+     * @return User - the user model
+     */
+    public function confirmUser(mixed $frontierProfile, string $accessToken): User
+    {
+        $email = $frontierProfile->usr->customer_id  . '@versyx.net';
+        $user = User::whereEmail($email)->first();
+
+        if (! $user) {
+            // If the user does not exist, create a new user
+            $user = User::create([
+                'name' => $frontierProfile->usr->customer_id,
+                'email' => $email,
+                'password' => bcrypt(Str::random(32))
+            ]);
+
+            // Create a new associated Frontier user
+            $user->frontierUser()->create([
+                'frontier_id' => $frontierProfile->usr->customer_id,
+                'access_token' => $accessToken
+            ]);
+        }
+
+        if ($user->frontierUser) {
+            // Update the Frontier user's access token
+            $user->frontierUser()->update([
+                'access_token' => $accessToken
+            ]);
+        } else {
+            // Just in case the user does exist but does not have an associated Frontier user
+            $user->frontierUser()->create([
+                'frontier_id' => $frontierProfile->usr->customer_id,
+                'access_token' => $accessToken
+            ]);
+        }
+
+        Redis::set("user_{$user->id}_frontier_token", $accessToken, 'EX', 3600*3);
+
+        return $user;
     }
 
     /**
