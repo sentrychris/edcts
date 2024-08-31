@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class FrontierAuthController extends Controller
 {
@@ -127,6 +128,8 @@ class FrontierAuthController extends Controller
                 'access_token' => $accessToken
             ]);
         }
+
+        Redis::set("user_{$user->id}_token", $accessToken, 'EX', 3600*3);
 
         return $user;
     }
