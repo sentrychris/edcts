@@ -33,11 +33,31 @@ class FrontierCApiController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
-
-        $commanderProfile = $this->frontierCApiService->confirmCommander($user);
+        $profile = $this->frontierCApiService->confirmCommander($user);
 
         return response()->json([
-            'data' => $commanderProfile
+            'data' => $profile
+        ]);
+    }
+
+    /**
+     * Get all journal entries.
+     * 
+     * @return
+     */
+    public function journal(Request $request)
+    {
+        $year = $request->get('year');
+        $month = $request->get('month');
+        $day = $request->get('day');
+
+        $user = $request->user();
+        $journal = $this->frontierCApiService->getJournal($user, $year, $month, $day);
+
+        dd($journal);
+
+        return response()->json([
+            'data' => $journal
         ]);
     }
 }

@@ -37,6 +37,7 @@ Route::prefix('auth')->group(function() {
 Route::middleware('auth:sanctum')->prefix('frontier')->group(function() {
     Route::prefix('capi')->group(function() {
         Route::get('profile', [\App\Http\Controllers\Auth\FrontierCApiController::class, 'profile']);
+        Route::get('journal', [\App\Http\Controllers\Auth\FrontierCApiController::class, 'journal']);
     });
 });
 

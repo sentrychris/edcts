@@ -33,15 +33,6 @@ class FrontierCApiService
         ]);
     }
 
-    public function getHeaders(string $token) {
-        return [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json'
-            ]
-        ];
-    }
-
     /**
      * Get the commander's profile information.
      * 
@@ -51,11 +42,9 @@ class FrontierCApiService
     public function getCommanderProfile(User $user)
     {
         try {    
-            $frontierToken = Redis::get("user_{$user->id}_frontier_token");;
-
             $response = $this->client->request('GET', '/profile', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $frontierToken,
+                    'Authorization' => 'Bearer ' . $this->getFrontierToken($user),
                     'Content-Type' => 'application/json'
                 ]
             ]);
@@ -114,5 +103,63 @@ class FrontierCApiService
         }
 
         return $profile;
+    }
+
+    /**
+     * Get the user's journal logs from CAPI.
+     * 
+     * @param User $user
+     * @return mixed
+     */
+    public function getJournal(User $user, mixed $year = "", mixed $month = "", mixed $day = "")
+    {
+        try {
+            $uri = '/journal'
+                . ($year ? "/{$year}" : "")
+                . ($month ? "/{$month}" : "")
+                . ($day ? "/{$day}" : "");
+
+            $response = $this->client->request('GET', $uri, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->getFrontierToken($user),
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+
+            $content = $response->getBody()->getContents();
+
+            // Split the string by newlines (or any other delimiter)
+            $jsonObjects = preg_split('/\r\n|\r|\n/', $content);
+
+            // Decode each JSON object separately
+            $decoded = [];
+            foreach ($jsonObjects as $json) {
+                if (!empty(trim($json))) {  // Make sure to skip empty lines
+                    $decoded[] = json_decode($json, true);
+                }
+            }
+
+            // TODO figure out what to do with the data.
+            dd($decoded);
+
+            return $decoded;
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get the user's Frontier token.
+     * 
+     * We use BFF to proxy auth between the frontend and Frontier, through the backend. So we
+     * need to get the sanctum-authenticated user's Frontier token to make requests to CAPI.
+     * 
+     * @param User $user
+     * @return string
+     */
+    private function getFrontierToken(User $user): string
+    {
+        return Redis::get("user_{$user->id}_frontier_token");
     }
 }
