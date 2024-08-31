@@ -17,7 +17,7 @@ class FrontierAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->cookie('cmdr_token') ?? $request->get('access_token');
+        $token = $request->cookie('cmdr_token');
 
         if ($token) {
             $accessToken = PersonalAccessToken::findToken($token);
