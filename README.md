@@ -73,6 +73,13 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     DB_USERNAME=sail
     DB_PASSWORD=password
 
+    FRONTEND_URL=http://localhost:4201 # used to redirect oauth
+
+    FRONTIER_AUTH_URL=https://auth.frontierstore.net
+    FRONTIER_CLIENT_ID=<your-frontier-oauth-client-id>
+    FRONTIER_CLIENT_KEY=<your-frontier-oauth-client-key>
+    FRONTIER_CAPI_URL=https://companion.orerve.net
+
     BROADCAST_DRIVER=log
     CACHE_DRIVER=database
     FILESYSTEM_DISK=local
@@ -107,7 +114,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     ./vendor/bin/sail artisan migrate:fresh
     ```
 
-6. Seed populated systems data **before** running other seeders:
+6. Seed populated systems, so that you have some data:
 
     1. Download the `systemsPopulated.json.gz` dump archive [from EDSM](https://www.edsm.net/dump/systemsPopulated.json.gz)
     2. Extract it to `storage/dumps/`
@@ -118,16 +125,6 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
             --channel import:system \
             --file systemsPopulated.json
         ```
-
-7. Seed other test data:
-
-    ```sh
-    ./vendor/bin/sail artisan db:seed
-    ```
-
-    - users (all with password of "_password_")
-    - commanders (with fake api keys)
-    - fleet carriers and scheduled fleet carrier journeys
 
 8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
 
@@ -141,10 +138,18 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     ./vendor/bin/sail artisan edcts:stats:refresh
     ```
 
-10. Start the artisan scheduler and queue:
+10. Start the queue worker:
     ```sh
-    ./vendor/bin/sail artisan schedule:work
     ./vendor/bin/sail artisan queue:work --daemon
+    ```
+
+11. Warm up the systems pages cache:
+    ```sh
+    ./vendor/bin/sail artisan edcts:precache:pages \
+        --type systems \
+        --channel pages:cache \
+        --flush \
+        --ttl 3600
     ```
 
 ### Credits
@@ -156,9 +161,12 @@ _"Standing on the shoulders of giants"_.
 Special thanks to:
 
 
-- [ED:CD](https://edcd.github.io/)  - for all of their projects, data, guidance and more.
 - [EDSM](https://github.com/EDSM-NET) - for the wonderful data and API.
 - [Spansh](https://www.spansh.co.uk) - for the wonderful data and API.
+- All the other talented members of [ED:CD](https://edcd.github.io/), for EDDN and third-party tools.
+- The players, for exploring the galaxy and sharing data.
+
+
 
 ### Legal
 

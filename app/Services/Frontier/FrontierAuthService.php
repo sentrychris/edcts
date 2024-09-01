@@ -112,7 +112,7 @@ class FrontierAuthService
     {
         $response = $this->client->request('GET', '/decode', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
+                'Authorization' => "Bearer {$token}",
                 'Content-Type' => 'application/json'
             ]
         ]);
