@@ -39,19 +39,25 @@ class FrontierAuthService
      */
     public function getAuthorizationServerInformation(): array
     {
+        // Generate the oauth code verifier, challenge and state parameter
         $codeVerifier = $this->generateCodeVerifier();
         $codeChallenge = $this->generateCodeChallenge($codeVerifier);
+        $oauthState = Str::random(32);
 
-        // Test for now
-        Cache::put('code_verifier', $codeVerifier, 300);
+        // Cache the code verifier for 1 minute, use the oauth state in the key
+        // so that we can compare it with the oauth state we receive from the
+        // Frontier callback request
+        Cache::put("frontier_cv_{$oauthState}", $codeVerifier, 60);
 
-        $url = config('elite.frontier.auth.url') . '/auth?audience=frontier,steam,epic';
-        $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
+        // Construct the oauth URL
+        $url = config('elite.frontier.auth.url') . '/auth';
+        $url .= '?audience=frontier,steam,epic';
         $url .= '&response_type=code';
         $url .= '&client_id=' . config('elite.frontier.auth.client_id');
-        $url .= '&code_challenge=' . $codeChallenge;
+        $url .= "&code_challenge={$codeChallenge}";
         $url .= '&code_challenge_method=S256';
-        $url .= '&state=' . Str::random(32);
+        $url .= $this->attachAuthorizationScopes(config('elite.frontier.auth.scopes'));
+        $url .= "&state={$oauthState}";
         $url .= '&redirect_uri=' . route('frontier.auth.callback');
 
         return [
@@ -71,14 +77,12 @@ class FrontierAuthService
      */
     public function authorize(Request $request): mixed
     {
-        // Get the authorization code from the callback request
+        // Get the auth details from the request
         $code = $request->get('code');
-        $codeVerifier = $request->get('code_verifier');
-        $redirectUri = route('frontier.auth.callback');
+        $oauthState = $request->get('state');
 
-        // Retrieve the code verifier from the session
-        $codeVerifier = Cache::get('code_verifier');
-
+        // Retrieve the code verifier from the cache based on the oauth state
+        $codeVerifier = Cache::get("frontier_cv_{$oauthState}");
         
         // Use it to obtain a valid access token
         $response = $this->client->request('POST', '/token', [
@@ -90,7 +94,7 @@ class FrontierAuthService
                 'client_id' => config('elite.frontier.auth.client_id'),
                 'code_verifier' => $codeVerifier,
                 'code' => $code,
-                'redirect_uri' => $redirectUri
+                'redirect_uri' => route('frontier.auth.callback')
             ]
         ]);
         
