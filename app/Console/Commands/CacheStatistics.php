@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
-class RefreshAllStatistics extends Command
+class CacheStatistics extends Command
 {
 
     use UseStatistics;
@@ -17,7 +17,7 @@ class RefreshAllStatistics extends Command
      *
      * @var string
      */
-    protected $signature = 'edcts:stats:refresh
+    protected $signature = 'edcts:cache:stats
         {--ttl=3600 : Time to live (default: 3600)}
         {--flush= : Force flush}';
 
@@ -26,7 +26,7 @@ class RefreshAllStatistics extends Command
      *
      * @var string
      */
-    protected $description = 'Refresh EDCTS statistics';
+    protected $description = 'Refresh the EDCTS statistics cache';
 
     /**
      * Execute the console command.
