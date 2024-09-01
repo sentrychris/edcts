@@ -37,7 +37,7 @@ class CacheStatistics extends Command
 
         return $this->runCache([
             'ttl' => (int) $ttl,
-            'resetCache' => $this->hasOption('flush')
+            'flushCache' => $this->hasOption('flush')
         ]);
     }
 

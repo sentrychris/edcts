@@ -15,7 +15,7 @@ trait UseStatistics
 {
     public function getAllStatistics(string $key, array $options)
     {
-        if (array_key_exists('resetCache', $options) && $options['resetCache']) {
+        if (array_key_exists('flushCache', $options) && $options['flushCache']) {
             Cache::forget($key);
         }
 
