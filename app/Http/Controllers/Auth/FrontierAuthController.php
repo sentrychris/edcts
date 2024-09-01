@@ -72,7 +72,7 @@ class FrontierAuthController extends Controller
         // Confirm the user, creates a new user record in our db if they do not exist
         $user = $this->frontierAuthService->confirmUser($frontier, $auth->access_token);
 
-        // Confirm the user's commander, creates a new commander if they do not exist
+        // Confirm the CMDR, creates a new CMDR record in our db if they do not exist
         $this->frontierCApiService->confirmCommander($user);
 
         // Create a sanctum access token, we're using BFF proxy to handle the auth

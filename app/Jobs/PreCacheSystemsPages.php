@@ -67,27 +67,16 @@ class PreCacheSystemsPages implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel($this->channel)->info("Pre-caching systems pages...");
+        Log::channel($this->channel)->info("Pre-caching first 1,000 pages of systems...");
+
+        DiscordAlert::to('pages-cache')
+            ->message("Pre-caching first 1,000 pages of systems, please wait...");
 
         $params = [
             "withInformation" => "1",
         ];
 
-        Log::channel($this->channel)->info("Systems query parameters: ", $params);
-        Log::channel($this->channel)->info("Counting number of systems pages to cache, please wait...");
-
-        $count = System::filter($params, 0)->count();
-        $limit = config("app.pagination.limit");
-        $pages = ceil($count / $limit);
-
-        $metadata = [
-            "Total" => number_format($count),
-            "Number per page" => number_format($limit),
-            "Number of pages" => number_format($pages),
-        ];
-
-        Log::channel($this->channel)->info("Systems pagination metadata: ", $metadata);
-        DiscordAlert::to('pages-cache')->message("```" . json_encode($metadata, 128) . "```");
+        $pages = 1000;
 
         $errors = 0;
         for ($page = 1; $page <= $pages; $page++) {
