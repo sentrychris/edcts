@@ -6,7 +6,7 @@ use App\Jobs\PreCacheSystemsPages;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Console\Command;
 
-class PreCachePages extends Command
+class CachePages extends Command
 {
     use HasValidatedQueryRelations;
 
@@ -15,10 +15,10 @@ class PreCachePages extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:precache:pages
-        {--type= : The type of data to pre-cache.}
+    protected $signature = "edcts:cache:pages
+        {--type= : The type of data to cache.}
         {--channel=pages:cache : The log channel for the dispatch job.}
-        {--flush : Force flush the cache before pre-caching.}
+        {--flush : Force flush the cache before caching.}
         {--ttl=3600 : Time to live (default: 3600).}";
 
     /**
@@ -26,7 +26,7 @@ class PreCachePages extends Command
      *
      * @var string
      */
-    protected $description = "Pre-cache pages for the frontend";
+    protected $description = "Cache pages for the frontend";
 
     /**
      * Execute the console command.
@@ -35,9 +35,9 @@ class PreCachePages extends Command
     {
         $ttl = (int)$this->option('ttl');
 
-        // Check type aliases for the system pre-cache job
+        // Check type aliases for the system cache warm-up job
         if (in_array($this->option('type'), ['sys', 'system', 'systems'])) {
-            $this->info('Dispatching job to pre-cache system pages...');
+            $this->info('Dispatching job to warm up system pages cache...');
 
             PreCacheSystemsPages::dispatch(
                 $this->option('channel'),
@@ -45,7 +45,7 @@ class PreCachePages extends Command
                 $ttl
             );
         } else {
-            $this->error('Type does not match a valid pre-cache job type.');
+            $this->error('Type does not match a valid cache job type.');
         }
 
         // More types can be added here...
