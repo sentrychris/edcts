@@ -52,7 +52,7 @@ class FleetCarrierController extends Controller
     {
         $validated = $request->validated();
         $carriers = FleetCarrier::filter($validated, (int)$request->exactSearch)
-            ->paginate($request->get('limit', config('app.pagination.limit')))
+            ->simplePaginate($request->get('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
         $this->loadValidatedRelationsForQuery($validated, $carriers);

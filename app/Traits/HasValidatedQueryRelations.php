@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -34,12 +35,14 @@ trait HasValidatedQueryRelations
      * Load validated relations based on query.
      * 
      * @param array $validated
-     * @param Model|LengthAwarePaginator $data
+     * @param Model|LengthAwarePaginator|Paginator $data
      * 
-     * @return Model|LengthAwarePaginator $data
+     * @return Model|LengthAwarePaginator|Paginator $data
      */
-    public function loadValidatedRelationsForQuery(array $validated, Model | LengthAwarePaginator $data): Model | LengthAwarePaginator
-    {
+    public function loadValidatedRelationsForQuery(
+        array $validated,
+        Model | LengthAwarePaginator | Paginator $data
+    ): Model | LengthAwarePaginator | Paginator {
         foreach ($this->allowedRelations as $query => $relation) {
             if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
                 $data->load($relation);

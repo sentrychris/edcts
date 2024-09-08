@@ -108,7 +108,7 @@ class PreCacheSystemsPages implements ShouldQueue
                 }
 
                 $systems = System::filter($validated, (int)$request->exactSearch)
-                    ->paginate($limit, ['*'], 'page', $page)
+                    ->simplePaginate($limit, ['*'], 'page', $page)
                     ->appends($request->all());
 
                 $systems = $this->loadValidatedRelationsForQuery($validated, $systems);

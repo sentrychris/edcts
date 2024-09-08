@@ -75,7 +75,7 @@ class SystemController extends Controller
             // Handle queries for systems if searching for systems by name, with
             // or without exact search
             $systems = System::filter($validated, (int)$request->exactSearch)
-                ->paginate($limit)
+                ->simplePaginate($limit)
                 ->appends($request->all());
         } else {
             // Otherwise attempt to retrieve the current page from the cache
@@ -87,7 +87,7 @@ class SystemController extends Controller
                     ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
 
                 $systems = System::filter($validated, 0)
-                    ->paginate($limit)
+                    ->simplePaginate($limit)
                     ->appends($request->all());
 
                 // Cache the page for 1 hour
@@ -219,7 +219,7 @@ class SystemController extends Controller
                 $request->get('ly', 1000),
             )
                 ->with('information')
-                ->paginate($request->get('limit', 20));
+                ->simplePaginate($request->get('limit', 20));
                 
             Cache::set($cacheKey, $systems, 86400);
         }
@@ -280,7 +280,7 @@ class SystemController extends Controller
                     fn ($query) => $query->where('security', 'LIKE', $validated['security'] . "%")
                 )
             )
-            ->paginate();
+            ->simplePaginate();
         
         $this->loadValidatedRelationsForQuery(
             $request->only(['withInformation', 'withBodies', 'withStations']),
