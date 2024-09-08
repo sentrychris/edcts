@@ -27,9 +27,14 @@ class PreCacheSystemsPages implements ShouldQueue
     private string $channel;
 
     /**
+     * @var bool
+     */
+    private bool $flush;
+
+    /**
      * @var int
      */
-    private $flush = false;
+    private int $pages;
 
     /**
      * @var int
@@ -45,12 +50,15 @@ class PreCacheSystemsPages implements ShouldQueue
      * Create a new job instance.
      * 
      * @param string $channel
+     * @param bool $flush
      * @param int $ttl
+     * @param int $pages
      */
-    public function __construct(string $channel, bool $flush, int $ttl)
+    public function __construct(string $channel, bool $flush, int $pages, int $ttl)
     {
         $this->channel = $channel;
         $this->flush = $flush;
+        $this->pages = $pages;
         $this->ttl = $ttl;
 
         $this->setAllowedQueryRelations([
@@ -67,19 +75,17 @@ class PreCacheSystemsPages implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::channel($this->channel)->info("Pre-caching first 1,000 pages of systems...");
+        Log::channel($this->channel)->info("Pre-caching first {$this->pages} pages of systems...");
 
         DiscordAlert::to('pages-cache')
-            ->message("Pre-caching first 1,000 pages of systems, please wait...");
+            ->message("Pre-caching first {$this->pages} pages of systems, please wait...");
 
         $params = [
             "withInformation" => "1",
         ];
 
-        $pages = 1000;
-
         $errors = 0;
-        for ($page = 1; $page <= $pages; $page++) {
+        for ($page = 1; $page <= $this->pages; $page++) {
             URL::forceRootUrl(config('app.url'));
             request()->server->set('REQUEST_URI', "/api/systems?page={$page}");
 
@@ -110,10 +116,10 @@ class PreCacheSystemsPages implements ShouldQueue
                 Cache::set("systems_page_{$page}", $systems, $this->ttl);
             } catch (Exception $e) {
                 Log::channel($this->channel)
-                    ->error("Failed to pre-cache systems_page_{$page} of {$pages}: " . $e->getMessage());
+                    ->error("Failed to pre-cache systems_page_{$page} of {$this->pages}: " . $e->getMessage());
 
                 DiscordAlert::to('pages-cache')
-                    ->message("Failed to pre-cache systems_page_{$page} of {$pages}: `" . $e->getMessage() . "`");
+                    ->message("Failed to pre-cache systems_page_{$page} of {$this->pages}: `" . $e->getMessage() . "`");
 
                 $errors++;
             }

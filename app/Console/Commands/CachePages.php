@@ -17,6 +17,7 @@ class CachePages extends Command
      */
     protected $signature = "edcts:cache:pages
         {--type= : The type of data to cache.}
+        {--pages= : The number of pages to cache.}
         {--channel=pages:cache : The log channel for the dispatch job.}
         {--flush : Force flush the cache before caching.}
         {--ttl=3600 : Time to live (default: 3600).}";
@@ -34,6 +35,7 @@ class CachePages extends Command
     public function handle()
     {
         $ttl = (int)$this->option('ttl');
+        $pages = (int)$this->option('pages');
 
         // Check type aliases for the system cache warm-up job
         if (in_array($this->option('type'), ['sys', 'system', 'systems'])) {
@@ -42,6 +44,7 @@ class CachePages extends Command
             PreCacheSystemsPages::dispatch(
                 $this->option('channel'),
                 $this->option('flush'),
+                $pages,
                 $ttl
             );
         } else {
