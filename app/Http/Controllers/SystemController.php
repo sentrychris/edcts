@@ -190,6 +190,7 @@ class SystemController extends Controller
     {
         $system = System::with(['information'])
             ->orderBy('updated_at', 'desc')
+            ->limit(1)
             ->first();
     
         if ($system instanceof System) {
