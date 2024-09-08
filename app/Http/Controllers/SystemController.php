@@ -188,10 +188,7 @@ class SystemController extends Controller
      */
     public function getLastUpdated()
     {
-        $system = System::with(['information'])
-            ->orderBy('updated_at', 'desc')
-            ->limit(1)
-            ->first();
+        $system = Cache::get("latest_system");
     
         if ($system instanceof System) {
             $this->edsmApiService->updateSystemBodiesData($system);

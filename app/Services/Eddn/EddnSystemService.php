@@ -5,6 +5,7 @@ namespace App\Services\Eddn;
 use Exception;
 // use App\Events\EddnRelayMessage;
 use App\Models\System;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Spatie\DiscordAlerts\Facades\DiscordAlert;
@@ -125,8 +126,13 @@ class EddnSystemService extends EddnService
                             }
                         }
                     } else {
-                        $this->updateSystemInformationData($existingSystem, $message);
+                        $system = $existingSystem;
+                        $this->updateSystemInformationData($system, $message);
                     }
+
+                    Cache::remember("latest_system", 300, function () use ($system) {
+                        return $system;
+                    });
                 }
             }
         }
