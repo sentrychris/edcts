@@ -22,7 +22,8 @@ return [
     'allowed_origins' => [
         '*',
         'http://localhost:4201',
-        'https://edcts.versyx.net'
+        'https://edcts.versyx.net',
+        'https://ed.versyx.space'
     ],
 
     'allowed_origins_patterns' => [],
