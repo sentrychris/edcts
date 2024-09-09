@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemStation;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
 class MarketController extends Controller
 {
-    public function getMarketDataForStation(string $slug)
+    /**
+     *  Get market data for a specific station.
+     * 
+     * @param string $slug - The slug of the station.
+     * @return JsonResponse
+     */
+    public function getMarketDataForStation(string $slug): JsonResponse
     {
         $station = SystemStation::whereSlug($slug)
             ->with('system')
