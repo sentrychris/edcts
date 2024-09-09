@@ -304,6 +304,10 @@ class EdsmApiService extends ApiService
 
             foreach ($stations as $station) {
                 try {
+                    if ($station->type === 'Fleet Carrier') {
+                        continue;
+                    }
+
                     $station = $system->stations()->updateOrCreate(
                         [
                             'name' => $station->name,
