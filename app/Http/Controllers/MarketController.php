@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SystemStation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class MarketController extends Controller
 {
@@ -25,15 +26,14 @@ class MarketController extends Controller
         }
 
         $stationName = str_replace(" ", "_", $station->name);
-        $key = "{$station->system->id64}_{$stationName}_station_market_data";
 
-        $marketData = Cache::get($key);
+        $marketData = Redis::get("{$station->system->id64}_{$stationName}_eddn_market_data");
         if (!$marketData) {
             return response()->json([
                 'message' => "No market data found for {$station->name} in {$station->system->name}."
             ], 404);
         }
 
-        return response()->json($marketData);
+        return response()->json(json_decode($marketData));
     }
 }

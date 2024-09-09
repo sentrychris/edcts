@@ -5,6 +5,7 @@ namespace App\Services\Eddn;
 use App\Models\System;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class EddnCommodityService extends EddnService
 {
@@ -35,17 +36,14 @@ class EddnCommodityService extends EddnService
                     $system = System::whereName($message['systemName'])->first();
                     if ($system && isset($message['stationName']) && isset($message['commodities'])) {
                         $station = str_replace(" ", "_", $message['stationName']);
-                        $key = "{$system->id64}_{$station}_station_market_data";
                         $commodities = $message['commodities'];
                         $prohibited = isset($message['prohibited']) ? $message['prohibited'] : [];
 
-                        Cache::remember($key, 600, function() use ($message, $commodities, $prohibited) {
-                            return [
-                                'station' => $message['stationName'],
-                                'commodities' => $commodities,
-                                'prohibited' => $prohibited
-                            ];
-                        });
+                        Redis::set("{$system->id64}_{$station}_eddn_market_data", json_encode([
+                            'station' => $message['stationName'],
+                            'commodities' => $commodities,
+                            'prohibited' => $prohibited
+                        ]), 'EX', 600);
                     }
                 }
             } catch (\Exception $e) {
