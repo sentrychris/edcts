@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Exception;
 use App\Models\System;
+use DateTime;
+use DateTimeImmutable;
 use Illuminate\Support\Facades\Log;
 
 class EdsmApiService extends ApiService
@@ -363,19 +365,19 @@ class EdsmApiService extends ApiService
                                 : null,
 
                             'information_last_updated' => property_isset($station, 'updateTime')
-                                ? $station->updateTime->information
+                                ? $this->date($station->updateTime->information)
                                 : null,
 
                             'market_last_updated' => property_isset($station, 'updateTime')
-                                ? $station->updateTime->market
+                                ? $this->date($station->updateTime->market)
                                 : null,
 
                             'shipyard_last_updated' => property_isset($station, 'updateTime')
-                                ? $station->updateTime->shipyard
+                                ? $this->date($station->updateTime->shipyard)
                                 : null,
 
                             'outfitting_last_updated' => property_isset($station, 'updateTime')
-                                ? $station->updateTime->outfitting
+                                ? $this->date($station->updateTime->outfitting)
                                 : null,
                         ]
                     );
@@ -388,5 +390,18 @@ class EdsmApiService extends ApiService
             Log::channel('import:system')
                 ->error('updateSystemsStationDataError: No response from EDSM.');
         }
+    }
+
+    private function date($date, $format = 'Y-m-d H:i:s', $minYear = 2013, $maxYear = 2025) {
+        $d = DateTime::createFromFormat($format, $date);
+
+        if ($d && $d->format($format) === $date) {
+            $year = (int)$d->format('Y');
+            if ($year >= $minYear && $year <= $maxYear) {
+                return $date;
+            }
+        }
+
+        return date('Y-m-d H:i:s');
     }
 }
