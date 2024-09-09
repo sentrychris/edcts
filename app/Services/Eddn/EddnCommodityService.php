@@ -41,6 +41,7 @@ class EddnCommodityService extends EddnService
 
                         Redis::set("{$system->id64}_{$station}_eddn_market_data", json_encode([
                             'station' => $message['stationName'],
+                            'system' => $system->name,
                             'commodities' => $commodities,
                             'prohibited' => $prohibited
                         ]), 'EX', 600);
