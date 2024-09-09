@@ -49,6 +49,8 @@ Route::prefix('system')->group(function() {
         Route::get('distance', [App\Http\Controllers\SystemController::class, 'searchByDistance']);
         Route::get('information', [App\Http\Controllers\SystemController::class, 'searchByInformation']);
     });
+
+    Route::get('market/{slug}', [App\Http\Controllers\MarketController::class, 'getMarketDataForStation']);
 });
 
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
