@@ -22,11 +22,11 @@ class FleetCarrierFactory extends Factory
      */
     public function definition(): array
     {
-        $commanderIds = Commander::all()->pluck('id')->toArray();
+        $commanderId = Commander::whereCmdrName('Shaki Kazaro')->first();
 
         return [
             'name' => ucfirst(fake()->firstName()) . ' ' . ucfirst(fake()->lastName()),
-            'commander_id' => $commanderIds[array_rand($commanderIds)],
+            'commander_id' => $commanderId,
             'identifier' => $this->generateUniqueIdentifier(),
             'has_refuel' => rand(0,1),
             'has_repair' => rand(0,1),

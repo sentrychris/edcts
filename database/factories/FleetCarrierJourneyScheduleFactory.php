@@ -19,9 +19,24 @@ class FleetCarrierJourneyScheduleFactory extends Factory
      */
     public function definition(): array
     {
+        $sources = [
+            10477373803 => 'Sol',
+            1178708478315 => 'Alpha Centauri',
+            1184840454858 => 'Synuefe NL-N c23-4',
+        ];
+
+        $destinations = [
+            3238296097059 => 'Colonia',
+            20578934 => 'Sagittarius A*',
+            2468576471 => 'Skaude AA-A h294',
+        ];
+
+        $randomSource = array_rand($sources);
+        $randomDestination = array_rand($destinations);
+
         $carrier = FleetCarrier::inRandomOrder()->first();
-        $departure = System::inRandomOrder()->first();
-        $destination = System::inRandomOrder()->first();
+        $departure = System::whereId64($randomSource)->whereName($sources[$randomSource])->first();
+        $destination = System::whereId64($randomDestination)->whereName($destinations[$randomDestination])->first();
 
         $departsAt = Carbon::today()->addDays(rand(1, 90))->addHours(rand(0, 23))->addMinutes(rand(0, 59));
         $isBoarding = $departsAt->diffInDays(now()) <= 2;
