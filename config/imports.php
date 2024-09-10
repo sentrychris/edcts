@@ -10,6 +10,9 @@ return [
                 "New Chana",         // integrity constraint, duplicate id64 13865630901617
                 "Aventine",          // integrity constraint, duplicate id64 5069537879409
                 "Bedrock",           // integrity constraint, duplicate id64 5069806314881
+                "HIP 19934",         // integrity constraint, duplicate id64 4206953927354
+                "Kara",              // integrity constraint, duplicate id64 4206953927354
+                "BD+56 477",         // integrity constraint, duplicate id64 4994892381
             ]
         ]
     ]
