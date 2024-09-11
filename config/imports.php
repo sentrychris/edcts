@@ -17,6 +17,7 @@ return [
                 "NGC 2168 BSB 5175",  // integrity constraint, duplicate name 27063797293313
                 "NGC 2168 SB 254",    // integrity constraint, duplicate name 20465922154929
                 "GMB2010 WOCS 24056", // integrity constraint, duplicate name 7272587993345
+                "2MASS J05362745+0945256" // integrity constraint, duplicate name 84238937432937
             ]
         ]
     ]
