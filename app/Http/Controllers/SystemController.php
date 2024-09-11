@@ -165,7 +165,7 @@ class SystemController extends Controller
                 }
 
                 // Check for existing system stations and update if necessary
-                if ($relation === 'stations') {
+                if ($relation === 'stations' && !$system->stations()->exists()) {
                     $this->edsmApiService->updateSystemStationsData($system);
                 }
 
