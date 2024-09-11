@@ -42,20 +42,20 @@ Route::middleware('auth:sanctum')->prefix('frontier')->group(function() {
 });
 
 Route::resource('systems', App\Http\Controllers\SystemController::class);
-
 Route::prefix('system')->group(function() {
     Route::get('last-updated', [\App\Http\Controllers\SystemController::class, 'getLastUpdated']);
     Route::prefix('search')->group(function() {
         Route::get('distance', [App\Http\Controllers\SystemController::class, 'searchByDistance']);
         Route::get('information', [App\Http\Controllers\SystemController::class, 'searchByInformation']);
     });
-
-    Route::get('market/{slug}', [App\Http\Controllers\MarketController::class, 'getMarketDataForStation']);
 });
 
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
 
 Route::resource('stations', App\Http\Controllers\StationController::class);
+Route::prefix('station')->group(function() {
+    Route::get('{slug}/market', [App\Http\Controllers\MarketController::class, 'getMarketDataForStation']);
+});
 
 Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
 Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLatestNavRoutes']);
