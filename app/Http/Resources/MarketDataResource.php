@@ -38,11 +38,11 @@ class MarketDataResource extends JsonResource
         $parsed = [];
 
         foreach ($commodities as $commodity) {
-            $name = $commodity['name'];
-            unset($commodity['name']);
+            $name = $commodity->name;
+            unset($commodity->name);
             $parsed[$name] = $commodity;
         }
-    
+
         return $parsed;
     }
 }
