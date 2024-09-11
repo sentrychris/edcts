@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Middleware\TelescopeAuth;
+use Laravel\Telescope\Http\Middleware\Authorize;
 use Laravel\Telescope\Watchers;
 
 return [
@@ -82,15 +82,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Telescope Auth Key
-    |--------------------------------------------------------------------------
-    |
-    */
-
-    'key' => env('TELESCOPE_KEY'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Telescope Route Middleware
     |--------------------------------------------------------------------------
     |
@@ -102,7 +93,7 @@ return [
 
     'middleware' => [
         'web',
-        TelescopeAuth::class,
+        Authorize::class,
     ],
 
     /*
