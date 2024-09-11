@@ -191,8 +191,13 @@ class SystemController extends Controller
         $system = Cache::get("latest_system");
     
         if ($system instanceof System) {
-            $this->edsmApiService->updateSystemBodiesData($system);
-            $this->edsmApiService->updateSystemInformationData($system);
+            if ($system->body_count === null) {
+                $this->edsmApiService->updateSystemBodiesData($system);
+            }
+
+            if (!$system->information()->exists()) {
+                $this->edsmApiService->updateSystemInformationData($system);
+            }
         }
 
         $this->loadValidatedRelationsForQuery(
