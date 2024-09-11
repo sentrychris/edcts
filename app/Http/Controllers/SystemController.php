@@ -191,7 +191,7 @@ class SystemController extends Controller
         $system = Cache::get("latest_system");
     
         if ($system instanceof System) {
-            if ($system->body_count === null) {
+            if ($system->body_count === null && !$system->bodies()->exists()) {
                 $this->edsmApiService->updateSystemBodiesData($system);
             }
 
