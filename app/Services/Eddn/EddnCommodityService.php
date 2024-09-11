@@ -43,8 +43,9 @@ class EddnCommodityService extends EddnService
                             'station' => $message['stationName'],
                             'system' => $system->name,
                             'commodities' => $commodities,
-                            'prohibited' => $prohibited
-                        ]), 'EX', 600);
+                            'prohibited' => $prohibited,
+                            'last_updated' => now()->toISOString()
+                        ]));
                     }
                 }
             } catch (\Exception $e) {
