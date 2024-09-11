@@ -14,9 +14,9 @@ class MarketController extends Controller
      *  Get market data for a specific station.
      * 
      * @param string $slug - The slug of the station.
-     * @return JsonResponse
+     * @return JsonResponse|MarketDataResource
      */
-    public function getMarketDataForStation(string $slug): JsonResponse
+    public function getMarketDataForStation(string $slug): JsonResponse|MarketDataResource
     {
         $station = SystemStation::whereSlug($slug)
             ->with('system')
@@ -29,6 +29,6 @@ class MarketController extends Controller
         $stationName = str_replace(" ", "_", $station->name);
         $marketData = Redis::get("{$station->system->id64}_{$stationName}_eddn_market_data");
 
-        return response()->json(new MarketDataResource(json_decode($marketData)));
+        return new MarketDataResource(json_decode($marketData));
     }
 }
