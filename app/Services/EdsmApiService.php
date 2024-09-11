@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use DateTime;
 use Exception;
 use App\Models\System;
-use DateTime;
-use DateTimeImmutable;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class EdsmApiService extends ApiService
 {
@@ -38,6 +38,8 @@ class EdsmApiService extends ApiService
                     'showInformation' => true,
                     'showId' => true
                 ]);
+
+            $this->setApiRequestCounter();
 
             // If there is a successful response, update the system record
             if ($response) {
@@ -71,6 +73,8 @@ class EdsmApiService extends ApiService
             ->get(key: 'bodies', params: [
                 'systemName' => $system->name
             ]);
+
+        $this->setApiRequestCounter();
 
         if ($response) {
             $bodies = [];
@@ -242,6 +246,8 @@ class EdsmApiService extends ApiService
                 'systemName' => $system->name,
                 'showInformation' => true
             ]);
+        
+        $this->setApiRequestCounter();
 
         if ($response && property_isset($response, 'information')) {
             try {
@@ -300,6 +306,8 @@ class EdsmApiService extends ApiService
                 'systemName' => $system->name,
                 'showId' => true
             ]);
+        
+        $this->setApiRequestCounter();
 
         if ($response && property_isset($response, 'stations')) {
             $stations = $response->stations;
@@ -403,5 +411,26 @@ class EdsmApiService extends ApiService
         }
 
         return date('Y-m-d H:i:s');
+    }
+
+    /**
+     * Get the API request counter for EDSM.
+     * 
+     * @return int
+     */
+    public function getApiRequestCounter(): int
+    {
+        return Redis::get('edsm_api_called') ?? 0;
+    }
+
+    /**
+     * Set the API request counter for EDSM.
+     * 
+     * @return void
+     */
+    private function setApiRequestCounter(): void
+    {
+        $counter = Redis::get('edsm_api_called') ?? 1;
+        Redis::set('edsm_api_called', $counter + 1, 'EX', 120);
     }
 }
