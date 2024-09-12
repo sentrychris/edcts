@@ -18,7 +18,7 @@ class StationController extends Controller
     public function __construct()
     {
         $this->setAllowedQueryRelations([
-            'withSystem' => 'system'
+            'withSystem' => 'system.bodies'
         ]);
     }
 
