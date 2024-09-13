@@ -20,8 +20,9 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory($num)->create();
         // \App\Models\Commander::factory($num)->create();
         // \App\Models\FleetCarrier::factory(2)->create();
-        \App\Models\FleetCarrierJourneySchedule::factory(100)->create();
-        
+        // \App\Models\FleetCarrierJourneySchedule::factory(100)->create();
+
+        $this->call(StationServiceSeeder::class);
         // $this->call(ShipyardTableSeeder::class);
     }
 }

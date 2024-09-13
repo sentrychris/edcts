@@ -130,9 +130,7 @@ class EddnSystemService extends EddnService
                         $this->updateSystemInformationData($system, $message);
                     }
 
-                    Cache::remember("latest_system", 300, function () use ($system) {
-                        return $system;
-                    });
+                    Cache::set("latest_system", $system);
                 }
             }
         }
