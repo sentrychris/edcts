@@ -41,7 +41,7 @@ class GalnetJsonService extends ApiService
             $lastArticleOrder = $lastArticle ? $lastArticle->order_added : 0;
 
             $i = 0;
-            foreach($content->data as $article) {
+            foreach(array_reverse($content->data) as $article) {
                 $article = $article->attributes;
                 if (GalnetNews::whereTitle($article->title)->exists()) {
                     continue;
