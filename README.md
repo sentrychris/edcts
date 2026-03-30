@@ -125,6 +125,8 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
             --channel import:system \
             --file systemsPopulated.json
         ```
+    
+    Please note, the `systemsPopulated.json` file is larger than 1GB. The `edcts:import:dumpfile` command will therefore split the file into parts and dispatch them as jobs to the worker queue.
 
 7. Start the queue worker:
     ```sh
