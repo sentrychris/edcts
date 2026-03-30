@@ -15,7 +15,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
-use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class PreCacheSystemsPages implements ShouldQueue
 {
@@ -77,9 +76,6 @@ class PreCacheSystemsPages implements ShouldQueue
     {
         Log::channel($this->channel)->info("Pre-caching first {$this->pages} pages of systems...");
 
-        DiscordAlert::to('pages-cache')
-            ->message("Pre-caching first {$this->pages} pages of systems, please wait...");
-
         $params = [
             "withInformation" => "1",
         ];
@@ -118,17 +114,11 @@ class PreCacheSystemsPages implements ShouldQueue
                 Log::channel($this->channel)
                     ->error("Failed to pre-cache systems_page_{$page} of {$this->pages}: " . $e->getMessage());
 
-                DiscordAlert::to('pages-cache')
-                    ->message("Failed to pre-cache systems_page_{$page} of {$this->pages}: `" . $e->getMessage() . "`");
-
                 $errors++;
             }
         }
 
         Log::channel($this->channel)
             ->info("Systems page pre-caching completed with " . number_format($errors) . " errors.");
-
-        DiscordAlert::to('pages-cache')
-            ->message("Systems page pre-caching completed with " . number_format($errors) . " errors.");
     }
 }

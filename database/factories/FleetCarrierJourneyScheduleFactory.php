@@ -21,14 +21,11 @@ class FleetCarrierJourneyScheduleFactory extends Factory
     {
         $sources = [
             10477373803 => 'Sol',
-            1178708478315 => 'Alpha Centauri',
-            1184840454858 => 'Synuefe NL-N c23-4',
+            1178708478315 => 'Alpha Centauri'
         ];
 
         $destinations = [
-            3238296097059 => 'Colonia',
-            20578934 => 'Sagittarius A*',
-            2468576471 => 'Skaude AA-A h294',
+            3238296097059 => 'Colonia'
         ];
 
         $randomSource = array_rand($sources);
