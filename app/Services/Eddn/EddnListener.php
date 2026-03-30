@@ -17,7 +17,7 @@ class EddnListener
      * @return void
      * @throws RuntimeException
      */
-    public function process(Callable $batchCallback = null)
+    public function process(?Callable $callback = null)
     {
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_SUB);
@@ -60,8 +60,8 @@ class EddnListener
                         // If we have more than 500 messages or 20 seconds have passed since the last messages were received, process the batch
                         if (count($messages["messages"]) >= $messagesBatch || time() > ($lastTimeMessages + $messagesBatchTime)) {
                             // Process the batch of messages
-                            if ($batchCallback) {
-                                $batchCallback($messages);
+                            if ($callback) {
+                                $callback($messages);
                             }
 
                             // Reset messages and timer

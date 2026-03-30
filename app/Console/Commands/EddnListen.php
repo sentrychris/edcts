@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Eddn\EddnCommodityService;
+use App\Services\Eddn\EddnMarketService;
 use Illuminate\Console\Command;
 use App\Services\Eddn\EddnListener;
 use App\Services\Eddn\EddnSystemService;
@@ -40,20 +40,20 @@ class EddnListen extends Command
     /**
      * EDDN data management service.
      * 
-     * @var EddnCommodityService
+     * @var EddnMarketService
      */
-    private EddnCommodityService $eddnCommodityService;
+    private EddnMarketService $eddnMarketService;
     
     public function __construct(
         EddnListener $eddnListener,
         EddnSystemService $eddnSystemService,
-        EddnCommodityService $eddnCommodityService
+        EddnMarketService $eddnMarketService
     ) {
         parent::__construct();
 
         $this->eddnListener = $eddnListener;
         $this->eddnSystemService = $eddnSystemService;
-        $this->eddnCommodityService = $eddnCommodityService;
+        $this->eddnMarketService = $eddnMarketService;
     }
 
     /**
@@ -78,6 +78,6 @@ class EddnListen extends Command
     {
         $this->eddnSystemService->updateLastTenNavRoutes($data);
         $this->eddnSystemService->updateSystemsData($data);
-        $this->eddnCommodityService->updateMarketData($data);
+        $this->eddnMarketService->updateMarketData($data);
     }
 }

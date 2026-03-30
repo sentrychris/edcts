@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
-class EddnCommodityService extends EddnService
+class EddnMarketService extends EddnService
 {
     /**
      * Cache system names with their ID64s.
