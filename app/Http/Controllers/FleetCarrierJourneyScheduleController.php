@@ -51,7 +51,7 @@ class FleetCarrierJourneyScheduleController extends Controller
     {        
         $validated = $request->validated();
         $schedule = FleetCarrierJourneySchedule::filter($validated, (int)$request->exactSearch)
-            ->simplePaginate($request->get('limit', config('app.pagination.limit')))
+            ->simplePaginate($request->input('limit', config('app.pagination.limit')))
             ->appends($request->all());
 
         $this->loadValidatedRelationsForQuery($validated, $schedule);

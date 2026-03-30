@@ -34,8 +34,8 @@ class StatisticsController extends Controller
      */
     public function getLatestNavRoutes(Request $request): Response
     {
-        $limit = $request->get('limit')
-            ? $request->get('limit') - 1
+        $limit = $request->input('limit')
+            ? $request->input('limit') - 1
             : -1;
 
         $navRoutes = Redis::lrange("eddn_navroutes", 0, $limit);

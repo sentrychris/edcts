@@ -47,9 +47,9 @@ class FrontierCApiController extends Controller
      */
     public function journal(Request $request)
     {
-        $year = $request->get('year');
-        $month = $request->get('month');
-        $day = $request->get('day');
+        $year = $request->input('year');
+        $month = $request->input('month');
+        $day = $request->input('day');
 
         $user = $request->user();
         $journal = $this->frontierCApiService->getJournal($user, $year, $month, $day);

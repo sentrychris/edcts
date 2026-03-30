@@ -19,7 +19,7 @@ class GalnetNewsController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         return GalnetNewsResource::collection(
-            GalnetNews::paginate($request->get('limit', config('app.pagination.limit')))
+            GalnetNews::paginate($request->input('limit', config('app.pagination.limit')))
         );
     }
 

@@ -78,8 +78,8 @@ class FrontierAuthService
     public function authorize(Request $request): mixed
     {
         // Get the auth details from the request
-        $code = $request->get('code');
-        $oauthState = $request->get('state');
+        $code = $request->input('code');
+        $oauthState = $request->input('state');
 
         // Retrieve the code verifier from the cache based on the oauth state
         $codeVerifier = Cache::get("frontier_cv_{$oauthState}");

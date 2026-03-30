@@ -66,12 +66,12 @@ class SystemController extends Controller
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
         // Get the request parameters
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', config('app.pagination.limit'));
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', config('app.pagination.limit'));
         $validated = $request->validated();
 
         // Handle the request
-        if ($request->get('name') !== null) {
+        if ($request->input('name') !== null) {
             // Handle queries for systems if searching for systems by name, with
             // or without exact search
             $systems = System::filter($validated, (int)$request->exactSearch)
@@ -221,10 +221,10 @@ class SystemController extends Controller
         if (! $systems) {
             $systems = System::findNearest(
                 $request->only(['x','y','z']),
-                $request->get('ly', 1000),
+                $request->input('ly', 1000),
             )
                 ->with('information')
-                ->simplePaginate($request->get('limit', 20));
+                ->simplePaginate($request->input('limit', 20));
                 
             Cache::set($cacheKey, $systems, 86400);
         }

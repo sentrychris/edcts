@@ -96,7 +96,7 @@ class PreCacheSystemsPages implements ShouldQueue
 
             $request->validateResolved();
             $validated = $request->validated();
-            $limit = $request->get('limit', config('app.pagination.limit'));
+            $limit = $request->input('limit', config('app.pagination.limit'));
 
             try {
                 if ($this->flush) {
