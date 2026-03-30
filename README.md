@@ -7,7 +7,7 @@ Backend services for ED:CTS - responsible for communicating with Elite 3rd party
 - Nginx or Apache:
     - (If using Nginx): php-fpm
     - (If using Apache): mod_php
-- PHP 8.3 with extensions:
+- PHP 8.4 with extensions:
     - Ctype
     - cURL
     - DOM
@@ -48,7 +48,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
          -u "$(id -u):$(id -g)" \
          -v "$(pwd):/var/www/html" \
          -w /var/www/html \
-         laravelsail/php83-composer:latest \
+         laravelsail/php84-composer:latest \
          composer install --ignore-platform-reqs
     ```
 
@@ -126,7 +126,12 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
             --file systemsPopulated.json
         ```
 
-8. Seed Galnet news articles, the JSON feed is the default, but you can also retrieve data from the RSS feed:
+7. Start the queue worker:
+    ```sh
+    ./vendor/bin/sail artisan queue:work --deamon
+    ```
+
+8. Seed Galnet news articles:
 
     ```sh
     ./vendor/bin/sail artisan edcts:import:galnet
@@ -138,12 +143,7 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     ./vendor/bin/sail artisan edcts:stats:refresh
     ```
 
-10. Start the queue worker:
-    ```sh
-    ./vendor/bin/sail artisan queue:work --daemon
-    ```
-
-11. Warm up the systems pages cache:
+10. Warm up the systems pages cache:
     ```sh
     ./vendor/bin/sail artisan edcts:precache:pages \
         --type systems \
