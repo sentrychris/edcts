@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Commander extends Model
 {
@@ -34,25 +32,5 @@ class Commander extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get fleet carriers owned by the commander.
-     * 
-     * @return HasMany - the fleet carriers owned by the commander
-     */
-    public function carriers(): HasMany
-    {
-        return $this->hasMany(FleetCarrier::class);
-    }
-
-    /**
-     * Get the fleet carrier journey schedules for the commander's fleet carriers.
-     * 
-     * @return HasManyThrough - the fleet carrier journey schedules
-     */
-    public function carriersJourneySchedule(): HasManyThrough
-    {
-        return $this->hasManyThrough(FleetCarrierJourneySchedule::class, FleetCarrier::class);
     }
 }

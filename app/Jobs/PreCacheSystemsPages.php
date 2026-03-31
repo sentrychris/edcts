@@ -63,9 +63,7 @@ class PreCacheSystemsPages implements ShouldQueue
         $this->setAllowedQueryRelations([
             'withInformation' => 'information',
             'withBodies' => 'bodies',
-            'withStations' => 'stations',
-            'withDepartures' => 'departures.destination',
-            'withArrivals' => 'arrivals.departure'
+            'withStations' => 'stations'
         ]);
     }
 

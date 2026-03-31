@@ -60,11 +60,6 @@ Route::prefix('station')->group(function() {
 Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
 Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLatestNavRoutes']);
 
-Route::prefix('fleet-carriers')->group(function() {
-    Route::resource('carriers', App\Http\Controllers\FleetCarrierController::class);
-    Route::resource('schedule', App\Http\Controllers\FleetCarrierJourneyScheduleController::class);
-});
-
 Route::prefix('galnet')->group(function() {
     Route::resource('news', App\Http\Controllers\GalnetNewsController::class);
 });

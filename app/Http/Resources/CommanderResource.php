@@ -31,10 +31,7 @@ class CommanderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $resource = [
-            'name' => $this->cmdr_name,
-            'carriers' => FleetCarrierResource::collection($this->whenLoaded('carriers'))
-        ];
+        $resource = ['name' => $this->cmdr_name];
 
         if ($this->includeAuth) {
             $resource['api'] = [

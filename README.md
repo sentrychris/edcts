@@ -1,4 +1,4 @@
-# ED:CTS - Carrier Transport Services
+# ED:CS Backend API
 
 Backend services for ED:CTS - responsible for communicating with Elite 3rd party services and providing data to the [ED:CTS frontend](https://github.com/sentrychris/edcts-frontend).
 

@@ -71,26 +71,6 @@ class System extends Model
     public function stations(): HasMany {
         return $this->hasMany(SystemStation::class);
     }
-
-    /**
-     * Get fleet carrier departures from the system.
-     * 
-     * @return HasMany - the fleet carrier departures from the system
-     */
-    public function departures(): HasMany
-    {
-        return $this->hasMany(FleetCarrierJourneySchedule::class, 'departure_system_id');
-    }
-
-    /**
-     * Get fleet carrier arrivals to the system.
-     * 
-     * @return HasMany - the fleet carrier arrivals to the system
-     */
-    public function arrivals(): HasMany
-    {
-        return $this->hasMany(FleetCarrierJourneySchedule::class, 'destination_system_id');
-    }
     
     /**
      * Add a query filter scope to filter systems by name.

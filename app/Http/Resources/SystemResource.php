@@ -22,8 +22,6 @@ class SystemResource extends JsonResource
             'information' => new SystemInformationResource($this->whenLoaded('information')),
             'bodies' => $this->whenLoaded('bodies'),
             'stations' =>  SystemStationResource::collection($this->whenLoaded('stations')), 
-            'departures' => FleetCarrierJourneyScheduleResource::collection($this->whenLoaded('departures')),
-            'arrivals' => FleetCarrierJourneyScheduleResource::collection($this->whenLoaded('arrivals')),
             'updated_at' => $this->updated_at,
             'slug' => $this->slug
         ];

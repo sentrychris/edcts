@@ -27,7 +27,7 @@ class FrontierCApiService
     {
         $this->client = new Client([
             'headers' => [
-                'User-Agent' => 'EDCTS-carrier-transport-services-v1.0.0'
+                'User-Agent' => 'EDCS-v1.0.0'
             ],
             'base_uri' => config('elite.frontier.capi.url') 
         ]);

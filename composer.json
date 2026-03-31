@@ -1,7 +1,7 @@
 {
     "name": "edcts/api",
     "type": "project",
-    "description": "ED:CTS - Elite Carrier Transport Services: Backend API",
+    "description": "ED:CS Backend API",
     "keywords": [
         "laravel",
         "framework"
@@ -24,6 +24,7 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.1",
         "fakerphp/faker": "^1.23",
+        "jetbrains/phpstorm-stubs": "^2025.3",
         "laravel/breeze": "^2.1",
         "laravel/pint": "^1.17",
         "laravel/sail": "^1.31",

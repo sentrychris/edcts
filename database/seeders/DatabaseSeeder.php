@@ -14,13 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Fake users, commanders, fleet carriers
+        // Fake users, commanders
         // Deprecated since being granted access to Frontier OAuth.
         $num = 100;
-        // \App\Models\User::factory($num)->create();
-        // \App\Models\Commander::factory($num)->create();
-        \App\Models\FleetCarrier::factory(2)->create();
-        \App\Models\FleetCarrierJourneySchedule::factory(100)->create();
+        \App\Models\User::factory($num)->create();
+        \App\Models\Commander::factory($num)->create();
 
         // $this->call(StationServiceSeeder::class);
         // $this->call(ShipyardTableSeeder::class);

@@ -93,7 +93,7 @@ class AuthController extends Controller
     {
         if ($request->user()) {
             return response()->json(
-                new UserResource($request->user()->load('commander.carriers'))
+                new UserResource($request->user()->load('commander'))
             );
         }
 
