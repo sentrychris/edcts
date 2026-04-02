@@ -183,15 +183,17 @@ class SystemController extends Controller
     public function getLastUpdated()
     {
         $system = Cache::get("latest_system");
+        if (!$system) {
+            $system = System::latest('updated_at')->first();
+            Cache::set("latest_system", $system);
+        }
     
-        if ($system instanceof System) {
-            if ($system->body_count === null && !$system->bodies()->exists()) {
-                $this->edsmApiService->updateSystemBodiesData($system);
-            }
+        if ($system->body_count === null && !$system->bodies()->exists()) {
+            $this->edsmApiService->updateSystemBodiesData($system);
+        }
 
-            if (!$system->information()->exists()) {
-                $this->edsmApiService->updateSystemInformationData($system);
-            }
+        if (!$system->information()->exists()) {
+            $this->edsmApiService->updateSystemInformationData($system);
         }
 
         $this->loadValidatedRelationsForQuery(

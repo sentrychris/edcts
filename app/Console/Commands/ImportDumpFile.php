@@ -55,7 +55,7 @@ class ImportDumpFile extends Command
 
             $this->setJsonFileLogChannel($this->option('channel'));
             
-            $parts = 32;
+            $parts = 16;
             $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
