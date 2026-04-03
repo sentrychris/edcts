@@ -12,59 +12,6 @@ use Illuminate\Support\Facades\Redis;
 class EddnSystemService extends EddnService
 {
     /**
-     * Update the last ten nav routes.
-     * 
-     * @param array $data
-     * @return void
-     */
-    public function updateLastTenNavRoutes(array $data)
-    {
-        foreach($data['messages'] as $receivedMessage)
-        {
-            // Check the software name and version
-            if (! $this->isSoftwareAllowed($receivedMessage["header"])) {
-                continue;
-            }
-
-            $schemaRef = $receivedMessage['$schemaRef'];
-
-            if ($this->validateSchemaRef($schemaRef) && $schemaRef === 'https://eddn.edcd.io/schemas/navroute/1') {
-                $message = $receivedMessage['message'];
-                $route = $message['Route'];
-                
-                $firstSystem = reset($route);
-                $firstSystemName = $firstSystem['StarSystem'];
-
-
-                $lastSystem = end($route);
-                $lastSystemName = $lastSystem['StarSystem'];
-
-                $cacheKey = "eddn_navroutes";
-                $maxCacheSize = 50;
-
-                $latestRoute = json_encode([
-                    "from" => $firstSystemName,
-                    "to" => $lastSystemName
-                ]);
-
-                $cachedRoutes = Redis::lrange($cacheKey, 0, -1);
-
-                // Check if the latest route is already in the cache
-                if (!in_array($latestRoute, $cachedRoutes))
-                {
-                    if(count($cachedRoutes) >= $maxCacheSize) {
-                        // Remove the oldest route (last entry in the list) if the cache is full
-                        Redis::rpop($cacheKey);
-                    }
-
-                    // Add the newest route to the front of the list
-                    Redis::lpush($cacheKey, $latestRoute);
-                }
-            }
-        }
-    }
-
-    /**
      * Cache system names with their ID64s.
      * 
      * @param array $data
@@ -181,7 +128,7 @@ class EddnSystemService extends EddnService
      * @param string $attribute
      * @return string
      */
-    protected function sanitizeMessageAttribute (string $attribute)
+    private function sanitizeMessageAttribute (string $attribute)
     {
         $value = "";
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Traits\UseStatistics;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Redis;
 
 class StatisticsController extends Controller
 {
@@ -24,29 +23,6 @@ class StatisticsController extends Controller
     {
         return response([
             'data' => $this->getAllStatistics("statistics", $request->all())
-        ]);
-    }
-
-    /**
-     * Get the last ten received nav routes.
-     * 
-     * @return Response
-     */
-    public function getLatestNavRoutes(Request $request): Response
-    {
-        $limit = $request->input('limit')
-            ? $request->input('limit') - 1
-            : -1;
-
-        $navRoutes = Redis::lrange("eddn_navroutes", 0, $limit);
-
-        foreach($navRoutes as $key => $route) {
-            $navRoutes[$key] = json_decode($route, true);
-        }
-
-        return response([
-            'count' => count($navRoutes),
-            'data' => $navRoutes
         ]);
     }
 }

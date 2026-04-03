@@ -58,7 +58,6 @@ Route::prefix('station')->group(function() {
 });
 
 Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
-Route::get('nav-routes', [App\Http\Controllers\StatisticsController::class, 'getLatestNavRoutes']);
 
 Route::prefix('galnet')->group(function() {
     Route::resource('news', App\Http\Controllers\GalnetNewsController::class);

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\System;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,10 +16,10 @@ class DatabaseSeeder extends Seeder
         // Fake users, commanders
         // Deprecated since being granted access to Frontier OAuth.
         $num = 100;
-        \App\Models\User::factory($num)->create();
-        \App\Models\Commander::factory($num)->create();
+        // \App\Models\User::factory($num)->create();
+        // \App\Models\Commander::factory($num)->create();
 
-        // $this->call(StationServiceSeeder::class);
-        // $this->call(ShipyardTableSeeder::class);
+        $this->call(StationServiceSeeder::class);
+        $this->call(ShipyardTableSeeder::class);
     }
 }

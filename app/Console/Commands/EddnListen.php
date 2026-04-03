@@ -76,7 +76,6 @@ class EddnListen extends Command
      */
     public function processBatch(array $data)
     {
-        $this->eddnSystemService->updateLastTenNavRoutes($data);
         $this->eddnSystemService->updateSystemsData($data);
         $this->eddnMarketService->updateMarketData($data);
     }
