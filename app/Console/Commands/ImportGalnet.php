@@ -37,11 +37,11 @@ class ImportGalnet extends Command
 
         $this->info('Importing Galnet articles, please wait...');
         
-        $parser = $format === 'rss'
+        $service = $format === 'rss'
             ? new GalnetRssService(config('elite.galnet.rss'))
             : new GalnetJsonService(config('elite.galnet.json'));
 
-        $parser->import();
+        $service->import();
 
         $this->info("\nImported galnet news articles.");
     }

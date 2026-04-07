@@ -167,7 +167,7 @@ abstract class ApiService
     protected function resolveUri(
         string $section,
         string $key,
-        string $subKey = null
+        ?string $subKey = null
     ): string|false {
         $section = $this->config[$section];
         if ($section && $section[$key]) {

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MarketDataResource;
 use App\Models\SystemStation;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 
 class MarketController extends Controller

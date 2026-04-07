@@ -92,7 +92,5 @@ class ImportDumpFile extends Command
         } else {
             $this->error('Type does not match a valid dumpfile processing job type.');
         }
-
-        // More types can be added here...
     }
 }
