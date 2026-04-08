@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Http\Requests\SearchSystemRequest;
 use App\Http\Requests\SearchSystemByDistanceRequest;
 use App\Http\Requests\SearchSystemByInformationRequest;
-use App\Http\Resources\SystemResource;
+use App\Http\Requests\SearchSystemRequest;
+use App\Http\Requests\SearchSystemRouteRequest;
 use App\Http\Resources\SystemDistanceResource;
+use App\Http\Resources\SystemResource;
+use App\Http\Resources\SystemRouteResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
+use App\Services\RouteFinderService;
 use App\Traits\HasValidatedQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -26,28 +28,35 @@ class SystemController extends Controller
     private EdsmApiService $edsmApiService;
 
     /**
-     * Constructor
-     * 
-     * @param EdsmApiService $service - injected EDSM API service
+     * Route Finder Service
      */
-    public function __construct(EdsmApiService $service)
+    private RouteFinderService $routeFinderService;
+
+    /**
+     * Constructor
+     *
+     * @param  EdsmApiService  $edsmService  - injected EDSM API service
+     * @param  RouteFinderService  $routeFinderService  - injected route finder service
+     */
+    public function __construct(EdsmApiService $edsmService, RouteFinderService $routeFinderService)
     {
-        $this->edsmApiService = $service;
+        $this->edsmApiService = $edsmService;
+        $this->routeFinderService = $routeFinderService;
 
         // Map the allowed query parameters to the relations that can be loaded
         // for the system model e.g. withBodies will load bodies for the system
         $this->setAllowedQueryRelations([
             'withInformation' => 'information',
-            'withBodies'      => 'bodies',
-            'withStations'    => 'stations'
+            'withBodies' => 'bodies',
+            'withStations' => 'stations',
         ]);
     }
 
     /**
      * List systems.
-     * 
+     *
      * User can provide the following request parameters.
-     * 
+     *
      * name: - Filter systems by name.
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
@@ -55,9 +64,6 @@ class SystemController extends Controller
      * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
      * page: - page number.
      * limit: - page limit.
-     * 
-     * @param SearchSystemRequest $request
-     * @return AnonymousResourceCollection
      */
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
@@ -70,7 +76,7 @@ class SystemController extends Controller
         if ($request->input('name') !== null) {
             // Handle queries for systems if searching for systems by name, with
             // or without exact search
-            $systems = System::filter($validated, (int)$request->exactSearch)
+            $systems = System::filter($validated, (int) $request->exactSearch)
                 ->simplePaginate($limit)
                 ->appends($request->all());
         } else {
@@ -78,7 +84,7 @@ class SystemController extends Controller
             $systems = Cache::get("systems_page_{$page}");
 
             // If the page does not exist in the cache, then retrieve it from the database
-            if (!$systems) {
+            if (! $systems) {
                 Log::channel('pages:cache')
                     ->info("systems_page_{$page} cache MISS - refreshing cache for this page");
 
@@ -98,18 +104,15 @@ class SystemController extends Controller
         return SystemResource::collection($systems);
     }
 
-    
     /**
      * Show system.
-     * 
+     *
      * User can provide the following request parameters.
-     * 
+     *
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
      * withStations: 0 or 1 - Return system with associated stations and outposts.
-     * 
-     * @param string $slug
-     * @param SearchSystemRequest $request
+     *
      * @return SystemResource
      */
     public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
@@ -124,42 +127,40 @@ class SystemController extends Controller
 
         // Otherwise it's a cache MISS
         Log::channel('pages:cache')
-                    ->info("system_detail_{$slug} cache MISS - refreshing cache for this page");
+            ->info("system_detail_{$slug} cache MISS - refreshing cache for this page");
 
         // Attempt to retrieve the system from our database
         $system = System::whereSlug($slug)->first();
-        
-        if (!$system) {
+
+        if (! $system) {
             // If the system doesn't exist in our database, query EDSM for it
             // and then update our records
             $system = $this->edsmApiService->updateSystemData($slug);
         }
 
         // If no system if found, then return a 404 not found response
-        if (!$system) {
+        if (! $system) {
             return response([], 404);
         }
-        
+
         // Get the request parameters
         $validated = $request->validated();
 
         // Update the system with the requested relations e.g. withBodies, withInformation, etc.
-        foreach ($this->getAllowedQueryRelations() as $query => $relation)
-        {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1)
-            {
+        foreach ($this->getAllowedQueryRelations() as $query => $relation) {
+            if (array_key_exists($query, $validated) && (int) $validated[$query] === 1) {
                 // Check for existing system bodies and update if necessary
-                if ($relation === 'bodies' && !$system->bodies()->exists() && $system->body_count === null) {
+                if ($relation === 'bodies' && ! $system->bodies()->exists() && $system->body_count === null) {
                     $this->edsmApiService->updateSystemBodiesData($system);
                 }
 
                 // Check for existing system information and update if necessary
-                if ($relation === 'information' && !$system->information()->exists()) {
+                if ($relation === 'information' && ! $system->information()->exists()) {
                     $this->edsmApiService->updateSystemInformationData($system);
                 }
 
                 // Check for existing system stations and update if necessary
-                if ($relation === 'stations' && !$system->stations()->exists()) {
+                if ($relation === 'stations' && ! $system->stations()->exists()) {
                     $this->edsmApiService->updateSystemStationsData($system);
                 }
 
@@ -177,22 +178,22 @@ class SystemController extends Controller
 
     /**
      * Get the last updated system
-     * 
+     *
      * @return SystemResource
      */
     public function getLastUpdated()
     {
-        $system = Cache::get("latest_system");
-        if (!$system) {
+        $system = Cache::get('latest_system');
+        if (! $system) {
             $system = System::latest('updated_at')->first();
-            Cache::set("latest_system", $system);
+            Cache::set('latest_system', $system);
         }
-    
-        if ($system->body_count === null && !$system->bodies()->exists()) {
+
+        if ($system->body_count === null && ! $system->bodies()->exists()) {
             $this->edsmApiService->updateSystemBodiesData($system);
         }
 
-        if (!$system->information()->exists()) {
+        if (! $system->information()->exists()) {
             $this->edsmApiService->updateSystemInformationData($system);
         }
 
@@ -206,22 +207,20 @@ class SystemController extends Controller
 
     /**
      * Find systems by distance in light years.
-     * 
-     * @param SearchSystemByDistanceRequest $request
      */
     public function searchByDistance(SearchSystemByDistanceRequest $request)
     {
-        $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
+        $cacheKey = "systems_disstance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
         $systems = Cache::get($cacheKey);
 
         if (! $systems) {
             $systems = System::findNearest(
-                $request->only(['x','y','z']),
+                $request->only(['x', 'y', 'z']),
                 $request->input('ly', 1000),
             )
-                ->with('information')
+                // ->with('information')
                 ->simplePaginate($request->input('limit', 20));
-                
+
             Cache::set($cacheKey, $systems, 86400);
         }
 
@@ -229,10 +228,70 @@ class SystemController extends Controller
     }
 
     /**
-     * Search for systems by information.
-     * 
+     * Find the shortest route between two systems.
+     *
      * User can provide the following request parameters.
-     * 
+     *
+     * from: - Slug of the origin system.
+     * to:   - Slug of the destination system.
+     * ly:   - Maximum jump range in light years.
+     */
+    public function searchRoute(SearchSystemRouteRequest $request): AnonymousResourceCollection|Response
+    {
+        $from = System::whereSlug($request->input('from'))->firstOrFail();
+        $to = System::whereSlug($request->input('to'))->firstOrFail();
+        $ly = (float) $request->input('ly');
+
+        $cacheKey = "system_route_{$from->slug}_{$to->slug}_{$ly}";
+        $waypoints = Cache::get($cacheKey);
+
+        if (! $waypoints) {
+            $route = $this->routeFinderService->findRoute($from, $to, $ly);
+
+            if ($route === null) {
+                return response(['message' => 'No route found within the given jump range.'], 404);
+            }
+
+            $totalDistance = 0.0;
+            $waypoints = [];
+
+            foreach ($route as $jump => $system) {
+                $hopDistance = $jump === 0
+                    ? 0.0
+                    : $this->routeFinderService->distance(
+                        [
+                            'x' => (float) $route[$jump - 1]->coords_x,
+                            'y' => (float) $route[$jump - 1]->coords_y,
+                            'z' => (float) $route[$jump - 1]->coords_z
+                        ],
+                        [
+                            'x' => (float) $system->coords_x,
+                            'y' => (float) $system->coords_y,
+                            'z' => (float) $system->coords_z
+                        ],
+                    );
+
+                $totalDistance += $hopDistance;
+
+                $waypoints[] = [
+                    'jump' => $jump,
+                    'system' => $system,
+                    'distance' => $hopDistance,
+                    'total_distance' => $totalDistance,
+                ];
+            }
+
+            Cache::set($cacheKey, $waypoints, 86400);
+        }
+
+        return SystemRouteResource::collection(collect($waypoints));
+    }
+
+    /**
+     * Search for systems by information.
+     *
+     * User can provide the following request parameters.
+     *
      * population: - Filter systems by population.
      * allegiance: - Filter systems by allegiance.
      * government: - Filter systems by government.
@@ -241,14 +300,13 @@ class SystemController extends Controller
      * withInformation: 0 or 1 - Return system with associated information.
      * withBodies: 0 or 1 - Return system with associated celestial bodies.
      * withStations: 0 or 1 - Return system with associated stations and outposts.
-     * 
-     * @param SearchSystemByInformationRequest $request
+     *
      * @return AnonymousResourceCollection
      */
     public function searchByInformation(SearchSystemByInformationRequest $request)
     {
         $validated = $request->validated();
-        $relation = "information";
+        $relation = 'information';
 
         $systems = System::query()
             ->when($request->has('population'),
@@ -259,35 +317,35 @@ class SystemController extends Controller
 
             ->when($request->has('allegiance'),
                 fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('allegiance', 'LIKE', $validated['allegiance'] . "%")
+                    fn ($query) => $query->where('allegiance', 'LIKE', $validated['allegiance'].'%')
                 )
             )
 
             ->when($request->has('government'),
                 fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('government', 'LIKE', $validated['government'] . "%")
+                    fn ($query) => $query->where('government', 'LIKE', $validated['government'].'%')
                 )
             )
 
             ->when(
                 $request->has('economy'),
                 fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('economy', 'LIKE', $validated['economy'] . "%")
+                    fn ($query) => $query->where('economy', 'LIKE', $validated['economy'].'%')
                 )
             )
 
             ->when($request->has('security'),
                 fn ($query) => $query->whereHas($relation,
-                    fn ($query) => $query->where('security', 'LIKE', $validated['security'] . "%")
+                    fn ($query) => $query->where('security', 'LIKE', $validated['security'].'%')
                 )
             )
             ->simplePaginate();
-        
+
         $this->loadValidatedRelationsForQuery(
             $request->only(['withInformation', 'withBodies', 'withStations']),
             $systems
         );
-        
+
         return SystemResource::collection($systems);
     }
 
@@ -295,7 +353,7 @@ class SystemController extends Controller
     {
         $id64s = Cache::get('systems_id64_slugs');
 
-        if (!$id64s) {
+        if (! $id64s) {
             $id64s = System::pluck('id64', 'slug');
             Cache::set('systems_id64_slugs', $id64s, 1800);
         }

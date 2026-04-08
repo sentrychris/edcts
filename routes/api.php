@@ -1,5 +1,14 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\FrontierAuthController;
+use App\Http\Controllers\Auth\FrontierCApiController;
+use App\Http\Controllers\GalnetNewsController;
+use App\Http\Controllers\MarketController;
+use App\Http\Controllers\StationController;
+use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\SystemBodyController;
+use App\Http\Controllers\SystemController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,54 +22,54 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('auth')->group(function() {
+Route::prefix('auth')->group(function () {
     Route::get('login', function () {
         return response()->json(['message' => 'Unauthorized.'], 401);
     })->name('login');
-    
-    Route::post('register', [\App\Http\Controllers\Auth\AuthController::class, 'register']);
-    Route::post('login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
 
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
 
-    Route::prefix('frontier')->group(function() {
-        Route::get('login', [\App\Http\Controllers\Auth\FrontierAuthController::class, 'login'])->name('frontier.auth.login');
-        Route::get('callback', [\App\Http\Controllers\Auth\FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
-        Route::post('me', [\App\Http\Controllers\Auth\FrontierAuthController::class, 'me'])->name('frontier.auth.me');
+    Route::prefix('frontier')->group(function () {
+        Route::get('login', [FrontierAuthController::class, 'login'])->name('frontier.auth.login');
+        Route::get('callback', [FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
+        Route::post('me', [FrontierAuthController::class, 'me'])->name('frontier.auth.me');
     });
 
-    Route::middleware('auth:sanctum')->group(function() {
-        Route::get('me', [\App\Http\Controllers\Auth\AuthController::class, 'me']);
-        Route::post('logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout']);
-    });
-});
-
-Route::middleware('auth:sanctum')->prefix('frontier')->group(function() {
-    Route::prefix('capi')->group(function() {
-        Route::get('profile', [\App\Http\Controllers\Auth\FrontierCApiController::class, 'profile']);
-        Route::get('journal', [\App\Http\Controllers\Auth\FrontierCApiController::class, 'journal']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('me', [AuthController::class, 'me']);
+        Route::post('logout', [AuthController::class, 'logout']);
     });
 });
 
-Route::resource('systems', App\Http\Controllers\SystemController::class);
-
-Route::prefix('system')->group(function() {
-    Route::get('last-updated', [\App\Http\Controllers\SystemController::class, 'getLastUpdated']);
-    Route::prefix('search')->group(function() {
-        Route::get('distance', [App\Http\Controllers\SystemController::class, 'searchByDistance']);
-        Route::get('information', [App\Http\Controllers\SystemController::class, 'searchByInformation']);
+Route::middleware('auth:sanctum')->prefix('frontier')->group(function () {
+    Route::prefix('capi')->group(function () {
+        Route::get('profile', [FrontierCApiController::class, 'profile']);
+        Route::get('journal', [FrontierCApiController::class, 'journal']);
     });
-    Route::get('id64', [\App\Http\Controllers\SystemController::class, 'listId64s']);
 });
 
-Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);
+Route::resource('systems', SystemController::class);
 
-Route::resource('stations', App\Http\Controllers\StationController::class);
-Route::prefix('station')->group(function() {
-    Route::get('{slug}/market', [App\Http\Controllers\MarketController::class, 'getMarketDataForStation']);
+Route::prefix('system')->group(function () {
+    Route::get('last-updated', [SystemController::class, 'getLastUpdated']);
+    Route::prefix('search')->group(function () {
+        Route::get('distance', [SystemController::class, 'searchByDistance']);
+        Route::get('information', [SystemController::class, 'searchByInformation']);
+        Route::get('route', [SystemController::class, 'searchRoute']);
+    });
+    Route::get('id64', [SystemController::class, 'listId64s']);
 });
 
-Route::get('statistics', [App\Http\Controllers\StatisticsController::class, 'getStatistics']);
+Route::resource('bodies', SystemBodyController::class);
 
-Route::prefix('galnet')->group(function() {
-    Route::resource('news', App\Http\Controllers\GalnetNewsController::class);
+Route::resource('stations', StationController::class);
+Route::prefix('station')->group(function () {
+    Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
+});
+
+Route::get('statistics', [StatisticsController::class, 'getStatistics']);
+
+Route::prefix('galnet')->group(function () {
+    Route::resource('news', GalnetNewsController::class);
 });
