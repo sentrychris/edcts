@@ -42,12 +42,14 @@ Route::middleware('auth:sanctum')->prefix('frontier')->group(function() {
 });
 
 Route::resource('systems', App\Http\Controllers\SystemController::class);
+
 Route::prefix('system')->group(function() {
     Route::get('last-updated', [\App\Http\Controllers\SystemController::class, 'getLastUpdated']);
     Route::prefix('search')->group(function() {
         Route::get('distance', [App\Http\Controllers\SystemController::class, 'searchByDistance']);
         Route::get('information', [App\Http\Controllers\SystemController::class, 'searchByInformation']);
     });
+    Route::get('id64', [\App\Http\Controllers\SystemController::class, 'listId64s']);
 });
 
 Route::resource('bodies', App\Http\Controllers\SystemBodyController::class);

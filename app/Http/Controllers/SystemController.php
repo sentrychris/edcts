@@ -290,4 +290,16 @@ class SystemController extends Controller
         
         return SystemResource::collection($systems);
     }
+
+    public function listId64s()
+    {
+        $id64s = Cache::get('systems_id64_slugs');
+
+        if (!$id64s) {
+            $id64s = System::pluck('id64', 'slug');
+            Cache::set('systems_id64_slugs', $id64s, 1800);
+        }
+
+        return response()->json($id64s);
+    }
 }
