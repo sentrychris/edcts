@@ -45,7 +45,7 @@ class SystemController extends Controller
 
         // Map the allowed query parameters to the relations that can be loaded
         // for the system model e.g. withBodies will load bodies for the system
-        $this->setAllowedQueryRelations([
+        $this->setQueryRelations([
             'withInformation' => 'information',
             'withBodies' => 'bodies',
             'withStations' => 'stations',
@@ -147,7 +147,7 @@ class SystemController extends Controller
         $validated = $request->validated();
 
         // Update the system with the requested relations e.g. withBodies, withInformation, etc.
-        foreach ($this->getAllowedQueryRelations() as $query => $relation) {
+        foreach ($this->getQueryRelations() as $query => $relation) {
             if (array_key_exists($query, $validated) && (int) $validated[$query] === 1) {
                 // Check for existing system bodies and update if necessary
                 if ($relation === 'bodies' && ! $system->bodies()->exists() && $system->body_count === null) {

@@ -60,7 +60,7 @@ class PreCacheSystemsPages implements ShouldQueue
         $this->pages = $pages;
         $this->ttl = $ttl;
 
-        $this->setAllowedQueryRelations([
+        $this->setQueryRelations([
             'withInformation' => 'information',
             'withBodies' => 'bodies',
             'withStations' => 'stations'

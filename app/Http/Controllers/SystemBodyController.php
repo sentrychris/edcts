@@ -17,7 +17,7 @@ class SystemBodyController extends Controller
      */
     public function __construct()
     {
-        $this->setAllowedQueryRelations([
+        $this->setQueryRelations([
             'withSystem' => 'system',
             'withStations' => 'system.stations'
         ]);

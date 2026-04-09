@@ -8,43 +8,42 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 trait HasQueryRelations
 {
-    private array $allowedRelations;
+    private array $queryRelations;
 
     /**
-     * Get the allowed relations.
+     * Get the query relations.
      *
      * @return array
      */
-    public function getAllowedQueryRelations(): array
+    public function getQueryRelations(): array
     {
-        return $this->allowedRelations;
+        return $this->queryRelations;
     }
 
     /**
-     * Set the allowed relations.
+     * Set the query relations.
      *
      * @param array
      * @return void
      */
-    public function setAllowedQueryRelations(array $allowedRelations): void
+    public function setQueryRelations(array $queryRelations): void
     {
-        $this->allowedRelations = $allowedRelations;
+        $this->queryRelations = $queryRelations;
     }
 
     /**
-     * Load validated relations based on query.
+     * Load relations based on query.
      * 
-     * @param array $validated
+     * @param array $params
      * @param Model|LengthAwarePaginator|Paginator $data
-     * 
      * @return Model|LengthAwarePaginator|Paginator $data
      */
     public function loadQueryRelations(
-        array $validated,
+        array $params,
         Model | LengthAwarePaginator | Paginator $data
     ): Model | LengthAwarePaginator | Paginator {
-        foreach ($this->allowedRelations as $query => $relation) {
-            if (array_key_exists($query, $validated) && (int)$validated[$query] === 1) {
+        foreach ($this->queryRelations as $query => $relation) {
+            if (array_key_exists($query, $params) && (int)$params[$query] === 1) {
                 $data->load($relation);
             }
         }
