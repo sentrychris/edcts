@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Traits\JsonFileParsing;
+use App\Traits\UseJsonLargeFileSplitting;
 use App\Jobs\ProcessSystemsDumpFileImport;
 
 class ImportDumpFile extends Command
 {
-    use JsonFileParsing;
+    use UseJsonLargeFileSplitting;
 
     /**
      * The name and signature of the console command.

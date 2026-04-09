@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
 use App\Services\EdsmApiService;
-use App\Traits\JsonFileParsing;
+use App\Traits\UseJsonLargeFileSplitting;
 
 class ProcessSystemsDumpFileImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, JsonFileParsing, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, UseJsonLargeFileSplitting, Queueable, SerializesModels;
 
     /**
      * @var string

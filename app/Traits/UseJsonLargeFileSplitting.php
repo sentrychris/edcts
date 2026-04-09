@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 
-trait JsonFileParsing
+trait UseJsonLargeFileSplitting
 {
     /**
      * The log channel to use for logging.
@@ -68,7 +68,7 @@ trait JsonFileParsing
 
         Log::channel($this->logChannel)->info("Splitting file for parallel processing, please wait...");
 
-        $this->splitJsonFile($filename, $filepath, $objectsPerFile);
+        $this->doSplit($filename, $filepath, $objectsPerFile);
 
         Log::channel($this->logChannel)->info("Successfully split {$filename} into {$parts} parts.");
     }
@@ -81,7 +81,7 @@ trait JsonFileParsing
      * @param int $objectsPerFile
      * @return void
      */
-    public function splitJsonFile(string $filename, string $filepath, int $objectsPerFile): void
+    private function doSplit(string $filename, string $filepath, int $objectsPerFile): void
     {
         $file = fopen($filepath, 'r');
         $part = 0;
@@ -142,13 +142,13 @@ trait JsonFileParsing
     }
 
     /**
-     * Validate split parts of a JSON file.
+     * Validate all split parts of a JSON file.
      * 
      * @param string $filename
      * @param int $parts
      * @return void
      */
-    public function validateAllJsonSplitParts(string $filename, int $parts): void
+    public function validateSplitFiles(string $filename, int $parts): void
     {
         for ($part = 1; $part <= $parts; $part++) {
             $outputFilePrefix = pathinfo($filename, PATHINFO_FILENAME);
