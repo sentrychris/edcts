@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Jobs\PreCacheSystemsPages;
-use App\Traits\HasValidatedQueryRelations;
+use App\Traits\HasQueryRelations;
 use Illuminate\Console\Command;
 
 class CachePages extends Command
 {
-    use HasValidatedQueryRelations;
+    use HasQueryRelations;
 
     /**
      * The name and signature of the console command.

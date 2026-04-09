@@ -5,7 +5,7 @@ namespace App\Jobs;
 use Exception;
 use App\Http\Requests\SearchSystemRequest;
 use App\Models\System;
-use App\Traits\HasValidatedQueryRelations;
+use App\Traits\HasQueryRelations;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\URL;
 
 class PreCacheSystemsPages implements ShouldQueue
 {
-    use Dispatchable, HasValidatedQueryRelations, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, HasQueryRelations, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * @var string
@@ -105,7 +105,7 @@ class PreCacheSystemsPages implements ShouldQueue
                     ->simplePaginate($limit, ['*'], 'page', $page)
                     ->appends($request->all());
 
-                $systems = $this->loadValidatedRelationsForQuery($validated, $systems);
+                $systems = $this->loadQueryRelations($validated, $systems);
 
                 Cache::set("systems_page_{$page}", $systems, $this->ttl);
             } catch (Exception $e) {

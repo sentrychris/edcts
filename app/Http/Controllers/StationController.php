@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchStationRequest;
 use App\Http\Resources\SystemStationResource;
 use App\Models\SystemStation;
-use App\Traits\HasValidatedQueryRelations;
+use App\Traits\HasQueryRelations;
 use Illuminate\Http\Response;
 
 class StationController extends Controller
 {
-    use HasValidatedQueryRelations;
+    use HasQueryRelations;
 
     /**
      * Constructor
@@ -43,7 +43,7 @@ class StationController extends Controller
         }
 
         // Load related data for the station depending on query parameters passed.
-        $station = $this->loadValidatedRelationsForQuery($request->validated(), $station);
+        $station = $this->loadQueryRelations($request->validated(), $station);
 
         return new SystemStationResource($station);
     }

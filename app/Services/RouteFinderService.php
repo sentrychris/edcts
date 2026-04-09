@@ -24,8 +24,17 @@ class RouteFinderService
             return [$from];
         }
 
-        $fromCoords = ['x' => (float) $from->coords_x, 'y' => (float) $from->coords_y, 'z' => (float) $from->coords_z];
-        $toCoords = ['x' => (float) $to->coords_x,   'y' => (float) $to->coords_y,   'z' => (float) $to->coords_z];
+        $fromCoords = [
+            'x' => (float) $from->coords_x,
+            'y' => (float) $from->coords_y,
+            'z' => (float) $from->coords_z
+        ];
+
+        $toCoords = [
+            'x' => (float) $to->coords_x,
+            'y' => (float) $to->coords_y,
+            'z' => (float) $to->coords_z
+        ];
 
         // Lightweight node store: id => [x, y, z]  (no Eloquent models during search)
         $nodeCoords = [$from->id => $fromCoords, $to->id => $toCoords];
@@ -44,6 +53,7 @@ class RouteFinderService
             if (isset($closed[$currentId])) {
                 continue;
             }
+
             $closed[$currentId] = true;
 
             if ($currentId === $to->id) {

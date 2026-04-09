@@ -23,12 +23,11 @@ trait UseStatistics
         {            
             $data = [
                 'cartographical' => [
-                    'systems' => System::count(),
-                    'bodies' => SystemBody::count(),
-                    'stars' => SystemBody::whereType('Star')->count(),
+                    'systems'  => System::count(),
+                    'bodies'   => SystemBody::count(),
+                    'stars'    => SystemBody::whereType('Star')->count(),
                     'orbiting' => SystemBody::whereType('planet')->count()
                 ],
-                
                 'commanders' => Commander::count()
             ];
                     

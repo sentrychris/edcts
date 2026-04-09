@@ -12,7 +12,7 @@ use App\Http\Resources\SystemRouteResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
 use App\Services\RouteFinderService;
-use App\Traits\HasValidatedQueryRelations;
+use App\Traits\HasQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 class SystemController extends Controller
 {
-    use HasValidatedQueryRelations;
+    use HasQueryRelations;
 
     /**
      * EDSM API Service
@@ -98,7 +98,7 @@ class SystemController extends Controller
         }
 
         // Load the query relations for the collection e.g withInformation, withBodies, etc.
-        $systems = $this->loadValidatedRelationsForQuery($validated, $systems);
+        $systems = $this->loadQueryRelations($validated, $systems);
 
         // Return a collection of system resources
         return SystemResource::collection($systems);
@@ -197,7 +197,7 @@ class SystemController extends Controller
             $this->edsmApiService->updateSystemInformationData($system);
         }
 
-        $this->loadValidatedRelationsForQuery(
+        $this->loadQueryRelations(
             ['withBodies' => 1, 'withInformation' => 1],
             $system
         );
@@ -210,7 +210,7 @@ class SystemController extends Controller
      */
     public function searchByDistance(SearchSystemByDistanceRequest $request)
     {
-        $cacheKey = "systems_disstance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
+        $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
         $systems = Cache::get($cacheKey);
 
         if (! $systems) {
@@ -341,7 +341,7 @@ class SystemController extends Controller
             )
             ->simplePaginate();
 
-        $this->loadValidatedRelationsForQuery(
+        $this->loadQueryRelations(
             $request->only(['withInformation', 'withBodies', 'withStations']),
             $systems
         );
@@ -349,15 +349,18 @@ class SystemController extends Controller
         return SystemResource::collection($systems);
     }
 
-    public function listId64s()
+    /**
+     * Return a full list of system slugs and ID64s.
+     */
+    public function getSlugID64s()
     {
-        $id64s = Cache::get('systems_id64_slugs');
+        $items = Cache::get('systems_id64_slugs');
 
-        if (! $id64s) {
-            $id64s = System::pluck('id64', 'slug');
-            Cache::set('systems_id64_slugs', $id64s, 1800);
+        if (! $items) {
+            $items = System::pluck('id64', 'slug');
+            Cache::set('systems_id64_slugs', $items, 1800);
         }
 
-        return response()->json($id64s);
+        return response()->json($items);
     }
 }

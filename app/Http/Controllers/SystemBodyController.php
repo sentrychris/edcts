@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SearchSystemBodyRequest;
 use App\Http\Resources\SystemBodyResource;
 use App\Models\SystemBody;
-use App\Traits\HasValidatedQueryRelations;
+use App\Traits\HasQueryRelations;
 use Illuminate\Http\Response;
 
 class SystemBodyController extends Controller
 {
-    use HasValidatedQueryRelations;
+    use HasQueryRelations;
 
     /**
      * Constructor
@@ -45,7 +45,7 @@ class SystemBodyController extends Controller
         }
 
         // Load related data for the system depending on query parameters passed.
-        $body = $this->loadValidatedRelationsForQuery($request->validated(), $body);
+        $body = $this->loadQueryRelations($request->validated(), $body);
 
         return new SystemBodyResource($body);
     }

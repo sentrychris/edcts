@@ -53,17 +53,20 @@ Route::resource('systems', SystemController::class);
 
 Route::prefix('system')->group(function () {
     Route::get('last-updated', [SystemController::class, 'getLastUpdated']);
+
     Route::prefix('search')->group(function () {
         Route::get('distance', [SystemController::class, 'searchByDistance']);
         Route::get('information', [SystemController::class, 'searchByInformation']);
         Route::get('route', [SystemController::class, 'searchRoute']);
     });
-    Route::get('id64', [SystemController::class, 'listId64s']);
+
+    Route::get('slugid64s', [SystemController::class, 'getSlugID64s']);
 });
 
 Route::resource('bodies', SystemBodyController::class);
 
 Route::resource('stations', StationController::class);
+
 Route::prefix('station')->group(function () {
     Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
 });

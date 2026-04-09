@@ -6,7 +6,7 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-trait HasValidatedQueryRelations
+trait HasQueryRelations
 {
     private array $allowedRelations;
 
@@ -39,7 +39,7 @@ trait HasValidatedQueryRelations
      * 
      * @return Model|LengthAwarePaginator|Paginator $data
      */
-    public function loadValidatedRelationsForQuery(
+    public function loadQueryRelations(
         array $validated,
         Model | LengthAwarePaginator | Paginator $data
     ): Model | LengthAwarePaginator | Paginator {
