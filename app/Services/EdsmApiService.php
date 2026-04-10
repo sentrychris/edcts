@@ -51,12 +51,12 @@ class EdsmApiService extends ApiService
                     'updated_at' => now()
                 ]);
             } else {
-                $message = 'updateSystemDataError: No response from EDSM API';
+                $message = 'updateSystemDataError: No response from EDSM API for ' . $systemName;
                 Log::channel('import:system')->error($message);
                 DiscordAlert::edsm(self::class, $message, false);
             }
         } catch (Exception $e) {
-            $message = 'updateSystemDataError: ' . $e->getMessage();
+            $message = 'updateSystemDataError: ' . $systemName . ': ' . $e->getMessage();
             Log::channel('import:system')->error($message);
             DiscordAlert::edsm(self::class, $message, false);
         }
@@ -224,14 +224,14 @@ class EdsmApiService extends ApiService
                                 : null,
                         ]);
                     } catch (Exception $e) {
-                        $message = 'updateSystemBodiesDataError: ' . $e->getMessage();
+                        $message = 'updateSystemBodiesDataError: ' . $system->name . ': ' . $e->getMessage();
                         Log::channel('import:system')->error($message);
                         DiscordAlert::edsm(self::class, $message, false);
                     }
                 }
             }
         } else {
-            $message = 'updateSystemBodiesDataError: No response from EDSM API';
+            $message = 'updateSystemBodiesDataError: No response from EDSM API for ' . $system->name;
             Log::channel('import:system')->error($message);
             DiscordAlert::edsm(self::class, $message, false);
         }
@@ -288,12 +288,12 @@ class EdsmApiService extends ApiService
                         : null,
                 ]);
             } catch (Exception $e) {
-                $message = 'updateSystemInformationDataError: ' . $e->getMessage();
+                $message = 'updateSystemInformationDataError: ' . $system->name . ': ' . $e->getMessage();
                 Log::channel('import:system')->error($message);
                 DiscordAlert::edsm(self::class, $message, false);
             }
         } else {
-            $message = 'updateSystemInformationDataError: No response from EDSM API';
+            $message = 'updateSystemInformationDataError: No response from EDSM API for ' . $system->name;
             Log::channel('import:system')->error($message);
             DiscordAlert::edsm(self::class, $message, false);
         }
@@ -397,13 +397,13 @@ class EdsmApiService extends ApiService
                         ]
                     );
                 } catch (Exception $e) {
-                    $message = 'updateSystemsStationDataError: ' . $e->getMessage();
+                    $message = 'updateSystemsStationDataError: ' . $system->name . ': ' . $e->getMessage();
                     Log::channel('import:system')->error($message);
                     DiscordAlert::edsm(self::class, $message, false);
                 }
             }
         } else {
-            $message = 'updateSystemsStationDataError: No response from EDSM API';
+            $message = 'updateSystemsStationDataError: No response from EDSM API for ' . $system->name;
             Log::channel('import:system')->error($message);
             DiscordAlert::edsm(self::class, $message, false);
         }
