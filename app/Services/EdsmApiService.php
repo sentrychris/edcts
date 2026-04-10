@@ -325,10 +325,14 @@ class EdsmApiService extends ApiService
                         continue;
                     }
 
+                    if (! $station->type) {
+                        $station->type = 'Station';
+                    }
+
                     $station = $system->stations()->updateOrCreate(
                         [
                             'name' => $station->name,
-                            'type' => $station->type ?? 'Station',
+                            'type' => $station->type,
                         ],
                         [
                             'market_id' => property_isset($station, 'marketId')
