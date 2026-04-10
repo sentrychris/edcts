@@ -9,11 +9,10 @@ class JsonLargeFileSplitService
      * 
      * @param string $filename
      * @param string $filepath
-     * @param int $filesize
      * @param int $parts
      * @return void
      */
-    public function split(string $filename, string $filepath, int $filesize, int $parts): void
+    public function split(string $filename, string $filepath, int $parts): void
     {
         // Calculate the number of JSON objects
         $objectsInFile = 0;

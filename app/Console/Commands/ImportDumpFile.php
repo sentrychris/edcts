@@ -61,16 +61,15 @@ class ImportDumpFile extends Command
         $this->line("Configuring import job for {$filename}");
 
         // Get the file size and set the threshold for type of processing
-        $filesize = filesize($filepath);
         $threshold = 1073741824; // 1GB
 
         // If it's large, split it into parts
-        if ($filesize > $threshold) {
+        if (filesize($filepath) > $threshold) {
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
             
             $parts = 16;
-            $this->jsonLargeFileSplitService->split($filename, $filepath, $filesize, $parts);
+            $this->jsonLargeFileSplitService->split($filename, $filepath, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             for ($part = 1; $part <= $parts; $part++) {
