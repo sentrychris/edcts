@@ -93,7 +93,7 @@ class FrontierCApiService
 
             if (!$system) {
                 // Resolve EDSM API service from the container to update the system data
-                $system = app(EdsmApiService::class)->updateSystemData($lastSystem->name);
+                $system = app(EdsmApiService::class)->updateSystem($lastSystem->name);
             }
 
             // Update the commander's last system

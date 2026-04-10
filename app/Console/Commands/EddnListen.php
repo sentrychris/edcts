@@ -70,12 +70,12 @@ class EddnListen extends Command
     /**
      *  Callback to process message batches.
      * 
-     * @param array $data
+     * @param array $batch
      * @return void
      */
-    public function processBatch(array $data)
+    public function processBatch(array $batch)
     {
-        $this->eddnSystemService->process($data);
-        $this->eddnMarketService->process($data);
+        $this->eddnSystemService->process($batch);
+        $this->eddnMarketService->process($batch);
     }
 }

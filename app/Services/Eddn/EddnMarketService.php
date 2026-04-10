@@ -12,22 +12,22 @@ class EddnMarketService extends EddnService
     /**
      * Import market data through EDDN.
      * 
-     * @param array $data
+     * @param array $batch
      * @return void
      */
-    public function process(array $data) {
-        $this->updateMarketData($data);
+    public function process(array $batch) {
+        $this->updateMarketData($batch);
     }
 
     /**
      * Cache system names with their ID64s.
      * 
-     * @param array $data
+     * @param array $batch
      * @return void
      */
-    public function updateMarketData(array $data)
+    public function updateMarketData(array $batch)
     {
-        foreach ($data["messages"] as $receivedMessage)
+        foreach ($batch["messages"] as $receivedMessage)
         {
             try {
                 // Check the software name and version

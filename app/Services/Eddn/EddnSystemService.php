@@ -14,22 +14,22 @@ class EddnSystemService extends EddnService
     /**
      * Import systems through EDDN.
      * 
-     * @param array $data
+     * @param array $batch
      * @return void
      */
-    public function process(array $data) {
-        $this->updateSystemsData($data);
+    public function process(array $batch) {
+        $this->updateSystems($batch);
     }
 
     /**
      * Cache system names with their ID64s.
      * 
-     * @param array $data
+     * @param array $batch
      * @return void
      */
-    public function updateSystemsData(array $data)
+    public function updateSystems(array $batch)
     {
-        foreach ($data["messages"] as $receivedMessage)
+        foreach ($batch["messages"] as $receivedMessage)
         {
             // Check the software name and version
             if (! $this->isSoftwareAllowed($receivedMessage["header"])) {
@@ -68,7 +68,7 @@ class EddnSystemService extends EddnService
                             if (!$system && !in_array($starSystemId64, Redis::smembers("eddn_systems_not_inserted"))) {
                                 Redis::sadd("eddn_systems_not_inserted", $starSystemId64);   
                             } else {
-                                $this->updateSystemInformationData($system, $message);
+                                $this->updateSystemInformation($system, $message);
                             }
                         } catch (Exception $e) {
                             if (! in_array($starSystem, config('imports.errors.systems.exclusions'))) {
@@ -79,7 +79,7 @@ class EddnSystemService extends EddnService
                         }
                     } else {
                         $system = $existingSystem;
-                        $this->updateSystemInformationData($system, $message);
+                        $this->updateSystemInformation($system, $message);
                     }
 
                     Cache::set("latest_system", $system);
@@ -95,7 +95,7 @@ class EddnSystemService extends EddnService
      * @param array $message
      * @return void
      */
-    public function updateSystemInformationData (System $system, array $message)
+    public function updateSystemInformation(System $system, array $message)
     {
         if (isset($message["Population"])
             && isset($message["SystemAllegiance"])
@@ -137,7 +137,7 @@ class EddnSystemService extends EddnService
      * @param string $attribute
      * @return string
      */
-    private function sanitizeMessageAttribute (string $attribute)
+    private function sanitizeMessageAttribute(string $attribute)
     {
         $value = "";
 

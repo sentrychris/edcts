@@ -135,7 +135,7 @@ class SystemController extends Controller
         if (! $system) {
             // If the system doesn't exist in our database, query EDSM for it
             // and then update our records
-            $system = $this->edsmApiService->updateSystemData($slug);
+            $system = $this->edsmApiService->updateSystem($slug);
         }
 
         // If no system if found, then return a 404 not found response
@@ -151,17 +151,17 @@ class SystemController extends Controller
             if (array_key_exists($query, $validated) && (int) $validated[$query] === 1) {
                 // Check for existing system bodies and update if necessary
                 if ($relation === 'bodies' && ! $system->bodies()->exists() && $system->body_count === null) {
-                    $this->edsmApiService->updateSystemBodiesData($system);
+                    $this->edsmApiService->updateSystemBodies($system);
                 }
 
                 // Check for existing system information and update if necessary
                 if ($relation === 'information' && ! $system->information()->exists()) {
-                    $this->edsmApiService->updateSystemInformationData($system);
+                    $this->edsmApiService->updateSystemInformation($system);
                 }
 
                 // Check for existing system stations and update if necessary
                 if ($relation === 'stations' && ! $system->stations()->exists()) {
-                    $this->edsmApiService->updateSystemStationsData($system);
+                    $this->edsmApiService->updateSystemStations($system);
                 }
 
                 // Load the relation
@@ -190,11 +190,11 @@ class SystemController extends Controller
         }
 
         if ($system->body_count === null && ! $system->bodies()->exists()) {
-            $this->edsmApiService->updateSystemBodiesData($system);
+            $this->edsmApiService->updateSystemBodies($system);
         }
 
         if (! $system->information()->exists()) {
-            $this->edsmApiService->updateSystemInformationData($system);
+            $this->edsmApiService->updateSystemInformation($system);
         }
 
         $this->loadQueryRelations(
