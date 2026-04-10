@@ -6,9 +6,8 @@ use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class DiscordAlertService
 {
-    public const SUCCESS = '#59e277';
-
-    public const ERROR = '#e25959';
+    private const SUCCESS = '#59e277';
+    private const ERROR = '#e25959';
 
     /**
      * Send a message to the EDDN webhook.

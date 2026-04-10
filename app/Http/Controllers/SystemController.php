@@ -11,7 +11,7 @@ use App\Http\Resources\SystemResource;
 use App\Http\Resources\SystemRouteResource;
 use App\Models\System;
 use App\Services\EdsmApiService;
-use App\Services\RouteFinderService;
+use App\Services\NavRouteFinderService;
 use App\Traits\HasQueryRelations;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -30,18 +30,18 @@ class SystemController extends Controller
     /**
      * Route Finder Service
      */
-    private RouteFinderService $routeFinderService;
+    private NavRouteFinderService $navRouteFinderService;
 
     /**
      * Constructor
      *
-     * @param  EdsmApiService  $edsmService  - injected EDSM API service
-     * @param  RouteFinderService  $routeFinderService  - injected route finder service
+     * @param  EdsmApiService  $edsmApiService  - injected EDSM API service
+     * @param  NavRouteFinderService  $NavRouteFinderService  - injected route finder service
      */
-    public function __construct(EdsmApiService $edsmService, RouteFinderService $routeFinderService)
+    public function __construct(EdsmApiService $edsmApiService, NavRouteFinderService $navRouteFinderService)
     {
-        $this->edsmApiService = $edsmService;
-        $this->routeFinderService = $routeFinderService;
+        $this->edsmApiService = $edsmApiService;
+        $this->navRouteFinderService = $navRouteFinderService;
 
         // Map the allowed query parameters to the relations that can be loaded
         // for the system model e.g. withBodies will load bodies for the system
@@ -246,7 +246,7 @@ class SystemController extends Controller
         $waypoints = Cache::get($cacheKey);
 
         if (! $waypoints) {
-            $route = $this->routeFinderService->findRoute($from, $to, $ly);
+            $route = $this->navRouteFinderService->findRoute($from, $to, $ly);
 
             if ($route === null) {
                 return response(['message' => 'No route found within the given jump range.'], 404);
@@ -258,7 +258,7 @@ class SystemController extends Controller
             foreach ($route as $jump => $system) {
                 $hopDistance = $jump === 0
                     ? 0.0
-                    : $this->routeFinderService->distance(
+                    : $this->navRouteFinderService->distance(
                         [
                             'x' => (float) $route[$jump - 1]->coords_x,
                             'y' => (float) $route[$jump - 1]->coords_y,

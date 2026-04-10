@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\System;
 use SplMinHeap;
 
-class RouteFinderService
+class NavRouteFinderService
 {
     /**
      * Find the shortest route (fewest jumps) between two systems using A*.
