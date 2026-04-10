@@ -1,11 +1,31 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
 use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
-trait UseDiscordAlert
+class DiscordAlertService
 {
+    public const SUCCESS = '#59e277';
+
+    public const ERROR = '#e25959';
+
+    /**
+     * Send a message to the EDDN webhook.
+     * 
+     * @param $message - the message to send
+     * @param $success - whether or not it's a success message
+     */
+    public function eddn(string $message, bool $success)
+    {
+        $this->send(
+            config('discord-alerts.eddn.webhook'),
+            'EDDN Listener Service',
+            $message,
+            $success ? self::SUCCESS : self::ERROR
+        );
+    }
+
     /**
      * Send an embed.
      * 
@@ -15,13 +35,8 @@ trait UseDiscordAlert
      * @param string|null $color - the embed color
      * @return void
      */
-    public function sendDiscordAlert(
-        string $webhook,
-        string $title,
-        string $message,
-        ?string $color = '#E77625'
-    ): void {
-        DiscordAlert::to($webhook)->message("", $this->createEmbed($title, $message, $color));
+    public function send(string $webhook, string $title, string $message, ?string $color = '#E77625'): void {
+        DiscordAlert::to($webhook)->message('', $this->createEmbed($title, $message, $color));
     }
 
     /**
@@ -32,7 +47,7 @@ trait UseDiscordAlert
      * @param string $color - the embed color
      * @return array - the embed config
      */
-    public function createEmbed(string $title, string $desc, ?string $color = '#E77625'): array
+    private function createEmbed(string $title, string $desc, ?string $color = '#E77625'): array
     {
         return [
             [

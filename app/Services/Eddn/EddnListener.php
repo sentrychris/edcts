@@ -2,7 +2,7 @@
 
 namespace App\Services\Eddn;
 
-use App\Traits\UseDiscordAlert;
+use App\Facades\DiscordAlert;
 use RuntimeException;
 use ZMQ;
 use ZMQContext;
@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class EddnListener
 {
-    use UseDiscordAlert;
-
     /**
      *  Batch process messages from EDDN
      * 
@@ -39,12 +37,7 @@ class EddnListener
 
             $message = "EDDN listener is connected to {$relay}";
             Log::channel('eddn')->info($message);
-            $this->sendDiscordAlert(
-                config('discord-alerts.eddn.webhook'),
-                'EDDN Listener Service',
-                $message,
-                '#59e277'
-            );
+            DiscordAlert::eddn($message, true);
 
             while (true) {
                 try {
@@ -87,12 +80,7 @@ class EddnListener
         } catch (\Exception $e) {
             $message = "EDDN listener failed to connect: " . $e->getMessage();
             Log::channel('eddn')->error($message);
-            $this->sendDiscordAlert(
-                config('discord-alerts.eddn.webhook'),
-                'EDDN Listener Service',
-                $message,
-                '#e25959'
-            );
+            DiscordAlert::eddn($message, false);
 
             throw new RuntimeException("Failed to connect to EDDN relay.");
         }

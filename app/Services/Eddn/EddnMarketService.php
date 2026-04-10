@@ -3,14 +3,12 @@
 namespace App\Services\Eddn;
 
 use App\Models\System;
-use App\Traits\UseDiscordAlert;
+use App\Facades\DiscordAlert;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class EddnMarketService extends EddnService
 {
-    use UseDiscordAlert;
-
     /**
      * Cache system names with their ID64s.
      * 
@@ -53,12 +51,7 @@ class EddnMarketService extends EddnService
             } catch (\Exception $e) {
                 $message = "Failed to insert market data";
                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
-                $this->sendDiscordAlert(
-                    config('discord-alerts.eddn.webhook'),
-                    'EDDN Market Data Import Service',
-                    $message.': '.$e->getMessage(),
-                    '#e25959'
-                );
+                DiscordAlert::eddn($message.': '.$e->getMessage(), false);
             }
         }
     }
