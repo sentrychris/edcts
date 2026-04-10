@@ -2,26 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-
 class JsonLargeFileSplitService
 {
-    /**
-     * The log channel to use for logging.
-     * 
-     * @var string
-     */
-    private string $logChannel = 'default';
-
-    /**
-     * Set the log channel
-     */
-    public function setLogChannel(string $channel): self
-    {
-        $this->logChannel = $channel;
-        return $this;
-    }
-
     /**
      * Split a JSON file into parts for parallel processing.
      * 
@@ -33,9 +15,6 @@ class JsonLargeFileSplitService
      */
     public function split(string $filename, string $filepath, int $filesize, int $parts): void
     {
-        Log::channel($this->logChannel)->info("Processing file {$filepath} to split into {$parts} parts.");
-        Log::channel($this->logChannel)->info("Calculating parameters for equal split contents, please wait...");
-
         // Calculate the number of JSON objects
         $objectsInFile = 0;
         $handle = fopen($filepath, "r");
@@ -52,21 +31,10 @@ class JsonLargeFileSplitService
             fclose($handle);
         }
 
-        Log::channel($this->logChannel)->info("Total size: " . bytes_format($filesize));
-        Log::channel($this->logChannel)->info("Total JSON objects: " . number_format($objectsInFile));
-
         // Determine the number of objects per file to create equal parts
         $objectsPerFile = ceil($objectsInFile / $parts);
 
-        Log::channel($this->logChannel)->info("Splitting into:");
-        Log::channel($this->logChannel)->info("Total parts: {$parts}");
-        Log::channel($this->logChannel)->info("Total JSON objects per file: " . number_format($objectsPerFile));
-
-        Log::channel($this->logChannel)->info("Splitting file for parallel processing, please wait...");
-
         $this->doSplit($filename, $filepath, $objectsPerFile);
-
-        Log::channel($this->logChannel)->info("Successfully split {$filename} into {$parts} parts.");
     }
 
     /**
@@ -104,8 +72,6 @@ class JsonLargeFileSplitService
                     // Close the JSON array in the current part
                     fwrite($outputFile, "\n]");
                     fclose($outputFile);
-                    Log::channel($this->logChannel)
-                        ->info("Part {$part} written to {$outputFilePath} (" . bytes_format(filesize($outputFilePath)) . ")");
                 }
 
                 $part++;
@@ -130,8 +96,6 @@ class JsonLargeFileSplitService
             fseek($outputFile, -1, SEEK_CUR); // Move back to remove the last comma
             fwrite($outputFile, "\n]");
             fclose($outputFile);
-            Log::channel($this->logChannel)
-                ->info("Part {$part} written to {$outputFilePath} (" . bytes_format(filesize($outputFilePath)) . ")");
         }
 
         fclose($file);

@@ -68,8 +68,6 @@ class ImportDumpFile extends Command
         if ($filesize > $threshold) {
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
-
-            $this->jsonLargeFileSplitService->setLogChannel($this->option('channel'));
             
             $parts = 16;
             $this->jsonLargeFileSplitService->split($filename, $filepath, $filesize, $parts);
