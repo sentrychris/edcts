@@ -15,7 +15,7 @@ class CachePages extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:cache:pages
+    protected $signature = "cache:pages
         {--type= : The type of data to cache.}
         {--pages= : The number of pages to cache.}
         {--channel=pages:cache : The log channel for the dispatch job.}

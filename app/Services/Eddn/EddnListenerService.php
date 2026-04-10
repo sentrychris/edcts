@@ -9,16 +9,16 @@ use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Support\Facades\Log;
 
-class EddnListener
+class EddnListenerService
 {
     /**
-     *  Batch process messages from EDDN
-     * 
+     *  Listen to the EDDN relay and process messages in batches of 100.
+     *
      * @param callable $callback
      * @return void
      * @throws RuntimeException
      */
-    public function process(?Callable $callback = null)
+    public function listen(?Callable $callback = null)
     {
         $context = new ZMQContext();
         $socket = $context->getSocket(ZMQ::SOCKET_SUB);

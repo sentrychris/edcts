@@ -12,7 +12,7 @@ class ImportGalnet extends Command
      *
      * @var string
      */
-    protected $signature = 'edcts:import:galnet';
+    protected $signature = 'import:galnet';
 
     /**
      * The console command description.

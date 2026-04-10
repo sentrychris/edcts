@@ -1,6 +1,6 @@
-# ED:CS Backend API
+# EDCS Backend API
 
-Backend services for ED:CTS - responsible for communicating with Elite 3rd party services and providing data to the [ED:CTS frontend](https://github.com/sentrychris/edcts-frontend).
+Backend services for EDCS - responsible for communicating with Elite 3rd party services and providing data to the [EDCS frontend](https://github.com/sentrychris/edcts-frontend).
 
 ## Requirements
 
@@ -29,7 +29,7 @@ Backend services for ED:CTS - responsible for communicating with Elite 3rd party
 
 ## Development
 
-ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage, [Redis](https://redis.io/) for caching, and [Supervisor](http://supervisord.org/) for managing queue workers and long-running artisan commands.
+The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage, [Redis](https://redis.io/) for caching, and [Supervisor](http://supervisord.org/) for managing queue workers and long-running artisan commands.
 
 [Docker](https://www.docker.com/) is used for local development.
 
@@ -120,13 +120,13 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
     2. Extract it to `storage/dumps/`
     3. Run the import command:
         ```sh
-        ./vendor/bin/sail artisan edcts:import:dumpfile \
+        ./vendor/bin/sail artisan import:dumpfile \
             --type systems \
             --channel import:system \
             --file systemsPopulated.json
         ```
     
-    Please note, the `systemsPopulated.json` file is larger than 1GB. The `edcts:import:dumpfile` command will therefore split the file into parts and dispatch them as jobs to the worker queue.
+    Please note, the `systemsPopulated.json` file is larger than 1GB. The `import:dumpfile` command will therefore split the file into parts and dispatch them as jobs to the worker queue.
 
 7. Start the queue worker:
     ```sh
@@ -136,27 +136,18 @@ ED:CTS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](ht
 8. Seed Galnet news articles:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:import:galnet
+    ./vendor/bin/sail artisan import:galnet
     ```
 
 9. Cache system statistics:
 
     ```sh
-    ./vendor/bin/sail artisan edcts:stats:refresh
-    ```
-
-10. Warm up the systems pages cache:
-    ```sh
-    ./vendor/bin/sail artisan edcts:precache:pages \
-        --type systems \
-        --channel pages:cache \
-        --flush \
-        --ttl 3600
+    ./vendor/bin/sail artisan cache:stats
     ```
 
 ### Credits
 
-ED:CTS wouldn't be possible without the work of hundreds of talented members of the Elite: Dangerous community.
+EDCS wouldn't be possible without the work of hundreds of talented members of the Elite: Dangerous community.
 
 _"Standing on the shoulders of giants"_.
 
@@ -174,4 +165,4 @@ Special thanks to:
 
 "Elite", the Elite logo, the Elite: Dangerous logo, "Frontier" and the Frontier logo are registered trademarks of Frontier Developments plc. All rights reserved. All other trademarks and copyrights are acknowledged as the property of their respective owners.
 
-ED:CTS is free, open source software released under the MIT License.
+EDCS is free, open source software released under the MIT License.

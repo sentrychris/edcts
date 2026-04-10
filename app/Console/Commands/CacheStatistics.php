@@ -14,7 +14,7 @@ class CacheStatistics extends Command
      *
      * @var string
      */
-    protected $signature = 'edcts:cache:stats
+    protected $signature = 'cache:stats
         {--ttl=3600 : Time to live (default: 3600)}
         {--flush= : Force flush}';
 

@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Redis;
 class EddnMarketService extends EddnService
 {
     /**
+     * Import market data through EDDN.
+     * 
+     * @param array $data
+     * @return void
+     */
+    public function process(array $data) {
+        $this->updateMarketData($data);
+    }
+
+    /**
      * Cache system names with their ID64s.
      * 
      * @param array $data

@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Redis;
 class EddnSystemService extends EddnService
 {
     /**
+     * Import systems through EDDN.
+     * 
+     * @param array $data
+     * @return void
+     */
+    public function process(array $data) {
+        $this->updateSystemsData($data);
+    }
+
+    /**
      * Cache system names with their ID64s.
      * 
      * @param array $data

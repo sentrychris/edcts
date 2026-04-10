@@ -15,7 +15,7 @@ class ImportDumpFile extends Command
      *
      * @var string
      */
-    protected $signature = "edcts:import:dumpfile
+    protected $signature = "import:dumpfile
         {--type= : The type of dump file to import.}
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}

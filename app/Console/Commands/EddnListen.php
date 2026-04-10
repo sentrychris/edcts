@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Eddn\EddnListenerService;
+use App\Services\Eddn\EddnSystemService;
 use App\Services\Eddn\EddnMarketService;
 use Illuminate\Console\Command;
-use App\Services\Eddn\EddnListener;
-use App\Services\Eddn\EddnSystemService;
 
 class EddnListen extends Command
 {
@@ -26,9 +26,9 @@ class EddnListen extends Command
     /**
      * EDDN listener.
      * 
-     * @var EddnListener
+     * @var EddnListenerService
      */
-    private EddnListener $eddnListener;
+    private EddnListenerService $eddnListenerService;
 
     /**
      * EDDN data management service.
@@ -45,15 +45,15 @@ class EddnListen extends Command
     private EddnMarketService $eddnMarketService;
     
     public function __construct(
-        EddnListener $eddnListener,
+        EddnListenerService $eddnListenerService,
         EddnSystemService $eddnSystemService,
         EddnMarketService $eddnMarketService
     ) {
-        parent::__construct();
-
-        $this->eddnListener = $eddnListener;
+        $this->eddnListenerService = $eddnListenerService;
         $this->eddnSystemService = $eddnSystemService;
         $this->eddnMarketService = $eddnMarketService;
+
+        return parent::__construct();
     }
 
     /**
@@ -63,9 +63,8 @@ class EddnListen extends Command
      */
     public function handle()
     {    
-        $this->info("Starting EDDN listener...");
-
-        $this->eddnListener->process([$this, "processBatch"]);
+        $this->info("Started EDDN listener...");
+        $this->eddnListenerService->listen([$this, "processBatch"]);
     }
 
     /**
@@ -76,7 +75,7 @@ class EddnListen extends Command
      */
     public function processBatch(array $data)
     {
-        $this->eddnSystemService->updateSystemsData($data);
-        $this->eddnMarketService->updateMarketData($data);
+        $this->eddnSystemService->process($data);
+        $this->eddnMarketService->process($data);
     }
 }
