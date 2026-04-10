@@ -51,7 +51,7 @@ class EddnMarketService extends EddnService
             } catch (\Exception $e) {
                 $message = "Failed to insert market data";
                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
-                DiscordAlert::eddn($message.': '.$e->getMessage(), false);
+                DiscordAlert::eddn(self::class, $message.': '.$e->getMessage(), false);
             }
         }
     }

@@ -37,7 +37,7 @@ class EddnListener
 
             $message = "EDDN listener is connected to {$relay}";
             Log::channel('eddn')->info($message);
-            DiscordAlert::eddn($message, true);
+            DiscordAlert::eddn(self::class, $message, true);
 
             while (true) {
                 try {
@@ -80,7 +80,7 @@ class EddnListener
         } catch (\Exception $e) {
             $message = "EDDN listener failed to connect: " . $e->getMessage();
             Log::channel('eddn')->error($message);
-            DiscordAlert::eddn($message, false);
+            DiscordAlert::eddn(self::class, $message, false);
 
             throw new RuntimeException("Failed to connect to EDDN relay.");
         }

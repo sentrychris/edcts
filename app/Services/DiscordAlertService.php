@@ -13,17 +13,18 @@ class DiscordAlertService
     /**
      * Send a message to the EDDN webhook.
      * 
+     * @param $caller -  the caller
      * @param $message - the message to send
      * @param $success - whether or not it's a success message
      */
-    public function eddn(string $message, bool $success)
+    public function eddn(string $caller, string $message, bool $success)
     {
-        $this->send(
-            config('discord-alerts.eddn.webhook'),
-            'EDDN Listener Service',
-            $message,
-            $success ? self::SUCCESS : self::ERROR
-        );
+        $webhook = config('discord-alerts.eddn.webhook');
+        if (! $webhook) {
+            return false;
+        }
+
+        $this->send($webhook, $caller, $message, $success ? self::SUCCESS : self::ERROR);
     }
 
     /**

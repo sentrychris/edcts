@@ -64,7 +64,7 @@ class EddnSystemService extends EddnService
                             if (! in_array($starSystem, config('imports.errors.systems.exclusions'))) {
                                 $message = "Failed to insert SYSTEM {$starSystem} ({$starSystemId64})";
                                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
-                                DiscordAlert::eddn($message.': '.$e->getMessage(), false);
+                                DiscordAlert::eddn(self::class, $message.': '.$e->getMessage(), false);
                             }
                         }
                     } else {
@@ -116,7 +116,7 @@ class EddnSystemService extends EddnService
             } catch (Exception $e) {
                 $message = "Failed to insert INFORMATION for {$system->name} ({$system->id64})";
                 Log::channel('eddn')->error($message, [ 'error' => $e->getMessage() ]);
-                DiscordAlert::eddn($message.': '.$e->getMessage(), false);
+                DiscordAlert::eddn(self::class, $message.': '.$e->getMessage(), false);
             }
         }
     }
