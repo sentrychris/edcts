@@ -12,14 +12,11 @@ return [
         ]
     ],
 
-    /**
-     * Custom config for Systems
-     */
-    'systems' => [
-        'webhook' => env('DISCORD_ALERT_SYSTEM_IMPORTS_WEBHOOK'),
+    'edsm' => [
+        'webhook' => env('DISCORD_ALERT_EDSM_API_WEBHOOK'),
         'embed' => [
-            'title' => 'System Import Updates',
-            'description' => 'Imports from EDDN and EDSM.'
+            'title' => 'EDSM API Status',
+            'description' => 'EDSM API response connectivity status and failures.'
         ]
     ],
 
