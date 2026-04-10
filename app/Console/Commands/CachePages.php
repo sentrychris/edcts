@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\PreCacheSystemsPages;
+use App\Jobs\CacheSystemsPages;
 use App\Traits\HasQueryRelations;
 use Illuminate\Console\Command;
 
@@ -41,7 +41,7 @@ class CachePages extends Command
         if (in_array($this->option('type'), ['sys', 'system', 'systems'])) {
             $this->info('Dispatching job to warm up system pages cache...');
 
-            PreCacheSystemsPages::dispatch(
+            CacheSystemsPages::dispatch(
                 $this->option('channel'),
                 $this->option('flush'),
                 $pages,

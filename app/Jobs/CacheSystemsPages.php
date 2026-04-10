@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 
-class PreCacheSystemsPages implements ShouldQueue
+class CacheSystemsPages implements ShouldQueue
 {
     use Dispatchable, HasQueryRelations, InteractsWithQueue, Queueable, SerializesModels;
 
