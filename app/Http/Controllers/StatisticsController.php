@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\StatService;
 use App\Traits\UseStatistics;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class StatisticsController extends Controller
 {
-    use UseStatistics;
-    
+    private StatService $statService;
+
+    /**
+     * Constructor
+     * 
+     * @param StatService $statService
+     */
+    public function __construct(StatService $statService)
+    {
+        $this->statService = $statService;
+    }
+
     /**
      * Get statistics.
      * 
@@ -19,10 +30,10 @@ class StatisticsController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function getStatistics(Request $request): Response
+    public function index(Request $request): Response
     {
         return response([
-            'data' => $this->getAllStatistics("statistics", $request->all())
+            'data' => $this->statService->fetch('statistics', $request->all())
         ]);
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
 use App\Models\Commander;
 use App\Models\System;
 use App\Models\SystemBody;
 use Illuminate\Support\Facades\Cache;
 
-trait UseStatistics
+class StatService
 {
-    public function getAllStatistics(string $key, array $options)
+    public function fetch(string $key, array $options)
     {
         if (array_key_exists('flushCache', $options) && $options['flushCache']) {
             Cache::forget($key);

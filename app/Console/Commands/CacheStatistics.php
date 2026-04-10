@@ -2,15 +2,20 @@
 
 namespace App\Console\Commands;
 
-use App\Traits\UseStatistics;
+use App\Services\StatService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 class CacheStatistics extends Command
 {
+    private StatService $statService;
 
-    use UseStatistics;
+    public function __construct(StatService $statService)
+    {
+        $this->statService = $statService;
+        return parent::__construct();
+    }
 
     /**
      * The name and signature of the console command.
@@ -44,7 +49,7 @@ class CacheStatistics extends Command
     private function runCache(array $options)
     {       
         try {
-            $this->getAllStatistics("statistics", $options);
+            $this->statService->fetch('statistics', $options);
             $this->info('Statistics refreshed.');
 
             return 0;

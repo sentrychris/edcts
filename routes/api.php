@@ -71,7 +71,7 @@ Route::prefix('station')->group(function () {
     Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
 });
 
-Route::get('statistics', [StatisticsController::class, 'getStatistics']);
+Route::get('statistics', [StatisticsController::class, 'index']);
 
 Route::prefix('galnet')->group(function () {
     Route::resource('news', GalnetNewsController::class);
