@@ -4,13 +4,15 @@ namespace App\Services\Eddn;
 
 use Exception;
 use App\Models\System;
+use App\Traits\UseDiscordAlert;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnSystemService extends EddnService
 {
+    use UseDiscordAlert;
+
     /**
      * Cache system names with their ID64s.
      * 
@@ -62,12 +64,14 @@ class EddnSystemService extends EddnService
                             }
                         } catch (Exception $e) {
                             if (! in_array($starSystem, config('imports.errors.systems.exclusions'))) {
-                                $message = "Failed to insert SYSTEM: {$starSystem} ({$starSystemId64})";
-
+                                $message = "Failed to insert system: {$starSystem} ({$starSystemId64})";
                                 Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
-
-                                DiscordAlert::to(config('discord-alerts.systems.webhook'))
-                                    ->message("**ERROR**: $message");
+                                $this->sendDiscordAlert(
+                                    config('discord-alerts.systems.webhook'),
+                                    'EDDN System Imports Service',
+                                    $message,
+                                    '#e25959'
+                                );
                             }
                         }
                     } else {
@@ -119,7 +123,12 @@ class EddnSystemService extends EddnService
             } catch (Exception $e) {
                 $message = "Failed to insert INFORMATION for: {$system->name} ({$system->id64})";
                 Log::channel('eddn')->error($message, [ 'error' => $e->getMessage() ]);
-                DiscordAlert::to(config('discord-alerts.systems.webhook'))->message("**ERROR**: $message");
+                $this->sendDiscordAlert(
+                    config('discord-alerts.systems.webhook'),
+                    'EDDN System Information Imports Service',
+                    $message,
+                    '#e25959'
+                );
             }
         }
     }

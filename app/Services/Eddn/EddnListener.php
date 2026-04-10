@@ -2,15 +2,17 @@
 
 namespace App\Services\Eddn;
 
+use App\Traits\UseDiscordAlert;
 use RuntimeException;
 use ZMQ;
 use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Support\Facades\Log;
-use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnListener
 {
+    use UseDiscordAlert;
+
     /**
      *  Batch process messages from EDDN
      * 
@@ -35,11 +37,14 @@ class EddnListener
             $relay = config("elite.eddn.relay.listener");
             $socket->connect($relay);
 
-            Log::channel('eddn')->info("Connected to: {$relay}");
-            Log::channel('eddn')->info("Messages batch size: {$messagesBatch}");
-            Log::channel('eddn')->info("Messages batch time: {$messagesBatchTime} seconds");
-            Log::channel('eddn')->info("Processing messages...");
-            DiscordAlert::to(config('discord-alerts.eddn.webhook'))->message("**INFO**: EDDN relay connected");
+            $message = "EDDN listener is connected to {$relay}";
+            Log::channel('eddn')->info($message);
+            $this->sendDiscordAlert(
+                config('discord-alerts.eddn.webhook'),
+                'EDDN Listener Service',
+                $message,
+                '#59e277'
+            );
 
             while (true) {
                 try {
@@ -80,10 +85,14 @@ class EddnListener
                 }
             }
         } catch (\Exception $e) {
-            $message = "Failed to connect to EDDN relay: " . $e->getMessage();
-
+            $message = "EDDN listener failed to connect: " . $e->getMessage();
             Log::channel('eddn')->error($message);
-            DiscordAlert::to(config('discord-alerts.eddn.webhook'))->message("**ERROR**: $message");
+            $this->sendDiscordAlert(
+                config('discord-alerts.eddn.webhook'),
+                'EDDN Listener Service',
+                $message,
+                '#e25959'
+            );
 
             throw new RuntimeException("Failed to connect to EDDN relay.");
         }
