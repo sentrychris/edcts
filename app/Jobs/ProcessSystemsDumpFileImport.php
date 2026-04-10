@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\Log;
 use JsonMachine\Items;
 use App\Models\System;
 use App\Services\EdsmApiService;
-use App\Traits\UseJsonLargeFileSplitting;
 
 class ProcessSystemsDumpFileImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, UseJsonLargeFileSplitting, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * @var string
@@ -45,27 +44,14 @@ class ProcessSystemsDumpFileImport implements ShouldQueue
     protected string $file;
 
     /**
-     * @var bool
-     */
-    protected bool $shouldValidate;
-
-    /**
      * Create a new job instance.
      * 
      * @param string $channel
      * @param string $file
-     * @param bool $shouldValidate,
      */
-    public function __construct(
-        string $channel,
-        string $file,
-        bool $shouldValidate = false,
-    ) {
+    public function __construct(string $channel, string $file) {
         $this->channel = $channel;
         $this->file = $file;
-        $this->shouldValidate = $shouldValidate;
-
-        $this->setJsonFileLogChannel($this->channel);
     }
 
     /**
@@ -84,18 +70,6 @@ class ProcessSystemsDumpFileImport implements ShouldQueue
         }
 
         Log::channel($this->channel)->info('Processing data from ' . $this->file);
-
-        if ($this->shouldValidate) {
-            Log::channel($this->channel)->info('Validating ' . $this->file . ', please wait...');
-            if (! $this->validateJsonFile($file)) {
-                Log::channel($this->channel)->error('Validation failed for ' . $this->file);
-                Log::channel($this->channel)->error('Exiting...');
-                return;
-            } else {
-                Log::channel($this->channel)->info('Validation passed for ' . $this->file);
-            }
-        }
-
         Log::channel($this->channel)
             ->info($this->file . ' (batch size: ' . number_format($this->batchSize) . '): please wait...');
 

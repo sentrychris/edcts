@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Traits\UseJsonLargeFileSplitting;
 use App\Jobs\ProcessSystemsDumpFileImport;
+use App\Services\JsonLargeFileSplitService;
+use Illuminate\Console\Command;
 
 class ImportDumpFile extends Command
 {
-    use UseJsonLargeFileSplitting;
-
     /**
      * The name and signature of the console command.
      *
@@ -28,6 +26,24 @@ class ImportDumpFile extends Command
      * @var string
      */
     protected $description = "Import records from `/storage/dumps` dump files.";
+
+    /**
+     * JSON large file service for splitting.
+     * 
+     * @var JsonLargeFileSplitService
+     */
+    private JsonLargeFileSplitService $jsonLargeFileSplitService;
+
+    /**
+     * Constructor
+     * 
+     * @param JsonLargeFileSplitService $jsonLargeFileSplitService
+     */
+    public function __construct(JsonLargeFileSplitService $jsonLargeFileSplitService)
+    {
+        $this->jsonLargeFileSplitService = $jsonLargeFileSplitService;
+        return parent::__construct();
+    }
 
     /**
      * Execute the console command.
@@ -53,10 +69,10 @@ class ImportDumpFile extends Command
             $this->warn("{$filename} is larger than " . bytes_format($threshold));
             $this->line("The file will need to be split into parts for parallel processing.");
 
-            $this->setJsonFileLogChannel($this->option('channel'));
+            $this->jsonLargeFileSplitService->setLogChannel($this->option('channel'));
             
             $parts = 16;
-            $this->splitJsonFileIntoParts($filename, $filepath, $filesize, $parts);
+            $this->jsonLargeFileSplitService->split($filename, $filepath, $filesize, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
 
             for ($part = 1; $part <= $parts; $part++) {
@@ -82,11 +98,8 @@ class ImportDumpFile extends Command
     private function dispatchJob (string $filename)
     {
         if (in_array($this->option("type"), ['sys', 'system', 'systems'])) {
-            ProcessSystemsDumpFileImport::dispatch(
-                $this->option("channel"),
-                $filename,
-                $this->option("validate"),
-            )->onQueue($this->option('queue'));
+            ProcessSystemsDumpFileImport::dispatch($this->option("channel"), $filename)
+                ->onQueue($this->option('queue'));
 
             $this->info("Import job has been dispatched.");
         } else {

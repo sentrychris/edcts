@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Traits;
+namespace App\Services;
 
-use Exception;
 use Illuminate\Support\Facades\Log;
-use JsonMachine\Items;
 
-trait UseJsonLargeFileSplitting
+class JsonLargeFileSplitService
 {
     /**
      * The log channel to use for logging.
@@ -16,14 +14,12 @@ trait UseJsonLargeFileSplitting
     private string $logChannel = 'default';
 
     /**
-     * Set the log channel to use for logging.
-     * 
-     * @param string $channel
-     * @return void
+     * Set the log channel
      */
-    public function setJsonFileLogChannel(string $channel): void
+    public function setLogChannel(string $channel): self
     {
         $this->logChannel = $channel;
+        return $this;
     }
 
     /**
@@ -35,7 +31,7 @@ trait UseJsonLargeFileSplitting
      * @param int $parts
      * @return void
      */
-    public function splitJsonFileIntoParts(string $filename, string $filepath, int $filesize, int $parts): void
+    public function split(string $filename, string $filepath, int $filesize, int $parts): void
     {
         Log::channel($this->logChannel)->info("Processing file {$filepath} to split into {$parts} parts.");
         Log::channel($this->logChannel)->info("Calculating parameters for equal split contents, please wait...");
@@ -139,53 +135,5 @@ trait UseJsonLargeFileSplitting
         }
 
         fclose($file);
-    }
-
-    /**
-     * Validate all split parts of a JSON file.
-     * 
-     * @param string $filename
-     * @param int $parts
-     * @return void
-     */
-    public function validateSplitFiles(string $filename, int $parts): void
-    {
-        for ($part = 1; $part <= $parts; $part++) {
-            $outputFilePrefix = pathinfo($filename, PATHINFO_FILENAME);
-            $outputFilePath = storage_path("dumps/{$outputFilePrefix}_part_{$part}.json");
-
-            // Validate each part file
-            if (!$this->validateJsonFile($outputFilePath)) {
-                Log::channel($this->logChannel)->error("Validation failed for part {$part}.");
-            }
-        }
-    }
-
-    /**
-     * Validate a JSON file.
-     * 
-     * @param string $filepath
-     * @return bool
-     */
-    public function validateJsonFile(string $filepath): bool
-    {
-        try {
-            // Use JsonMachine to iterate over the JSON items
-            $jsonStream = Items::fromFile($filepath);
-
-            // Iterate through each item to validate the JSON structure
-            foreach ($jsonStream as $key => $value) {
-                if ($key === null || $value === null) {
-                    throw new Exception("Invalid JSON structure");
-                }
-            }
-
-            Log::channel($this->logChannel)->info("Validation successful for file: {$filepath}");
-            return true;
-        } catch (Exception $e) {
-            Log::channel($this->logChannel)->error("Validation failed for file: {$filepath}");
-            Log::channel($this->logChannel)->error("Error: " . $e->getMessage());
-            return false;
-        }
     }
 }
