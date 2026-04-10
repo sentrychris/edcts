@@ -5,34 +5,16 @@ namespace App\Services;
 use App\Models\GalnetNews;
 use Illuminate\Support\Facades\Http;
 
-class GalnetJsonService extends ApiService
-{
-    /**
-     * @var array $articles
-     */    
-    public array $articles = [];
-    
-    /**
-     * @var string $url
-     */
-    private string $url = '';
-    
-    /**
-     * Constructor
-     */
-    public function __construct($url)
-    {
-        $this->url = $url;
-    }
-    
+class GalnetNewsService extends ApiService
+{  
     /**
      * Import galnet news articles.
      * 
-     * @return void
+     * @return int
      */
-    public function import(): void
+    public function import(): int
     {
-        $response = Http::get($this->url);
+        $response = Http::get(config('elite.galnet.json'));
         $content = $this->getContents($response);
         
         if ($content) {
@@ -60,6 +42,10 @@ class GalnetJsonService extends ApiService
 
                 ++$i;
             }
+
+            return $i;
         }
+
+        return 0;
     }
 }

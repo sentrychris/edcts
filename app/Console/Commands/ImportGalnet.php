@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\GalnetJsonService;
-use App\Services\GalnetRssService;
+use App\Services\GalnetNewsService;
 use Illuminate\Console\Command;
 
 class ImportGalnet extends Command
@@ -13,36 +12,33 @@ class ImportGalnet extends Command
      *
      * @var string
      */
-    protected $signature = 'edcts:import:galnet
-        {--format=json : The format to use (rss or json)}';
+    protected $signature = 'edcts:import:galnet';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import galnet articles from RSS or JSON sources';
+    protected $description = 'Import galnet news articles';
+
+    /**
+     * The injected Galnet service
+     */
+    private GalnetNewsService $galnetService;
+
+    public function __construct(GalnetNewsService $galnetService)
+    {
+        $this->galnetService = $galnetService;
+        return parent::__construct();
+    }
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $format = $this->option('format');
-        
-        if (!in_array($format, ['rss', 'json'])) {
-            $this->error('format must either be rss or json');
-            return false;
-        }
-
         $this->info('Importing Galnet articles, please wait...');
-        
-        $service = $format === 'rss'
-            ? new GalnetRssService(config('elite.galnet.rss'))
-            : new GalnetJsonService(config('elite.galnet.json'));
-
-        $service->import();
-
-        $this->info("\nImported galnet news articles.");
+        $numArticles = $this->galnetService->import();
+        $this->info("Imported $numArticles galnet news articles.");
     }
 }

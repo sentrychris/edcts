@@ -9,14 +9,6 @@ use Exception;
 
 class CacheStatistics extends Command
 {
-    private StatService $statService;
-
-    public function __construct(StatService $statService)
-    {
-        $this->statService = $statService;
-        return parent::__construct();
-    }
-
     /**
      * The name and signature of the console command.
      *
@@ -31,7 +23,25 @@ class CacheStatistics extends Command
      *
      * @var string
      */
-    protected $description = 'Refresh the EDCTS statistics cache';
+    protected $description = 'Refresh the statistics cache';
+
+    /**
+     * The injected statistics service.
+     * 
+     * @var StatService
+     */
+    private StatService $statService;
+
+    /**
+     * Constructor
+     * 
+     * @param StatService $statService
+     */
+    public function __construct(StatService $statService)
+    {
+        $this->statService = $statService;
+        return parent::__construct();
+    }
 
     /**
      * Execute the console command.
