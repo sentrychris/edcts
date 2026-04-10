@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(System::class)->constrained();
             $table->unsignedBigInteger('market_id');
-            $table->string('type');
+            $table->string('type')->default('station');
             $table->string('name');
             $table->json('body')->nullable();
             $table->bigInteger('distance_to_arrival');
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->boolean('has_market')->default(false);
             $table->boolean('has_shipyard')->default(false);
             $table->boolean('has_outfitting')->default(false);
-            $table->string('other_services')->nullable();
+            $table->text('other_services')->nullable();
             $table->string('controlling_faction')->nullable();
             $table->timestamp('information_last_updated')->nullable();
             $table->timestamp('market_last_updated')->nullable();
