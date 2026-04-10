@@ -1,0 +1,59 @@
+<?php
+
+return [
+    /**
+     * Custom config for EDDN
+     */
+    'eddn' => [
+        'webhook' => env('DISCORD_ALERT_EDDN_LISTENER_WEBHOOK'),
+        'embed' => [
+            'title' => 'EDDN Listener Updates',
+            'description' => 'EDDN listener restarts every 3 hours.'
+        ]
+    ],
+
+    /**
+     * Custom config for Systems
+     */
+    'systems' => [
+        'webhook' => env('DISCORD_ALERT_SYSTEM_IMPORTS_WEBHOOK'),
+        'embed' => [
+            'title' => 'System Import Updates',
+            'description' => 'Imports from EDDN and EDSM.'
+        ]
+    ],
+
+    /*
+     * The webhook URLs that we'll use to send a message to Discord.
+     */
+    'webhook_urls' => [
+        'default' => env('DISCORD_ALERT_WEBHOOK'),
+    ],
+
+    /*
+     * Default avatar is an empty string '' which means it will not be included in the payload.
+     * You can add multiple custom avatars and then specify directly with withAvatar()
+     */
+    'avatar_urls' => [
+        'default' => '',
+    ],
+
+    /*
+     * This job will send the message to Discord. You can extend this
+     * job to set timeouts, retries, etc...
+     */
+    'job' => Spatie\DiscordAlerts\Jobs\SendToDiscordChannelJob::class,
+
+    /*
+     * The queue connection that should be used to send the alert.
+     *
+     * If not specified, we'll use the default queue connection.
+     */
+    'queue_connection' => env('DISCORD_ALERT_QUEUE_CONNECTION'),
+
+    /*
+     * The queue name that should be used to send the alert. Only supported for drivers
+     * that allow multiple queues (e.g., redis, database, beanstalkd). Ignored for sync and null drivers.
+     */
+    'queue' => env('DISCORD_ALERT_QUEUE', 'default'),
+];

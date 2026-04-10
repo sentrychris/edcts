@@ -7,6 +7,7 @@ use App\Models\System;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnSystemService extends EddnService
 {
@@ -61,9 +62,12 @@ class EddnSystemService extends EddnService
                             }
                         } catch (Exception $e) {
                             if (! in_array($starSystem, config('imports.errors.systems.exclusions'))) {
-                                Log::channel('eddn')->error("Failed to insert system: {$starSystem} ({$starSystemId64})", [
-                                    'error' => $e->getMessage(),
-                                ]);
+                                $message = "Failed to insert SYSTEM: {$starSystem} ({$starSystemId64})";
+
+                                Log::channel('eddn')->error($message, ['error' => $e->getMessage()]);
+
+                                DiscordAlert::to(config('discord-alerts.systems.webhook'))
+                                    ->message("**ERROR**: $message");
                             }
                         }
                     } else {
@@ -113,9 +117,9 @@ class EddnSystemService extends EddnService
                     Redis::sadd("eddn_system_information_not_inserted", $system->id64);   
                 }
             } catch (Exception $e) {
-                Log::channel('eddn')->error("Failed to insert information for: {$system->name} ({$system->id64})", [
-                    'error' => $e->getMessage(),
-                ]);
+                $message = "Failed to insert INFORMATION for: {$system->name} ({$system->id64})";
+                Log::channel('eddn')->error($message, [ 'error' => $e->getMessage() ]);
+                DiscordAlert::to(config('discord-alerts.systems.webhook'))->message("**ERROR**: $message");
             }
         }
     }

@@ -7,6 +7,7 @@ use ZMQ;
 use ZMQContext;
 use ZMQSocketException;
 use Illuminate\Support\Facades\Log;
+use Spatie\DiscordAlerts\Facades\DiscordAlert;
 
 class EddnListener
 {
@@ -38,6 +39,7 @@ class EddnListener
             Log::channel('eddn')->info("Messages batch size: {$messagesBatch}");
             Log::channel('eddn')->info("Messages batch time: {$messagesBatchTime} seconds");
             Log::channel('eddn')->info("Processing messages...");
+            DiscordAlert::to(config('discord-alerts.eddn.webhook'))->message("**INFO**: EDDN relay connected");
 
             while (true) {
                 try {
@@ -78,8 +80,12 @@ class EddnListener
                 }
             }
         } catch (\Exception $e) {
-            Log::channel('eddn')->error("Could not connect: " . $e->getMessage());
-            throw new RuntimeException("Could not connect to EDDN");
+            $message = "Failed to connect to EDDN relay: " . $e->getMessage();
+
+            Log::channel('eddn')->error($message);
+            DiscordAlert::to(config('discord-alerts.eddn.webhook'))->message("**ERROR**: $message");
+
+            throw new RuntimeException("Failed to connect to EDDN relay.");
         }
     }
 }
