@@ -17,6 +17,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SystemController extends Controller
 {
@@ -350,17 +351,42 @@ class SystemController extends Controller
     }
 
     /**
-     * Return a full list of system slugs and ID64s.
+     * Return a full list of system slugs and ID64s as a streamed JSON response.
+     *
+     * Streams the response in batches to avoid loading all systems into memory at once.
      */
-    public function getSlugID64s()
+    public function getSlugID64s(): StreamedResponse
     {
-        $items = Cache::get('systems_id64_slugs');
+        return response()->stream(function () {
+            $buffer = '{';
+            $count = 0;
 
-        if (! $items) {
-            $items = System::pluck('id64', 'slug');
-            Cache::set('systems_id64_slugs', $items, 1800);
-        }
+            System::select(['slug', 'id64'])->cursor()->each(function ($system) use (&$buffer, &$count) {
+                if ($count > 0) {
+                    $buffer .= ',';
+                }
+                $buffer .= json_encode($system->slug).':'.json_encode($system->id64);
+                $count++;
 
-        return response()->json($items);
+                if ($count % 500 === 0) {
+                    echo $buffer;
+                    $buffer = '';
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            });
+
+            echo $buffer.'}';
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }, 200, [
+            'Content-Type' => 'application/json',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 }
