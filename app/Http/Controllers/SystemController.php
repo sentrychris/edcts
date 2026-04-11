@@ -499,38 +499,38 @@ class SystemController extends Controller
     }
 
     /**
-     * Return a full list of system slugs and ID64s as a streamed JSON response.
+     * Return a full list of system ID64s as a streamed JSON response.
      *
      * Streams the response in batches to avoid loading all systems into memory at once.
      */
     #[OA\Get(
-        path: '/system/slugid64s',
-        summary: 'Stream the full slug → id64 index for all systems',
-        description: 'Returns a streaming JSON object mapping every system slug to its id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.',
+        path: '/system/id64s',
+        summary: 'Stream the full id64 list for all systems',
+        description: 'Returns a streaming JSON array of every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.',
         tags: ['System Search'],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Streamed JSON object: { "slug": id64, ... }',
+                description: 'Streamed JSON array: [id64, ...]',
                 content: new OA\JsonContent(
-                    type: 'object',
-                    additionalProperties: new OA\AdditionalProperties(type: 'integer'),
-                    example: ['10477373803-sol' => 10477373803, '8216113749-maia' => 8216113749]
+                    type: 'array',
+                    items: new OA\Items(type: 'integer'),
+                    example: [10477373803, 8216113749]
                 )
             ),
         ]
     )]
-    public function getSlugID64s(): StreamedResponse
+    public function getId64s(): StreamedResponse
     {
         return response()->stream(function () {
-            $buffer = '{';
+            $buffer = '[';
             $count = 0;
 
-            System::select(['slug', 'id64'])->cursor()->each(function ($system) use (&$buffer, &$count) {
+            System::select(['id64'])->cursor()->each(function ($system) use (&$buffer, &$count) {
                 if ($count > 0) {
                     $buffer .= ',';
                 }
-                $buffer .= json_encode($system->slug).':'.json_encode($system->id64);
+                $buffer .= json_encode($system->id64);
                 $count++;
 
                 if ($count % 500 === 0) {
@@ -543,7 +543,7 @@ class SystemController extends Controller
                 }
             });
 
-            echo $buffer.'}';
+            echo $buffer.']';
 
             if (ob_get_level() > 0) {
                 ob_flush();

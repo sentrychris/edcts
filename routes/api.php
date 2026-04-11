@@ -60,7 +60,7 @@ Route::prefix('system')->group(function () {
         Route::get('route', [SystemController::class, 'searchRoute']);
     });
 
-    Route::get('slugid64s', [SystemController::class, 'getSlugID64s']);
+    Route::get('id64s', [SystemController::class, 'getId64s']);
 });
 
 Route::resource('bodies', SystemBodyController::class);
