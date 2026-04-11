@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Services\GalnetNewsService;
 use Illuminate\Console\Command;
 
-class ImportGalnet extends Command
+class ImportGalnetArticlesCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -29,6 +29,7 @@ class ImportGalnet extends Command
     public function __construct(GalnetNewsService $galnetService)
     {
         $this->galnetService = $galnetService;
+
         return parent::__construct();
     }
 

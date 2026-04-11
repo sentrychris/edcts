@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Services\StatService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
-class CacheStatistics extends Command
+class CacheStatisticsCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -27,19 +27,16 @@ class CacheStatistics extends Command
 
     /**
      * The injected statistics service.
-     * 
-     * @var StatService
      */
     private StatService $statService;
 
     /**
      * Constructor
-     * 
-     * @param StatService $statService
      */
     public function __construct(StatService $statService)
     {
         $this->statService = $statService;
+
         return parent::__construct();
     }
 
@@ -52,12 +49,12 @@ class CacheStatistics extends Command
 
         return $this->runCache([
             'ttl' => (int) $ttl,
-            'flushCache' => $this->hasOption('flush')
+            'flushCache' => $this->hasOption('flush'),
         ]);
     }
 
     private function runCache(array $options)
-    {       
+    {
         try {
             $this->statService->fetch('statistics', $options);
             $this->info('Statistics refreshed.');
@@ -66,7 +63,7 @@ class CacheStatistics extends Command
         } catch (Exception $e) {
             Log::channel('statistics:cache')->error($e->getMessage());
             $this->error($e->getMessage());
-            
+
             return 1;
         }
     }

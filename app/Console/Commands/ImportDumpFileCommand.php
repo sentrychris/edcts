@@ -2,46 +2,43 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProcessSystemsDumpFileImport;
+use App\Jobs\ImportSystemsDumpFileJob;
 use App\Services\JsonLargeFileSplitService;
 use Illuminate\Console\Command;
 
-class ImportDumpFile extends Command
+class ImportDumpFileCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = "import:dumpfile
+    protected $signature = 'import:dumpfile
         {--type= : The type of dump file to import.}
         {--channel= : The log channel for the dispatch job.};
         {--file= : The dump file, located at `/storage/dumps`.}
         {--queue=default : The queue to dispatch the job to.}
-        {--validate : Validate the JSON file before processing.}";
+        {--validate : Validate the JSON file before processing.}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = "Import records from `/storage/dumps` dump files.";
+    protected $description = 'Import records from `/storage/dumps` dump files.';
 
     /**
      * JSON large file service for splitting.
-     * 
-     * @var JsonLargeFileSplitService
      */
     private JsonLargeFileSplitService $jsonLargeFileSplitService;
 
     /**
      * Constructor
-     * 
-     * @param JsonLargeFileSplitService $jsonLargeFileSplitService
      */
     public function __construct(JsonLargeFileSplitService $jsonLargeFileSplitService)
     {
         $this->jsonLargeFileSplitService = $jsonLargeFileSplitService;
+
         return parent::__construct();
     }
 
@@ -51,10 +48,11 @@ class ImportDumpFile extends Command
     public function handle(): void
     {
         // Get the file
-        $filename = $this->option("file");
+        $filename = $this->option('file');
         $filepath = storage_path("dumps/{$filename}");
-        if (!file_exists($filepath)) {
-            $this->error("File not found!");
+        if (! file_exists($filepath)) {
+            $this->error('File not found!');
+
             return;
         }
 
@@ -65,9 +63,9 @@ class ImportDumpFile extends Command
 
         // If it's large, split it into parts
         if (filesize($filepath) > $threshold) {
-            $this->warn("{$filename} is larger than " . bytes_format($threshold));
-            $this->line("The file will need to be split into parts for parallel processing.");
-            
+            $this->warn("{$filename} is larger than ".bytes_format($threshold));
+            $this->line('The file will need to be split into parts for parallel processing.');
+
             $parts = 16;
             $this->jsonLargeFileSplitService->split($filename, $filepath, $parts);
             $this->info("Successfully split {$filename} into {$parts} parts.");
@@ -75,30 +73,29 @@ class ImportDumpFile extends Command
             for ($part = 1; $part <= $parts; $part++) {
                 $this->info("Dispatching part {$part} import job for processing...");
 
-                $filename = pathinfo($this->option('file'), PATHINFO_FILENAME) . "_part_{$part}.json";
+                $filename = pathinfo($this->option('file'), PATHINFO_FILENAME)."_part_{$part}.json";
                 $this->dispatchJob($filename);
             }
 
-            $this->warn("Please ensure you have enough queue workers for parallel processing.");
+            $this->warn('Please ensure you have enough queue workers for parallel processing.');
         } else {
-            $this->line("{$filename} is smaller than split threshold (" . bytes_format($threshold) . ")");
+            $this->line("{$filename} is smaller than split threshold (".bytes_format($threshold).')');
             $this->dispatchJob($filename);
         }
     }
 
     /**
      * Dispatch a job to process the file.
-     * 
-     * @param string $filename
+     *
      * @return void
      */
-    private function dispatchJob (string $filename)
+    private function dispatchJob(string $filename)
     {
-        if (in_array($this->option("type"), ['sys', 'system', 'systems'])) {
-            ProcessSystemsDumpFileImport::dispatch($this->option("channel"), $filename)
+        if (in_array($this->option('type'), ['sys', 'system', 'systems'])) {
+            ImportSystemsDumpFileJob::dispatch($this->option('channel'), $filename)
                 ->onQueue($this->option('queue'));
 
-            $this->info("Import job has been dispatched.");
+            $this->info('Import job has been dispatched.');
         } else {
             $this->error('Type does not match a valid dumpfile processing job type.');
         }

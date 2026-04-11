@@ -14,7 +14,7 @@ use JsonMachine\Items;
 use App\Models\System;
 use App\Services\EdsmApiService;
 
-class ProcessSystemsDumpFileImport implements ShouldQueue
+class ImportSystemsDumpFileJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

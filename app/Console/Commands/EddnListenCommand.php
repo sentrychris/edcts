@@ -3,47 +3,41 @@
 namespace App\Console\Commands;
 
 use App\Services\Eddn\EddnListenerService;
-use App\Services\Eddn\EddnSystemService;
 use App\Services\Eddn\EddnMarketService;
+use App\Services\Eddn\EddnSystemService;
 use Illuminate\Console\Command;
 
-class EddnListen extends Command
+class EddnListenCommand extends Command
 {
     /**
      * The console command signature.
-     * 
+     *
      * @var string
      */
-    protected $signature = "eddn:listen";
+    protected $signature = 'eddn:listen';
 
     /**
      * The console command description.
-     * 
+     *
      * @var string
      */
-    protected $description = "Listen to EDDN and process incoming data";
+    protected $description = 'Listen to EDDN and process incoming data';
 
     /**
      * EDDN listener.
-     * 
-     * @var EddnListenerService
      */
     private EddnListenerService $eddnListenerService;
 
     /**
      * EDDN data management service.
-     * 
-     * @var EddnSystemService
      */
     private EddnSystemService $eddnSystemService;
 
     /**
      * EDDN data management service.
-     * 
-     * @var EddnMarketService
      */
     private EddnMarketService $eddnMarketService;
-    
+
     public function __construct(
         EddnListenerService $eddnListenerService,
         EddnSystemService $eddnSystemService,
@@ -58,19 +52,18 @@ class EddnListen extends Command
 
     /**
      * Execute the console command.
-     * 
+     *
      * @return void
      */
     public function handle()
-    {    
-        $this->info("Started EDDN listener...");
-        $this->eddnListenerService->listen([$this, "processBatch"]);
+    {
+        $this->info('Started EDDN listener...');
+        $this->eddnListenerService->listen([$this, 'processBatch']);
     }
 
     /**
      *  Callback to process message batches.
-     * 
-     * @param array $batch
+     *
      * @return void
      */
     public function processBatch(array $batch)

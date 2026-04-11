@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Auth\FrontierAuthController;
-use App\Http\Controllers\Auth\FrontierCApiController;
+use App\Http\Controllers\CommanderController;
+use App\Http\Controllers\Frontier\FrontierAuthController;
+use App\Http\Controllers\Frontier\FrontierCApiController;
 use App\Http\Controllers\GalnetNewsController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\StationController;
@@ -40,6 +41,10 @@ Route::prefix('auth')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
     });
+});
+
+Route::middleware(['auth:sanctum', 'has.cmdr'])->group(function () {
+    Route::put('commander', [CommanderController::class, 'update']);
 });
 
 Route::middleware('auth:sanctum')->prefix('frontier')->group(function () {
