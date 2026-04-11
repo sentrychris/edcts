@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->timestamp('updated_at');
             $table->softDeletes();
+            $table->fullText('name');
             $table->index('slug');
             $table->index(['name', 'id64']);
         });
