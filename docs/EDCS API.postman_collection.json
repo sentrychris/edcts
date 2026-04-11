@@ -469,18 +469,18 @@
       "name": "System",
       "item": [
         {
-          "name": "/system/slugid64s",
+          "name": "/system/id64s",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/slugid64s",
+              "raw": "{{url}}/system/id64s",
               "host": [
                 "{{url}}"
               ],
               "path": [
                 "system",
-                "slugid64s"
+                "id64s"
               ]
             }
           },

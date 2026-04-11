@@ -289,19 +289,14 @@ Search and browse the galaxy's star systems.
 | Method | Endpoint |
 | --- | --- |
 | `GET` | `/system/last-updated` |
-| `GET` | `/system/slugid64s` |
+| `GET` | `/system/id64s` |
 | `GET` | `/system/search/distance` |
 | `GET` | `/system/search/route` |
 | `GET` | `/system/search/information` |
 
 **`GET /system/last-updated`** — Returns the most recently updated system, including its bodies and information. Useful for monitoring data freshness.
 
-**`GET /system/slugid64s`** — Streams a large JSON object mapping every system slug to its `id64`. Delivered as a chunked stream to avoid memory limits. Used by consumers that need the full system index.
-
-``` json
-{ "10477373803-sol": 10477373803, "8216113749-maia": 8216113749, ... }
-
- ```
+**`GET /system/id64s`** — Streams a large JSON object listing every system `id64`. Delivered as a chunked stream to avoid memory limits. Used by consumers that need the full system index.
 
 **`GET /system/search/distance?x=0&y=0&z=0&ly=100`** — Finds all systems within `ly` light years of galactic coordinates `(x, y, z)`. Results include the calculated distance from the origin point.
 

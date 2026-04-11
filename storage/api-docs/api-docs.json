@@ -1248,13 +1248,13 @@
                 }
             }
         },
-        "/system/slugid64s": {
+        "/system/id64s": {
             "get": {
                 "tags": [
                     "System Search"
                 ],
-                "summary": "Stream the full slug → id64 index for all systems",
-                "description": "Returns a streaming JSON object mapping every system slug to its id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
+                "summary": "Stream the full id64 index for all systems",
+                "description": "Returns a streaming JSON object listing every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
                 "operationId": "c537df8041f7acd2d433c876c23aa015",
                 "responses": {
                     "200": {
