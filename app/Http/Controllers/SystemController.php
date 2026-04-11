@@ -281,13 +281,14 @@ class SystemController extends Controller
      */
     #[OA\Get(
         path: '/system/search/distance',
-        summary: 'Find systems within a given distance of galactic coordinates',
-        description: 'Returns all systems within the specified number of light years from the given (x, y, z) coordinates, sorted by distance. Results are cached for 24 hours.',
+        summary: 'Find systems within a given distance of a position',
+        description: 'Returns all systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided. Results are cached for 24 hours.',
         tags: ['System Search'],
         parameters: [
-            new OA\Parameter(name: 'x', in: 'query', required: true, description: 'Galactic X coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
-            new OA\Parameter(name: 'y', in: 'query', required: true, description: 'Galactic Y coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
-            new OA\Parameter(name: 'z', in: 'query', required: true, description: 'Galactic Z coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'slug', in: 'query', required: false, description: 'System slug ({id64}-{name}) to use as the search origin', schema: new OA\Schema(type: 'string', example: '10477373803-sol')),
+            new OA\Parameter(name: 'x', in: 'query', required: false, description: 'Galactic X coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'y', in: 'query', required: false, description: 'Galactic Y coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'z', in: 'query', required: false, description: 'Galactic Z coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
             new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Search radius in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 100.0)),
             new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Maximum results to return', schema: new OA\Schema(type: 'integer', example: 20)),
         ],
@@ -307,15 +308,21 @@ class SystemController extends Controller
     )]
     public function searchByDistance(SearchSystemByDistanceRequest $request)
     {
-        $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
+        if ($request->has('slug')) {
+            $origin = System::whereSlug($request->input('slug'))->firstOrFail();
+            $coords = ['x' => $origin->coords_x, 'y' => $origin->coords_y, 'z' => $origin->coords_z];
+        } else {
+            $coords = $request->only(['x', 'y', 'z']);
+        }
+
+        $cacheKey = "systems_distance_{$coords['x']}_{$coords['y']}_{$coords['z']}_{$request->ly}";
         $systems = Cache::get($cacheKey);
 
         if (! $systems) {
             $systems = System::findNearest(
-                $request->only(['x', 'y', 'z']),
-                $request->input('ly', 1000),
+                $coords,
+                $request->input('ly', 100),
             )
-                // ->with('information')
                 ->simplePaginate($request->input('limit', 20));
 
             Cache::set($cacheKey, $systems, 86400);
