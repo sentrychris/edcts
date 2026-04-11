@@ -105,9 +105,8 @@ class System extends Model
      *
      * @param  array{x: float, y: float, z: float}  $coords  - the origin coordinates
      * @param  float  $distance  - the search radius in light years
-     * @param  int  $limit  - the maximum number of results to return
      */
-    public static function findNearest(array $coords, float $distance, int $limit = 100)
+    public static function findNearest(array $coords, float $distance)
     {
         $selectRaw = <<<'SQL'
             id,
@@ -128,8 +127,7 @@ class System extends Model
             ->whereBetween('coords_y', [$coords['y'] - $distance, $coords['y'] + $distance])
             ->whereBetween('coords_z', [$coords['z'] - $distance, $coords['z'] + $distance])
             ->havingRaw('distance <= ?', [$distance])
-            ->orderByRaw('distance ASC')
-            ->limit($limit);
+            ->orderByRaw('distance ASC');
     }
 
     /**

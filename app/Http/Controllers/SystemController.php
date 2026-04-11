@@ -56,16 +56,6 @@ class SystemController extends Controller
 
     /**
      * List systems.
-     *
-     * User can provide the following request parameters.
-     *
-     * name: - Filter systems by name.
-     * withInformation: 0 or 1 - Return system with associated information.
-     * withBodies: 0 or 1 - Return system with associated celestial bodies.
-     * withStations: 0 or 1 - Return system with associated stations and outposts.
-     * exactSearch: 0 or 1 - Search for exact matches or based on a partial string.
-     * page: - page number.
-     * limit: - page limit.
      */
     #[OA\Get(
         path: '/systems',
@@ -282,7 +272,7 @@ class SystemController extends Controller
     #[OA\Get(
         path: '/system/search/distance',
         summary: 'Find systems within a given distance of a position',
-        description: 'Returns all systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided. Results are cached for 24 hours.',
+        description: 'Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.',
         tags: ['System Search'],
         parameters: [
             new OA\Parameter(name: 'slug', in: 'query', required: false, description: 'System slug ({id64}-{name}) to use as the search origin', schema: new OA\Schema(type: 'string', example: '10477373803-sol')),
@@ -291,6 +281,7 @@ class SystemController extends Controller
             new OA\Parameter(name: 'z', in: 'query', required: false, description: 'Galactic Z coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
             new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Search radius in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 100.0)),
             new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Maximum results to return', schema: new OA\Schema(type: 'integer', example: 20)),
+            new OA\Parameter(name: 'page', in: 'query', required: false, description: 'Page number', schema: new OA\Schema(type: 'integer', example: 1)),
         ],
         responses: [
             new OA\Response(
@@ -310,23 +301,21 @@ class SystemController extends Controller
     {
         if ($request->has('slug')) {
             $origin = System::whereSlug($request->input('slug'))->firstOrFail();
-            $coords = ['x' => $origin->coords_x, 'y' => $origin->coords_y, 'z' => $origin->coords_z];
+            $coords = [
+                'x' => $origin->coords_x,
+                'y' => $origin->coords_y,
+                'z' => $origin->coords_z,
+            ];
         } else {
             $coords = $request->only(['x', 'y', 'z']);
         }
 
-        $cacheKey = "systems_distance_{$coords['x']}_{$coords['y']}_{$coords['z']}_{$request->ly}";
-        $systems = Cache::get($cacheKey);
+        $limit = $request->input('limit', config('app.pagination.limit'));
 
-        if (! $systems) {
-            $systems = System::findNearest(
-                $coords,
-                $request->input('ly', 100),
-            )
-                ->simplePaginate($request->input('limit', 20));
-
-            Cache::set($cacheKey, $systems, 86400);
-        }
+        $systems = System::findNearest($coords, $request->input('ly', 100))
+            ->with('information')
+            ->simplePaginate($limit)
+            ->appends($request->all());
 
         return SystemDistanceResource::collection($systems);
     }

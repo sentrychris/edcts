@@ -11,7 +11,7 @@
     },
     "servers": [
         {
-            "url": "https://api.edcs.app/api",
+            "url": "http://localhost/api",
             "description": "EDCS API Server"
         }
     ],
@@ -968,15 +968,25 @@
                 "tags": [
                     "System Search"
                 ],
-                "summary": "Find systems within a given distance of galactic coordinates",
-                "description": "Returns all systems within the specified number of light years from the given (x, y, z) coordinates, sorted by distance. Results are cached for 24 hours.",
+                "summary": "Find systems within a given distance of a position",
+                "description": "Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.",
                 "operationId": "0f1e2f74add9322d429043e15c26ba35",
                 "parameters": [
                     {
+                        "name": "slug",
+                        "in": "query",
+                        "description": "System slug ({id64}-{name}) to use as the search origin",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "10477373803-sol"
+                        }
+                    },
+                    {
                         "name": "x",
                         "in": "query",
-                        "description": "Galactic X coordinate",
-                        "required": true,
+                        "description": "Galactic X coordinate (required when slug is not provided)",
+                        "required": false,
                         "schema": {
                             "type": "number",
                             "format": "float",
@@ -986,8 +996,8 @@
                     {
                         "name": "y",
                         "in": "query",
-                        "description": "Galactic Y coordinate",
-                        "required": true,
+                        "description": "Galactic Y coordinate (required when slug is not provided)",
+                        "required": false,
                         "schema": {
                             "type": "number",
                             "format": "float",
@@ -997,8 +1007,8 @@
                     {
                         "name": "z",
                         "in": "query",
-                        "description": "Galactic Z coordinate",
-                        "required": true,
+                        "description": "Galactic Z coordinate (required when slug is not provided)",
+                        "required": false,
                         "schema": {
                             "type": "number",
                             "format": "float",
@@ -1024,6 +1034,16 @@
                         "schema": {
                             "type": "integer",
                             "example": 20
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -1253,24 +1273,24 @@
                 "tags": [
                     "System Search"
                 ],
-                "summary": "Stream the full id64 index for all systems",
-                "description": "Returns a streaming JSON object listing every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
-                "operationId": "c537df8041f7acd2d433c876c23aa015",
+                "summary": "Stream the full id64 list for all systems",
+                "description": "Returns a streaming JSON array of every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
+                "operationId": "e9e867beb76394d4d27c7d2bfd91c31c",
                 "responses": {
                     "200": {
-                        "description": "Streamed JSON object: { \"slug\": id64, ... }",
+                        "description": "Streamed JSON array: [id64, ...]",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "additionalProperties": {
+                                    "type": "array",
+                                    "items": {
                                         "type": "integer"
                                     }
                                 },
-                                "example": {
-                                    "10477373803-sol": 10477373803,
-                                    "8216113749-maia": 8216113749
-                                }
+                                "example": [
+                                    10477373803,
+                                    8216113749
+                                ]
                             }
                         }
                     }
@@ -1903,6 +1923,14 @@
                     "slug": {
                         "type": "string",
                         "example": "10477373803-sol"
+                    },
+                    "information": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SystemInformation"
+                            }
+                        ],
+                        "nullable": true
                     }
                 },
                 "type": "object"

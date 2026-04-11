@@ -63,6 +63,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'coords', ref: '#/components/schemas/SystemCoords'),
         new OA\Property(property: 'distance', type: 'number', format: 'float', example: 4.38),
         new OA\Property(property: 'slug', type: 'string', example: '10477373803-sol'),
+        new OA\Property(property: 'information', ref: '#/components/schemas/SystemInformation', nullable: true),
     ]
 )]
 #[OA\Schema(
