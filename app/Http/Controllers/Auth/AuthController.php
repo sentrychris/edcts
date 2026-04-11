@@ -6,19 +6,41 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegistrationRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
     /**
      * Register users
-     * 
-     * @param RegistrationRequest $request
-     * @return JsonResponse
      */
+    #[OA\Post(
+        path: '/auth/register',
+        summary: 'Register a new user account',
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email', 'password'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'Chris Rowles'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'me@rowles.ch'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'secret123'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User registered — returns a Sanctum bearer token',
+                content: new OA\JsonContent(ref: '#/components/schemas/AuthToken')
+            ),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     public function register(RegistrationRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -40,10 +62,30 @@ class AuthController extends Controller
 
     /**
      * Login users
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
+    #[OA\Post(
+        path: '/auth/login',
+        summary: 'Log in with email and password',
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'me@rowles.ch'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated — returns a Sanctum bearer token',
+                content: new OA\JsonContent(ref: '#/components/schemas/AuthToken')
+            ),
+            new OA\Response(response: 401, description: 'Invalid credentials'),
+        ]
+    )]
     public function login(Request $request): JsonResponse
     {
         if ($request->user()) {
@@ -70,10 +112,23 @@ class AuthController extends Controller
 
     /**
      * Logout users
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
+    #[OA\Post(
+        path: '/auth/logout',
+        summary: 'Revoke all tokens for the authenticated user',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Logged out',
+                content: new OA\JsonContent(
+                    properties: [new OA\Property(property: 'message', type: 'string', example: 'Logged out')]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
     public function logout(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
@@ -85,10 +140,21 @@ class AuthController extends Controller
 
     /**
      * Fetch authenticated user
-     * 
-     * @param Request $request
-     * @return JsonResponse
      */
+    #[OA\Get(
+        path: '/auth/me',
+        summary: 'Get the authenticated user with commander details',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated user',
+                content: new OA\JsonContent(ref: '#/components/schemas/User')
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
     public function me(Request $request): JsonResponse
     {
         if ($request->user()) {

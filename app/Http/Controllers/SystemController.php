@@ -17,6 +17,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SystemController extends Controller
@@ -66,6 +67,34 @@ class SystemController extends Controller
      * page: - page number.
      * limit: - page limit.
      */
+    #[OA\Get(
+        path: '/systems',
+        summary: 'List or search star systems',
+        description: 'Returns a paginated list of systems. When no name is given the results are served from cache. Pass withInformation, withBodies, or withStations to embed related data.',
+        tags: ['Systems'],
+        parameters: [
+            new OA\Parameter(name: 'name', in: 'query', required: false, description: 'Filter by system name (partial match by default)', schema: new OA\Schema(type: 'string', example: 'Sol')),
+            new OA\Parameter(name: 'exactSearch', in: 'query', required: false, description: 'Require an exact name match', schema: new OA\Schema(type: 'integer', enum: [0, 1], example: 1)),
+            new OA\Parameter(name: 'withInformation', in: 'query', required: false, description: 'Embed political/demographic information', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withBodies', in: 'query', required: false, description: 'Embed celestial bodies', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withStations', in: 'query', required: false, description: 'Embed stations and outposts', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Results per page', schema: new OA\Schema(type: 'integer', example: 15)),
+            new OA\Parameter(name: 'page', in: 'query', required: false, description: 'Page number', schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Paginated list of systems',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/System')),
+                        new OA\Property(property: 'links', type: 'object'),
+                        new OA\Property(property: 'meta', type: 'object'),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function index(SearchSystemRequest $request): AnonymousResourceCollection
     {
         // Get the request parameters
@@ -116,6 +145,30 @@ class SystemController extends Controller
      *
      * @return SystemResource
      */
+    #[OA\Get(
+        path: '/systems/{slug}',
+        summary: 'Get a single system by slug',
+        description: 'Retrieves a system by its slug ({id64}-{name}). If not in the local database the API transparently queries EDSM and stores the result. Pass withInformation, withBodies, or withStations to embed related data.',
+        tags: ['Systems'],
+        parameters: [
+            new OA\Parameter(name: 'slug', in: 'path', required: true, description: 'System slug in format {id64}-{name}', schema: new OA\Schema(type: 'string', example: '10477373803-sol')),
+            new OA\Parameter(name: 'withInformation', in: 'query', required: false, description: 'Embed political/demographic information', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withBodies', in: 'query', required: false, description: 'Embed celestial bodies', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withStations', in: 'query', required: false, description: 'Embed stations and outposts', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'System',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/System'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'System not found'),
+        ]
+    )]
     public function show(string $slug, SearchSystemRequest $request): SystemResource|Response
     {
         // Attempt to retrieve the system from the cache
@@ -182,6 +235,23 @@ class SystemController extends Controller
      *
      * @return SystemResource
      */
+    #[OA\Get(
+        path: '/system/last-updated',
+        summary: 'Get the most recently updated system',
+        description: 'Returns the system with the latest updated_at timestamp, including its bodies and information. Useful for monitoring data freshness.',
+        tags: ['System Search'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Most recently updated system',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/System'),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function getLastUpdated()
     {
         $system = Cache::get('latest_system');
@@ -209,6 +279,32 @@ class SystemController extends Controller
     /**
      * Find systems by distance in light years.
      */
+    #[OA\Get(
+        path: '/system/search/distance',
+        summary: 'Find systems within a given distance of galactic coordinates',
+        description: 'Returns all systems within the specified number of light years from the given (x, y, z) coordinates, sorted by distance. Results are cached for 24 hours.',
+        tags: ['System Search'],
+        parameters: [
+            new OA\Parameter(name: 'x', in: 'query', required: true, description: 'Galactic X coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'y', in: 'query', required: true, description: 'Galactic Y coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'z', in: 'query', required: true, description: 'Galactic Z coordinate', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
+            new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Search radius in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 100.0)),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Maximum results to return', schema: new OA\Schema(type: 'integer', example: 20)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Systems within the given distance, each with a calculated distance field',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/SystemDistance')),
+                        new OA\Property(property: 'links', type: 'object'),
+                        new OA\Property(property: 'meta', type: 'object'),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function searchByDistance(SearchSystemByDistanceRequest $request)
     {
         $cacheKey = "systems_distance_{$request->x}_{$request->y}_{$request->z}_{$request->ly}";
@@ -237,6 +333,29 @@ class SystemController extends Controller
      * to:   - Slug of the destination system.
      * ly:   - Maximum jump range in light years.
      */
+    #[OA\Get(
+        path: '/system/search/route',
+        summary: 'Find the shortest jump route between two systems',
+        description: 'Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.',
+        tags: ['System Search'],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: true, description: 'Origin system slug ({id64}-{name})', schema: new OA\Schema(type: 'string', example: '8216113749-maia')),
+            new OA\Parameter(name: 'to', in: 'query', required: true, description: 'Destination system slug ({id64}-{name})', schema: new OA\Schema(type: 'string', example: '670685668665-pleiades-sector-ag-n-b7-0')),
+            new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Maximum jump range in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 40.0)),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Ordered list of route waypoints',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/SystemRouteWaypoint')),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'No route found within the given jump range'),
+        ]
+    )]
     public function searchRoute(SearchSystemRouteRequest $request): AnonymousResourceCollection|Response
     {
         $from = System::whereSlug($request->input('from'))->firstOrFail();
@@ -263,12 +382,12 @@ class SystemController extends Controller
                         [
                             'x' => (float) $route[$jump - 1]->coords_x,
                             'y' => (float) $route[$jump - 1]->coords_y,
-                            'z' => (float) $route[$jump - 1]->coords_z
+                            'z' => (float) $route[$jump - 1]->coords_z,
                         ],
                         [
                             'x' => (float) $system->coords_x,
                             'y' => (float) $system->coords_y,
-                            'z' => (float) $system->coords_z
+                            'z' => (float) $system->coords_z,
                         ],
                     );
 
@@ -304,6 +423,35 @@ class SystemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
+    #[OA\Get(
+        path: '/system/search/information',
+        summary: 'Search systems by political and demographic attributes',
+        description: 'Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.',
+        tags: ['System Search'],
+        parameters: [
+            new OA\Parameter(name: 'population', in: 'query', required: false, description: 'Minimum population', schema: new OA\Schema(type: 'integer', example: 5000000000)),
+            new OA\Parameter(name: 'security', in: 'query', required: false, description: 'Security level (partial match)', schema: new OA\Schema(type: 'string', example: 'high')),
+            new OA\Parameter(name: 'government', in: 'query', required: false, description: 'Government type (partial match)', schema: new OA\Schema(type: 'string', example: 'Democracy')),
+            new OA\Parameter(name: 'allegiance', in: 'query', required: false, description: 'Allegiance (partial match)', schema: new OA\Schema(type: 'string', example: 'Federation')),
+            new OA\Parameter(name: 'economy', in: 'query', required: false, description: 'Economy type (partial match)', schema: new OA\Schema(type: 'string', example: 'Industrial')),
+            new OA\Parameter(name: 'withInformation', in: 'query', required: false, description: 'Embed political/demographic information', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withBodies', in: 'query', required: false, description: 'Embed celestial bodies', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+            new OA\Parameter(name: 'withStations', in: 'query', required: false, description: 'Embed stations and outposts', schema: new OA\Schema(type: 'integer', enum: [0, 1])),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Paginated list of matching systems',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/System')),
+                        new OA\Property(property: 'links', type: 'object'),
+                        new OA\Property(property: 'meta', type: 'object'),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function searchByInformation(SearchSystemByInformationRequest $request)
     {
         $validated = $request->validated();
@@ -355,6 +503,23 @@ class SystemController extends Controller
      *
      * Streams the response in batches to avoid loading all systems into memory at once.
      */
+    #[OA\Get(
+        path: '/system/slugid64s',
+        summary: 'Stream the full slug → id64 index for all systems',
+        description: 'Returns a streaming JSON object mapping every system slug to its id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.',
+        tags: ['System Search'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Streamed JSON object: { "slug": id64, ... }',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    additionalProperties: new OA\AdditionalProperties(type: 'integer'),
+                    example: ['10477373803-sol' => 10477373803, '8216113749-maia' => 8216113749]
+                )
+            ),
+        ]
+    )]
     public function getSlugID64s(): StreamedResponse
     {
         return response()->stream(function () {

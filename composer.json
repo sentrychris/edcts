@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.4",
         "cviebrock/eloquent-sluggable": "^13.0",
+        "darkaonline/l5-swagger": "^11.0",
         "guzzlehttp/guzzle": "^7.9",
         "halaxa/json-machine": "^1.1",
         "laravel/framework": "^13.0",

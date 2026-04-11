@@ -1,0 +1,2000 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "EDCS API",
+        "description": "The Elite Dangerous Companion Suite API provides galaxy data from Elite Dangerous to various consumers, including the EDCS frontend at https://edcs.app. Data is sourced from EDSM (Elite Dangerous Star Map), EDDN (Elite Dangerous Data Network), and the Frontier Companion API (CAPI).",
+        "contact": {
+            "name": "EDCS",
+            "url": "https://edcs.app"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.edcs.app/api",
+            "description": "EDCS API Server"
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user account",
+                "description": "Register users",
+                "operationId": "6703d7156c265a1e7b47e500d2a16304",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Chris Rowles"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "me@rowles.ch"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered — returns a Sanctum bearer token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthToken"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Log in with email and password",
+                "description": "Login users",
+                "operationId": "a5385ffca73f113abef00ea604d1ca58",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "me@rowles.ch"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Authenticated — returns a Sanctum bearer token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthToken"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Revoke all tokens for the authenticated user",
+                "description": "Logout users",
+                "operationId": "0f6715df0d22b69c7e35bd32b4c1fc92",
+                "responses": {
+                    "200": {
+                        "description": "Logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get the authenticated user with commander details",
+                "description": "Fetch authenticated user",
+                "operationId": "37252cdc2ae05f1e2e4fd541e987489d",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/frontier/login": {
+            "get": {
+                "tags": [
+                    "Frontier Auth"
+                ],
+                "summary": "Get Frontier OAuth authorization server metadata",
+                "description": "Returns authorization server info (auth URL, token endpoint, PKCE parameters) for the frontend to construct a login redirect.",
+                "operationId": "c55b4daa6138ae57cb23ec7153050bdc",
+                "responses": {
+                    "200": {
+                        "description": "Authorization server information",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Authorization server metadata",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/frontier/callback": {
+            "get": {
+                "tags": [
+                    "Frontier Auth"
+                ],
+                "summary": "Handle Frontier SSO OAuth callback",
+                "description": "Exchanges the authorization code for a Frontier access token, creates/confirms the user and commander record, then redirects to the frontend with a cmdr_token HttpOnly cookie.",
+                "operationId": "5d38b253137ef7813c0e7b1e25635ae6",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "Authorization grant code from Frontier",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "code_verifier",
+                        "in": "query",
+                        "description": "PKCE code verifier",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirects to frontend with cmdr_token cookie set"
+                    },
+                    "400": {
+                        "description": "Invalid authorization code or verifier"
+                    }
+                }
+            }
+        },
+        "/auth/frontier/me": {
+            "post": {
+                "tags": [
+                    "Frontier Auth"
+                ],
+                "summary": "Get the Frontier-authenticated user via cookie",
+                "description": "Returns the authenticated user and their commander data using the cmdr_token HttpOnly cookie set during the SSO callback.",
+                "operationId": "508608da4dc2df7e42f001057de28c84",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user with commander data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated — missing or invalid cmdr_token cookie"
+                    }
+                }
+            }
+        },
+        "/frontier/capi/profile": {
+            "get": {
+                "tags": [
+                    "Frontier CAPI"
+                ],
+                "summary": "Get the authenticated commander profile from Frontier CAPI",
+                "description": "Fetches the live commander profile from the Frontier Companion API and confirms/updates the stored commander record.",
+                "operationId": "04a52e1fac36e9d0cbbb5e147694d94d",
+                "responses": {
+                    "200": {
+                        "description": "Commander profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "description": "Commander profile from Frontier CAPI",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/frontier/capi/journal": {
+            "get": {
+                "tags": [
+                    "Frontier CAPI"
+                ],
+                "summary": "Get the commander journal for a given date",
+                "description": "Get all journal entries.",
+                "operationId": "f175382b7a5eb8385f17cd15543e974f",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Journal year",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2024
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Journal month (1–12)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "day",
+                        "in": "query",
+                        "description": "Journal day",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Journal entries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/galnet/news": {
+            "get": {
+                "tags": [
+                    "GalNet"
+                ],
+                "summary": "List GalNet news articles",
+                "description": "Returns a paginated list of in-game GalNet news articles, most recent first.",
+                "operationId": "ee0e4927700fcdafa7f4a21732584b45",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of results per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of GalNet articles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/GalnetNews"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/galnet/news/{slug}": {
+            "get": {
+                "tags": [
+                    "GalNet"
+                ],
+                "summary": "Get a single GalNet news article by slug",
+                "description": "Display a galnet news article.",
+                "operationId": "9b58aec38ff2a99f330ad91415ceca16",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Article slug in format {date}-{title-kebab}, e.g. 16-aug-3310-the-assault-on-thor",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "16-aug-3310-the-assault-on-thor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GalNet article",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/GalnetNews"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Article not found"
+                    }
+                }
+            }
+        },
+        "/galnet/news/{id}": {
+            "delete": {
+                "tags": [
+                    "GalNet"
+                ],
+                "summary": "Delete a GalNet news article",
+                "operationId": "91e8e157fbadd33418c648f02085891d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Article ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 42
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Article deleted"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Article not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/station/{slug}/market": {
+            "get": {
+                "tags": [
+                    "Market"
+                ],
+                "summary": "Get live commodity market data for a station",
+                "description": "Returns real-time commodity prices for a station sourced from EDDN. Data is stored in Redis as it arrives from the network. Commodity internal names are mapped to human-readable display names.",
+                "operationId": "0a78a86e6c18c979be0cf1d133b939e5",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Station slug in format {market_id}-{name}",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "128016384-daedalus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Market data. Returns an empty object if no EDDN data has been received for this station yet.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MarketData"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Station not found"
+                    }
+                }
+            }
+        },
+        "/stations/{slug}": {
+            "get": {
+                "tags": [
+                    "Stations"
+                ],
+                "summary": "Get a single station by slug",
+                "description": "Retrieves a station, outpost, or megaship by its slug ({market_id}-{name}). Pass withSystem to embed the parent system and its bodies.",
+                "operationId": "f0c8f6cdab8301614d6eba48f070c31e",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Station slug in format {market_id}-{name}",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "128016384-daedalus"
+                        }
+                    },
+                    {
+                        "name": "withSystem",
+                        "in": "query",
+                        "description": "Embed the parent system and its bodies",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Station",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Station"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Station not found"
+                    }
+                }
+            }
+        },
+        "/statistics": {
+            "get": {
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Get aggregate database statistics",
+                "description": "Returns counts of systems, bodies, and stations. Results are cached and refreshed hourly by the scheduler.",
+                "operationId": "ef811ca359bfe342d7b9e6efd3a51876",
+                "parameters": [
+                    {
+                        "name": "resetCache",
+                        "in": "query",
+                        "description": "Pass 1 to force a cache refresh",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Statistics"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bodies/{slug}": {
+            "get": {
+                "tags": [
+                    "Bodies"
+                ],
+                "summary": "Get a single celestial body by slug",
+                "description": "Retrieves a star, planet, or moon by its slug ({body_id}-{name}). Pass withSystem to embed the parent system, withStations to also embed the system's stations.",
+                "operationId": "4a99b4c6d64163da0c3817fb51a3d0d4",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Body slug in format {body_id}-{name}",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "108086401534265707-earth"
+                        }
+                    },
+                    {
+                        "name": "withSystem",
+                        "in": "query",
+                        "description": "Embed the parent system",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withStations",
+                        "in": "query",
+                        "description": "Embed the parent system's stations",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Celestial body",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/SystemBody"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Body not found"
+                    }
+                }
+            }
+        },
+        "/systems": {
+            "get": {
+                "tags": [
+                    "Systems"
+                ],
+                "summary": "List or search star systems",
+                "description": "Returns a paginated list of systems. When no name is given the results are served from cache. Pass withInformation, withBodies, or withStations to embed related data.",
+                "operationId": "66b1e69399855a09399536f9a52de7c4",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by system name (partial match by default)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Sol"
+                        }
+                    },
+                    {
+                        "name": "exactSearch",
+                        "in": "query",
+                        "description": "Require an exact name match",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withInformation",
+                        "in": "query",
+                        "description": "Embed political/demographic information",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withBodies",
+                        "in": "query",
+                        "description": "Embed celestial bodies",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withStations",
+                        "in": "query",
+                        "description": "Embed stations and outposts",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Results per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of systems",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/System"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/systems/{slug}": {
+            "get": {
+                "tags": [
+                    "Systems"
+                ],
+                "summary": "Get a single system by slug",
+                "description": "Retrieves a system by its slug ({id64}-{name}). If not in the local database the API transparently queries EDSM and stores the result. Pass withInformation, withBodies, or withStations to embed related data.",
+                "operationId": "4e51ff7244cb8d97dd98147159a28e35",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "System slug in format {id64}-{name}",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "10477373803-sol"
+                        }
+                    },
+                    {
+                        "name": "withInformation",
+                        "in": "query",
+                        "description": "Embed political/demographic information",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withBodies",
+                        "in": "query",
+                        "description": "Embed celestial bodies",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withStations",
+                        "in": "query",
+                        "description": "Embed stations and outposts",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "System",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/System"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "System not found"
+                    }
+                }
+            }
+        },
+        "/system/last-updated": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Get the most recently updated system",
+                "description": "Returns the system with the latest updated_at timestamp, including its bodies and information. Useful for monitoring data freshness.",
+                "operationId": "9c66779ca0a5880a255f75713becf3ba",
+                "responses": {
+                    "200": {
+                        "description": "Most recently updated system",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/System"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/system/search/distance": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Find systems within a given distance of galactic coordinates",
+                "description": "Returns all systems within the specified number of light years from the given (x, y, z) coordinates, sorted by distance. Results are cached for 24 hours.",
+                "operationId": "0f1e2f74add9322d429043e15c26ba35",
+                "parameters": [
+                    {
+                        "name": "x",
+                        "in": "query",
+                        "description": "Galactic X coordinate",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "y",
+                        "in": "query",
+                        "description": "Galactic Y coordinate",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "z",
+                        "in": "query",
+                        "description": "Galactic Z coordinate",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Search radius in light years",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum results to return",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Systems within the given distance, each with a calculated distance field",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SystemDistance"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/system/search/route": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Find the shortest jump route between two systems",
+                "description": "Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.",
+                "operationId": "44cae9e28ef7647e8349fe9e4933c21e",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Origin system slug ({id64}-{name})",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "8216113749-maia"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Destination system slug ({id64}-{name})",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "670685668665-pleiades-sector-ag-n-b7-0"
+                        }
+                    },
+                    {
+                        "name": "ly",
+                        "in": "query",
+                        "description": "Maximum jump range in light years",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 40
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ordered list of route waypoints",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SystemRouteWaypoint"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No route found within the given jump range"
+                    }
+                }
+            }
+        },
+        "/system/search/information": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Search systems by political and demographic attributes",
+                "description": "Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.",
+                "operationId": "f1f7569a650ccea46b5af6a5f6b217f8",
+                "parameters": [
+                    {
+                        "name": "population",
+                        "in": "query",
+                        "description": "Minimum population",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 5000000000
+                        }
+                    },
+                    {
+                        "name": "security",
+                        "in": "query",
+                        "description": "Security level (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "high"
+                        }
+                    },
+                    {
+                        "name": "government",
+                        "in": "query",
+                        "description": "Government type (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Democracy"
+                        }
+                    },
+                    {
+                        "name": "allegiance",
+                        "in": "query",
+                        "description": "Allegiance (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Federation"
+                        }
+                    },
+                    {
+                        "name": "economy",
+                        "in": "query",
+                        "description": "Economy type (partial match)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Industrial"
+                        }
+                    },
+                    {
+                        "name": "withInformation",
+                        "in": "query",
+                        "description": "Embed political/demographic information",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withBodies",
+                        "in": "query",
+                        "description": "Embed celestial bodies",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withStations",
+                        "in": "query",
+                        "description": "Embed stations and outposts",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of matching systems",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/System"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/system/slugid64s": {
+            "get": {
+                "tags": [
+                    "System Search"
+                ],
+                "summary": "Stream the full slug → id64 index for all systems",
+                "description": "Returns a streaming JSON object mapping every system slug to its id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
+                "operationId": "c537df8041f7acd2d433c876c23aa015",
+                "responses": {
+                    "200": {
+                        "description": "Streamed JSON object: { \"slug\": id64, ... }",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "example": {
+                                    "10477373803-sol": 10477373803,
+                                    "8216113749-maia": 8216113749
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuthToken": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Chris Rowles"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "1|abc123..."
+                    },
+                    "expiry": {
+                        "type": "integer",
+                        "example": 3600
+                    }
+                },
+                "type": "object"
+            },
+            "Commander": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "CMDR Rowles"
+                    },
+                    "api": {
+                        "properties": {
+                            "edsm": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "inara": {
+                                "type": "string",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Chris Rowles"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "me@rowles.ch"
+                    },
+                    "commander": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Commander"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "GalnetNews": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 42
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "The Assault on Thor"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "<p>In a bold manoeuvre...</p>"
+                    },
+                    "audio_file": {
+                        "type": "string",
+                        "example": "https://audio.example.com/file.mp3",
+                        "nullable": true
+                    },
+                    "uploaded_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "banner_image": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "16-aug-3310-the-assault-on-thor"
+                    }
+                },
+                "type": "object"
+            },
+            "Statistics": {
+                "properties": {
+                    "data": {
+                        "properties": {
+                            "systems": {
+                                "type": "integer",
+                                "example": 123456
+                            },
+                            "bodies": {
+                                "type": "integer",
+                                "example": 789012
+                            },
+                            "stations": {
+                                "type": "integer",
+                                "example": 34567
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "Station": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Daedalus"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "Orbis Starport"
+                    },
+                    "body": {
+                        "type": "string",
+                        "example": "Sol",
+                        "nullable": true
+                    },
+                    "distance_to_arrival": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 508
+                    },
+                    "controlling_faction": {
+                        "type": "string",
+                        "example": "Sol Constitution Party",
+                        "nullable": true
+                    },
+                    "allegiance": {
+                        "type": "string",
+                        "example": "Federation",
+                        "nullable": true
+                    },
+                    "government": {
+                        "type": "string",
+                        "example": "Democracy",
+                        "nullable": true
+                    },
+                    "economy": {
+                        "type": "string",
+                        "example": "Industrial",
+                        "nullable": true
+                    },
+                    "second_economy": {
+                        "type": "string",
+                        "example": "Refinery",
+                        "nullable": true
+                    },
+                    "has_market": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "has_shipyard": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "has_outfitting": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "other_services": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Restock",
+                            "Repair",
+                            "Contacts"
+                        ]
+                    },
+                    "last_updated": {
+                        "properties": {
+                            "information": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "market": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "shipyard": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "outfitting": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "128016384-daedalus"
+                    },
+                    "system": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/System"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "MarketCommodity": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Gold"
+                    },
+                    "buy_price": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "sell_price": {
+                        "type": "integer",
+                        "example": 47238
+                    },
+                    "mean_price": {
+                        "type": "integer",
+                        "example": 47201
+                    },
+                    "demand": {
+                        "type": "integer",
+                        "example": 14320
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 0
+                    }
+                },
+                "type": "object"
+            },
+            "MarketData": {
+                "properties": {
+                    "station": {
+                        "type": "string",
+                        "example": "Daedalus"
+                    },
+                    "system": {
+                        "type": "string",
+                        "example": "Sol"
+                    },
+                    "last_updated": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "prohibited": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Narcotics",
+                            "Slaves"
+                        ]
+                    },
+                    "commodities": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/MarketCommodity"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "SystemBody": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "body_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Earth"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "Planet"
+                    },
+                    "sub_type": {
+                        "type": "string",
+                        "example": "Earth-like world"
+                    },
+                    "distance_to_arrival": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 500
+                    },
+                    "is_main_star": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_scoopable": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "spectral_class": {
+                        "type": "string",
+                        "example": "G",
+                        "nullable": true
+                    },
+                    "luminosity": {
+                        "type": "string",
+                        "example": "Va",
+                        "nullable": true
+                    },
+                    "solar_masses": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "solar_radius": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "absolute_magnitude": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "discovery": {
+                        "properties": {
+                            "commander": {
+                                "type": "string",
+                                "example": "CMDR Explorer",
+                                "nullable": true
+                            },
+                            "date": {
+                                "type": "string",
+                                "example": "3302-06-01",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "radius": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "gravity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "earth_masses": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "surface_temp": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 288,
+                        "nullable": true
+                    },
+                    "is_landable": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "atmosphere_type": {
+                        "type": "string",
+                        "example": "Suitable for water-based life",
+                        "nullable": true
+                    },
+                    "volcanism_type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "terraforming_state": {
+                        "type": "string",
+                        "example": "Already terraformed",
+                        "nullable": true
+                    },
+                    "axial": {
+                        "properties": {
+                            "axial_tilt": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "semi_major_axis": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "rotational_period": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "is_tidally_locked": {
+                                "type": "boolean",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "orbital": {
+                        "properties": {
+                            "orbital_period": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "orbital_eccentricity": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "orbital_inclination": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            },
+                            "arg_of_periapsis": {
+                                "type": "number",
+                                "format": "float",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "rings": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "parents": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        },
+                        "nullable": true
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "108086401534265707-earth"
+                    },
+                    "system": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/System"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "SystemInformation": {
+                "properties": {
+                    "allegiance": {
+                        "type": "string",
+                        "example": "Federation"
+                    },
+                    "government": {
+                        "type": "string",
+                        "example": "Democracy"
+                    },
+                    "population": {
+                        "type": "integer",
+                        "example": 22780000000
+                    },
+                    "security": {
+                        "type": "string",
+                        "example": "High"
+                    },
+                    "economy": {
+                        "type": "string",
+                        "example": "Refinery"
+                    },
+                    "controlling_faction": {
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "example": "Mother Gaia"
+                            },
+                            "state": {
+                                "type": "string",
+                                "example": "None"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "SystemCoords": {
+                "properties": {
+                    "x": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "y": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "z": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    }
+                },
+                "type": "object"
+            },
+            "System": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id64": {
+                        "type": "integer",
+                        "example": 10477373803
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Sol"
+                    },
+                    "coords": {
+                        "$ref": "#/components/schemas/SystemCoords"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "10477373803-sol"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "information": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SystemInformation"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "bodies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SystemBody"
+                        },
+                        "nullable": true
+                    },
+                    "stations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Station"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "SystemDistance": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id64": {
+                        "type": "integer",
+                        "example": 10477373803
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Sol"
+                    },
+                    "coords": {
+                        "$ref": "#/components/schemas/SystemCoords"
+                    },
+                    "distance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.38
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "10477373803-sol"
+                    }
+                },
+                "type": "object"
+            },
+            "SystemRouteWaypoint": {
+                "properties": {
+                    "jump": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id64": {
+                        "type": "integer",
+                        "example": 8216113749
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Maia"
+                    },
+                    "coords": {
+                        "$ref": "#/components/schemas/SystemCoords"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "8216113749-maia"
+                    },
+                    "distance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 38.2
+                    },
+                    "total_distance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 38.2
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Laravel Sanctum bearer token. Obtain via POST /auth/login or the Frontier SSO flow.",
+                "scheme": "bearer",
+                "bearerFormat": "Token"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Standard email/password authentication"
+        },
+        {
+            "name": "Frontier Auth",
+            "description": "Frontier SSO OAuth 2.0 PKCE authentication"
+        },
+        {
+            "name": "Frontier CAPI",
+            "description": "Frontier Companion API — authenticated commander data"
+        },
+        {
+            "name": "GalNet",
+            "description": "In-game GalNet news articles"
+        },
+        {
+            "name": "Statistics",
+            "description": "Aggregate database statistics"
+        },
+        {
+            "name": "Systems",
+            "description": "Star systems across the galaxy"
+        },
+        {
+            "name": "System Search",
+            "description": "Search and utility endpoints for systems"
+        },
+        {
+            "name": "Bodies",
+            "description": "Celestial bodies — stars, planets, moons"
+        },
+        {
+            "name": "Stations",
+            "description": "Stations, outposts, and megaships"
+        },
+        {
+            "name": "Market",
+            "description": "Live commodity market data from EDDN"
+        }
+    ]
+}

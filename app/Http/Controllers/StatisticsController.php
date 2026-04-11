@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\StatService;
-use App\Traits\UseStatistics;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use OpenApi\Attributes as OA;
 
 class StatisticsController extends Controller
 {
@@ -13,8 +13,6 @@ class StatisticsController extends Controller
 
     /**
      * Constructor
-     * 
-     * @param StatService $statService
      */
     public function __construct(StatService $statService)
     {
@@ -23,17 +21,36 @@ class StatisticsController extends Controller
 
     /**
      * Get statistics.
-     * 
+     *
      * Statistics are cached and refreshed every hour through the artisan
      * scheduler.
-     * 
-     * @param Request $request
-     * @return Response
      */
+    #[OA\Get(
+        path: '/statistics',
+        summary: 'Get aggregate database statistics',
+        description: 'Returns counts of systems, bodies, and stations. Results are cached and refreshed hourly by the scheduler.',
+        tags: ['Statistics'],
+        parameters: [
+            new OA\Parameter(
+                name: 'resetCache',
+                in: 'query',
+                required: false,
+                description: 'Pass 1 to force a cache refresh',
+                schema: new OA\Schema(type: 'integer', enum: [0, 1], example: 1)
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Statistics',
+                content: new OA\JsonContent(ref: '#/components/schemas/Statistics')
+            ),
+        ]
+    )]
     public function index(Request $request): Response
     {
         return response([
-            'data' => $this->statService->fetch('statistics', $request->all())
+            'data' => $this->statService->fetch('statistics', $request->all()),
         ]);
     }
 }

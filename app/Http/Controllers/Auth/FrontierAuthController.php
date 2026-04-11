@@ -8,6 +8,7 @@ use App\Services\Frontier\FrontierAuthService;
 use App\Services\Frontier\FrontierCApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA;
 
 class FrontierAuthController extends Controller
 {
@@ -46,6 +47,27 @@ class FrontierAuthController extends Controller
      *
      * @return mixed - the response
      */
+    #[OA\Get(
+        path: '/auth/frontier/login',
+        summary: 'Get Frontier OAuth authorization server metadata',
+        description: 'Returns authorization server info (auth URL, token endpoint, PKCE parameters) for the frontend to construct a login redirect.',
+        tags: ['Frontier Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authorization server information',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            description: 'Authorization server metadata'
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )]
     public function login()
     {
         return response()->json([
@@ -64,6 +86,20 @@ class FrontierAuthController extends Controller
      * @param  Request  $request  - the request object
      * @return mixed - the response
      */
+    #[OA\Get(
+        path: '/auth/frontier/callback',
+        summary: 'Handle Frontier SSO OAuth callback',
+        description: 'Exchanges the authorization code for a Frontier access token, creates/confirms the user and commander record, then redirects to the frontend with a cmdr_token HttpOnly cookie.',
+        tags: ['Frontier Auth'],
+        parameters: [
+            new OA\Parameter(name: 'code', in: 'query', required: true, description: 'Authorization grant code from Frontier', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'code_verifier', in: 'query', required: true, description: 'PKCE code verifier', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 302, description: 'Redirects to frontend with cmdr_token cookie set'),
+            new OA\Response(response: 400, description: 'Invalid authorization code or verifier'),
+        ]
+    )]
     public function callback(Request $request)
     {
         // Authorize the user and decode the token to get their Frontier profile
@@ -92,6 +128,31 @@ class FrontierAuthController extends Controller
      *
      * @return void
      */
+    #[OA\Post(
+        path: '/auth/frontier/me',
+        summary: 'Get the Frontier-authenticated user via cookie',
+        description: 'Returns the authenticated user and their commander data using the cmdr_token HttpOnly cookie set during the SSO callback.',
+        tags: ['Frontier Auth'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated user with commander data',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+                                new OA\Property(property: 'token', type: 'string'),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated — missing or invalid cmdr_token cookie'),
+        ]
+    )]
     public function me(Request $request)
     {
         return response()->json([
