@@ -18,7 +18,7 @@ class SystemResource extends JsonResource
             'id' => $this->id,
             'id64'=> $this->id64,
             'name' => $this->name,
-            'coords' => json_decode($this->coords),
+            'coords' => ['x' => $this->coords_x, 'y' => $this->coords_y, 'z' => $this->coords_z],
             'information' => new SystemInformationResource($this->whenLoaded('information')),
             'bodies' => $this->whenLoaded('bodies'),
             'stations' =>  SystemStationResource::collection($this->whenLoaded('stations')), 

@@ -112,7 +112,9 @@ class System extends Model
             id,
             id64,
             name,
-            coords,
+            coords_x,
+            coords_y,
+            coords_z,
             slug,
             updated_at,
             SQRT(

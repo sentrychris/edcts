@@ -57,11 +57,9 @@ class EddnSystemService extends EddnService
                             $system = System::create([
                                 'id64' => $starSystemId64,
                                 'name' => $starSystem,
-                                'coords' => json_encode([
-                                    'x' => $message["StarPos"][0],
-                                    'y' => $message["StarPos"][1],
-                                    'z' => $message["StarPos"][2],
-                                ]),
+                                'coords_x' => $message["StarPos"][0],
+                                'coords_y' => $message["StarPos"][1],
+                                'coords_z' => $message["StarPos"][2],
                                 'updated_at' => now(),
                             ]);
     

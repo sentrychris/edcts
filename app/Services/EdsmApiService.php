@@ -47,7 +47,9 @@ class EdsmApiService extends ApiService
                 $system = System::updateOrCreate(['id64' => $response->id64], [
                     'id64' => $response->id64,
                     'name' => $response->name,
-                    'coords' => json_encode($response->coords),
+                    'coords_x' => $response->coords->x,
+                    'coords_y' => $response->coords->y,
+                    'coords_z' => $response->coords->z,
                     'updated_at' => now()
                 ]);
             } else {

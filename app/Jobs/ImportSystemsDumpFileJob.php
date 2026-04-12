@@ -84,7 +84,9 @@ class ImportSystemsDumpFileJob implements ShouldQueue
             $systemPayload = [
                 'id64'   => $system->id64,
                 'name'   => $system->name,
-                'coords' => json_encode($system->coords),
+                'coords_x' => $system->coords->x,
+                'coords_y' => $system->coords->y,
+                'coords_z' => $system->coords->z,
                 'updated_at' => app(EdsmApiService::class)->formatSystemUpdateTime($system)
             ];
 
