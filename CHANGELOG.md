@@ -20,8 +20,8 @@ All notable changes to EDCTS are documented here. The format is based on [Keep a
 - **Tests** — PHPUnit feature test suite for the distance search endpoint (`SearchSystemByDistanceTest`): covers slug/coordinate parity, range exclusion, ordering, and validation rules.
 
 ### Changed
-- **Distance endpoint** — `GET /api/system/search/distance` now accepts a `slug` parameter as an alternative origin to raw `x/y/z` coordinates.
-- **Slug endpoint** — `GET /api/system/{slug}` overhauled; slug format updated to omit the `id64` prefix from the display route.
+- **Distance endpoint** — `GET /api/systems/search/distance` now accepts a `slug` parameter as an alternative origin to raw `x/y/z` coordinates.
+- **Slug endpoint** — `GET /api/systems/{slug}` overhauled; slug format updated to omit the `id64` prefix from the display route.
 - **Console commands** — Renamed for clarity: `ImportDumpFile` → `ImportDumpFileCommand`, `EddnListen` → `EddnListenCommand`, `CacheStatistics` → `CacheStatisticsCommand`, `ImportGalnet` → `ImportGalnetArticlesCommand`. `CachePages` command and `CacheSystemsPages` job removed.
 - **Routing** — Commander and Frontier auth routes reorganised; `CommanderController` extracted.
 - **Docs** — README, API overview, and Postman collection updated.
@@ -31,7 +31,7 @@ All notable changes to EDCTS are documented here. The format is based on [Keep a
 ## [2026-04-10]
 
 ### Added
-- **Route finder** — A\* pathfinding service (`NavRouteFinderService`) exposed via `GET /api/system/search/route`; accepts `from` slug, `to` slug, and `ly` jump range. PHPUnit feature tests cover direct routes, multi-hop routes, unreachable destinations, and validation.
+- **Route finder** — A\* pathfinding service (`NavRouteFinderService`) exposed via `GET /api/systems/search/route`; accepts `from` slug, `to` slug, and `ly` jump range. PHPUnit feature tests cover direct routes, multi-hop routes, unreachable destinations, and validation.
 - **DiscordAlert facade** — `DiscordAlertService` extracted from inline calls into a dedicated service with a `DiscordAlert` facade accessor, making alert dispatching uniform across all services.
 - **Stored generated coord columns** — `coords_x`, `coords_y`, `coords_z` added to `systems` as `STORED` generated columns (computed from `JSON_EXTRACT(coords, '$.x/y/z')`) with a compound `(coords_x, coords_y, coords_z)` index for bounding-box pre-filtering on distance queries.
 
