@@ -1,8 +1,6 @@
-# EDCS Backend API
+# ED:CS API
 
-Backend services for EDCS - responsible for communicating with Elite 3rd party services and providing data to the [EDCS frontend](https://github.com/sentrychris/edcts-frontend).
-
-View API documentation here: https://api.edcs.app/api/documentation
+ED:CS API. View documentation here: https://api.edcs.app/api/documentation
 
 ## Requirements
 
@@ -31,7 +29,7 @@ View API documentation here: https://api.edcs.app/api/documentation
 
 ## Development
 
-The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage, [Redis](https://redis.io/) for caching, and [Supervisor](http://supervisord.org/) for managing queue workers and long-running artisan commands.
+The ED:CS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](https://mysql.org/) for storage, [Redis](https://redis.io/) for caching, and [Supervisor](http://supervisord.org/) for managing queue workers and long-running artisan commands.
 
 [Docker](https://www.docker.com/) is used for local development.
 
@@ -40,7 +38,7 @@ The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](
 1. Clone this repository:
 
     ```sh
-    git clone git@gitub.com:sentrychris/edcts.git
+    git clone git@gitub.com:sentrychris/edcs.git
     ```
 
 2. Install dependencies:
@@ -59,9 +57,9 @@ The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](
     ```sh
     ...
     DB_CONNECTION=mysql
-    DB_HOST=edcts-mysql-1 # name of the running db container
+    DB_HOST=edcs-mysql-1 # name of the running db container
     DB_PORT=3306
-    DB_DATABASE=edcts
+    DB_DATABASE=edcs
     DB_USERNAME=sail
     DB_PASSWORD=password
 
@@ -79,7 +77,7 @@ The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](
     SESSION_DRIVER=database
     SESSION_LIFETIME=120
 
-    REDIS_HOST=edcts-redis-1
+    REDIS_HOST=edcs-redis-1
     REDIS_PASSWORD=null
     REDIS_PORT=6379
     ... # the rest should be fine
@@ -130,7 +128,7 @@ The EDCS backend is built with [Laravel](https://laravel.com/) and uses [MySQL](
 
 ## Credits
 
-EDCS wouldn't be possible without the work of hundreds of talented members of the Elite: Dangerous community.
+ED:CS wouldn't be possible without the work of hundreds of talented members of the Elite: Dangerous community.
 
 _"Standing on the shoulders of giants"_.
 
@@ -145,4 +143,4 @@ Special thanks to:
 
 "Elite", the Elite logo, the Elite: Dangerous logo, "Frontier" and the Frontier logo are registered trademarks of Frontier Developments plc. All rights reserved. All other trademarks and copyrights are acknowledged as the property of their respective owners.
 
-EDCS is free, open source software released under the MIT License.
+ED:CS is free, open source software released under the MIT License.
