@@ -226,10 +226,10 @@ class SystemController extends Controller
      * @return SystemResource
      */
     #[OA\Get(
-        path: '/system/last-updated',
+        path: '/systems/last-updated',
         summary: 'Get the most recently updated system',
         description: 'Returns the system with the latest updated_at timestamp, including its bodies and information. Useful for monitoring data freshness.',
-        tags: ['System Search'],
+        tags: ['Systems'],
         responses: [
             new OA\Response(
                 response: 200,
@@ -270,7 +270,7 @@ class SystemController extends Controller
      * Find systems by distance in light years.
      */
     #[OA\Get(
-        path: '/system/search/distance',
+        path: '/systems/search/distance',
         summary: 'Find systems within a given distance of a position',
         description: 'Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.',
         tags: ['System Search'],
@@ -330,7 +330,7 @@ class SystemController extends Controller
      * ly:   - Maximum jump range in light years.
      */
     #[OA\Get(
-        path: '/system/search/route',
+        path: '/systems/search/route',
         summary: 'Find the shortest jump route between two systems',
         description: 'Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.',
         tags: ['System Search'],
@@ -420,7 +420,7 @@ class SystemController extends Controller
      * @return AnonymousResourceCollection
      */
     #[OA\Get(
-        path: '/system/search/information',
+        path: '/systems/search/information',
         summary: 'Search systems by political and demographic attributes',
         description: 'Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.',
         tags: ['System Search'],
@@ -500,10 +500,10 @@ class SystemController extends Controller
      * Streams the response in batches to avoid loading all systems into memory at once.
      */
     #[OA\Get(
-        path: '/system/id64s',
+        path: '/systems/id64s',
         summary: 'Stream the full id64 list for all systems',
         description: 'Returns a streaming JSON array of every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.',
-        tags: ['System Search'],
+        tags: ['Systems'],
         responses: [
             new OA\Response(
                 response: 200,

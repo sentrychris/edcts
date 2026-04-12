@@ -23,23 +23,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+/*
+|--------------------------------------------------------------------------
+| /auth routes
+|--------------------------------------------------------------------------
+*/
 Route::prefix('auth')->group(function () {
-    Route::get('login', function () {
-        return response()->json(['message' => 'Unauthorized.'], 401);
-    })->name('login');
-
+    // Standard Auth (internal use only)
+    Route::get('login', fn () => redirect('https://edcs.app'))->name('login');
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-
-    Route::prefix('frontier')->group(function () {
-        Route::get('login', [FrontierAuthController::class, 'login'])->name('frontier.auth.login');
-        Route::get('callback', [FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
-        Route::post('me', [FrontierAuthController::class, 'me'])->name('frontier.auth.me');
-    });
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
+    });
+
+    // Frontier Auth
+    Route::prefix('frontier')->group(function () {
+        Route::get('login', [FrontierAuthController::class, 'login'])->name('frontier.auth.login');
+        Route::get('callback', [FrontierAuthController::class, 'callback'])->name('frontier.auth.callback');
+        Route::post('me', [FrontierAuthController::class, 'me'])->name('frontier.auth.me');
     });
 });
 
@@ -54,30 +58,55 @@ Route::middleware('auth:sanctum')->prefix('frontier')->group(function () {
     });
 });
 
-Route::resource('systems', SystemController::class);
-
-Route::prefix('system')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| /systems routes
+|
+| Note: Order is important! Laravel matches routes top-down, defining the custom
+| routes before the resource route prevents e.g. "GET /systems/last-updated"
+| from being incorrectly captured by "GET /systems/{system}"
+|--------------------------------------------------------------------------
+*/
+Route::prefix('systems')->name('systems.')->group(function () {
     Route::get('last-updated', [SystemController::class, 'getLastUpdated']);
-
     Route::prefix('search')->group(function () {
         Route::get('distance', [SystemController::class, 'searchByDistance']);
         Route::get('information', [SystemController::class, 'searchByInformation']);
         Route::get('route', [SystemController::class, 'searchRoute']);
     });
-
     Route::get('id64s', [SystemController::class, 'getId64s']);
 });
+Route::resource('systems', SystemController::class);
 
+/*
+|--------------------------------------------------------------------------
+| /bodies routes
+|--------------------------------------------------------------------------
+*/
 Route::resource('bodies', SystemBodyController::class);
 
-Route::resource('stations', StationController::class);
-
-Route::prefix('station')->group(function () {
+/*
+|--------------------------------------------------------------------------
+| /stations routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('stations')->group(function () {
     Route::get('{slug}/market', [MarketController::class, 'getMarketDataForStation']);
 });
+Route::resource('stations', StationController::class);
 
+/*
+|--------------------------------------------------------------------------
+| /statistics routes
+|--------------------------------------------------------------------------
+*/
 Route::get('statistics', [StatisticsController::class, 'index']);
 
+/*
+|--------------------------------------------------------------------------
+| /galnet routes
+|--------------------------------------------------------------------------
+*/
 Route::prefix('galnet')->group(function () {
     Route::resource('news', GalnetNewsController::class);
 });

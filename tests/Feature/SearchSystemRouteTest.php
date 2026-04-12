@@ -15,7 +15,7 @@ class SearchSystemRouteTest extends TestCase
         $from = System::factory()->atCoords(0, 0, 0)->create();
         $to = System::factory()->atCoords(10, 0, 0)->create();
 
-        $response = $this->getJson("/api/system/search/route?from={$from->slug}&to={$to->slug}&ly=50");
+        $response = $this->getJson("/api/systems/search/route?from={$from->slug}&to={$to->slug}&ly=50");
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
@@ -33,7 +33,7 @@ class SearchSystemRouteTest extends TestCase
         $to = System::factory()->atCoords(40, 0, 0)->create();
 
         // Jump range of 25 means direct 40 LY jump is impossible; must hop via intermediate
-        $response = $this->getJson("/api/system/search/route?from={$from->slug}&to={$to->slug}&ly=25");
+        $response = $this->getJson("/api/systems/search/route?from={$from->slug}&to={$to->slug}&ly=25");
 
         $response->assertOk();
         $response->assertJsonCount(3, 'data');
@@ -48,7 +48,7 @@ class SearchSystemRouteTest extends TestCase
         $to = System::factory()->atCoords(1000, 0, 0)->create();
 
         // Jump range of 5 LY — no intermediate systems, no route possible
-        $response = $this->getJson("/api/system/search/route?from={$from->slug}&to={$to->slug}&ly=5");
+        $response = $this->getJson("/api/systems/search/route?from={$from->slug}&to={$to->slug}&ly=5");
 
         $response->assertNotFound();
         $response->assertJsonPath('message', 'No route found within the given jump range.');
@@ -58,7 +58,7 @@ class SearchSystemRouteTest extends TestCase
     {
         $system = System::factory()->atCoords(0, 0, 0)->create();
 
-        $response = $this->getJson("/api/system/search/route?from={$system->slug}&to={$system->slug}&ly=50");
+        $response = $this->getJson("/api/systems/search/route?from={$system->slug}&to={$system->slug}&ly=50");
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
@@ -67,7 +67,7 @@ class SearchSystemRouteTest extends TestCase
 
     public function test_validates_required_fields(): void
     {
-        $response = $this->getJson('/api/system/search/route');
+        $response = $this->getJson('/api/systems/search/route');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['from', 'to', 'ly']);
@@ -75,7 +75,7 @@ class SearchSystemRouteTest extends TestCase
 
     public function test_validates_that_systems_exist(): void
     {
-        $response = $this->getJson('/api/system/search/route?from=nonexistent-slug&to=also-fake&ly=50');
+        $response = $this->getJson('/api/systems/search/route?from=nonexistent-slug&to=also-fake&ly=50');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['from', 'to']);
@@ -86,7 +86,7 @@ class SearchSystemRouteTest extends TestCase
         $from = System::factory()->create();
         $to = System::factory()->create();
 
-        $response = $this->getJson("/api/system/search/route?from={$from->slug}&to={$to->slug}&ly=501");
+        $response = $this->getJson("/api/systems/search/route?from={$from->slug}&to={$to->slug}&ly=501");
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['ly']);
@@ -97,7 +97,7 @@ class SearchSystemRouteTest extends TestCase
         $from = System::factory()->atCoords(0, 0, 0)->create();
         $to = System::factory()->atCoords(30, 0, 0)->create();
 
-        $response = $this->getJson("/api/system/search/route?from={$from->slug}&to={$to->slug}&ly=50");
+        $response = $this->getJson("/api/systems/search/route?from={$from->slug}&to={$to->slug}&ly=50");
 
         $response->assertOk();
         $response->assertJsonStructure([

@@ -189,6 +189,70 @@
                 ]
             }
         },
+        "/commander": {
+            "put": {
+                "tags": [
+                    "Commander"
+                ],
+                "summary": "Update commander third-party API keys",
+                "description": "Updates the Inara and/or EDSM API keys for the authenticated commander.",
+                "operationId": "d52cd094b8db01d5c578108ef6f5c17b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "inara_api_key": {
+                                        "type": "string",
+                                        "example": "abc123",
+                                        "nullable": true
+                                    },
+                                    "edsm_api_key": {
+                                        "type": "string",
+                                        "example": "xyz789",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Commander updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Commander updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "No associated commander"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/auth/frontier/login": {
             "get": {
                 "tags": [
@@ -196,7 +260,7 @@
                 ],
                 "summary": "Get Frontier OAuth authorization server metadata",
                 "description": "Returns authorization server info (auth URL, token endpoint, PKCE parameters) for the frontend to construct a login redirect.",
-                "operationId": "c55b4daa6138ae57cb23ec7153050bdc",
+                "operationId": "f7346ce17227f17c063f397bccb8a6b2",
                 "responses": {
                     "200": {
                         "description": "Authorization server information",
@@ -224,7 +288,7 @@
                 ],
                 "summary": "Handle Frontier SSO OAuth callback",
                 "description": "Exchanges the authorization code for a Frontier access token, creates/confirms the user and commander record, then redirects to the frontend with a cmdr_token HttpOnly cookie.",
-                "operationId": "5d38b253137ef7813c0e7b1e25635ae6",
+                "operationId": "739117e29868cb3b19770984562889df",
                 "parameters": [
                     {
                         "name": "code",
@@ -262,7 +326,7 @@
                 ],
                 "summary": "Get the Frontier-authenticated user via cookie",
                 "description": "Returns the authenticated user and their commander data using the cmdr_token HttpOnly cookie set during the SSO callback.",
-                "operationId": "508608da4dc2df7e42f001057de28c84",
+                "operationId": "0652359ccc9991718a0d9345467c4225",
                 "responses": {
                     "200": {
                         "description": "Authenticated user with commander data",
@@ -300,7 +364,7 @@
                 ],
                 "summary": "Get the authenticated commander profile from Frontier CAPI",
                 "description": "Fetches the live commander profile from the Frontier Companion API and confirms/updates the stored commander record.",
-                "operationId": "04a52e1fac36e9d0cbbb5e147694d94d",
+                "operationId": "78851a1895864bf6658c189199ba2d72",
                 "responses": {
                     "200": {
                         "description": "Commander profile",
@@ -336,7 +400,7 @@
                 ],
                 "summary": "Get the commander journal for a given date",
                 "description": "Get all journal entries.",
-                "operationId": "f175382b7a5eb8385f17cd15543e974f",
+                "operationId": "48277be40fc290fb8bc347afc874619f",
                 "parameters": [
                     {
                         "name": "year",
@@ -528,22 +592,17 @@
                     "404": {
                         "description": "Article not found"
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "/station/{slug}/market": {
+        "/stations/{slug}/market": {
             "get": {
                 "tags": [
                     "Market"
                 ],
                 "summary": "Get live commodity market data for a station",
                 "description": "Returns real-time commodity prices for a station sourced from EDDN. Data is stored in Redis as it arrives from the network. Commodity internal names are mapped to human-readable display names.",
-                "operationId": "0a78a86e6c18c979be0cf1d133b939e5",
+                "operationId": "cbc1d642771e56651573254099899c68",
                 "parameters": [
                     {
                         "name": "slug",
@@ -638,9 +697,9 @@
                 "operationId": "ef811ca359bfe342d7b9e6efd3a51876",
                 "parameters": [
                     {
-                        "name": "resetCache",
+                        "name": "flushCache",
                         "in": "query",
-                        "description": "Pass 1 to force a cache refresh",
+                        "description": "Pass 1 to flush the cache and force a fresh calculation",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -649,6 +708,16 @@
                                 0,
                                 1
                             ]
+                        }
+                    },
+                    {
+                        "name": "ttl",
+                        "in": "query",
+                        "description": "Cache lifetime in seconds (default: 3600)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 3600
                         }
                     }
                 ],
@@ -936,14 +1005,14 @@
                 }
             }
         },
-        "/system/last-updated": {
+        "/systems/last-updated": {
             "get": {
                 "tags": [
-                    "System Search"
+                    "Systems"
                 ],
                 "summary": "Get the most recently updated system",
                 "description": "Returns the system with the latest updated_at timestamp, including its bodies and information. Useful for monitoring data freshness.",
-                "operationId": "9c66779ca0a5880a255f75713becf3ba",
+                "operationId": "f437ce49036c7ba416c3ef4009b625e4",
                 "responses": {
                     "200": {
                         "description": "Most recently updated system",
@@ -963,14 +1032,14 @@
                 }
             }
         },
-        "/system/search/distance": {
+        "/systems/search/distance": {
             "get": {
                 "tags": [
                     "System Search"
                 ],
                 "summary": "Find systems within a given distance of a position",
                 "description": "Returns a paginated list of systems within the specified number of light years from a position, sorted by distance. The position can be specified either by a system slug or by raw galactic (x, y, z) coordinates — slug takes precedence if both are provided.",
-                "operationId": "0f1e2f74add9322d429043e15c26ba35",
+                "operationId": "ca705a3423f8b2e5bc1e1a60f9d1d01e",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1018,8 +1087,8 @@
                     {
                         "name": "ly",
                         "in": "query",
-                        "description": "Search radius in light years",
-                        "required": true,
+                        "description": "Search radius in light years (default: 100, max: 5000)",
+                        "required": false,
                         "schema": {
                             "type": "number",
                             "format": "float",
@@ -1029,7 +1098,7 @@
                     {
                         "name": "limit",
                         "in": "query",
-                        "description": "Maximum results to return",
+                        "description": "Maximum results per page (max: 1000)",
                         "required": false,
                         "schema": {
                             "type": "integer",
@@ -1075,14 +1144,14 @@
                 }
             }
         },
-        "/system/search/route": {
+        "/systems/search/route": {
             "get": {
                 "tags": [
                     "System Search"
                 ],
                 "summary": "Find the shortest jump route between two systems",
                 "description": "Computes the shortest route between two systems within the given jump range. Returns an ordered list of waypoints with per-hop and cumulative distances. Results are cached for 24 hours.",
-                "operationId": "44cae9e28ef7647e8349fe9e4933c21e",
+                "operationId": "14b61402b4fdb6c2b5e5482e6d0f9239",
                 "parameters": [
                     {
                         "name": "from",
@@ -1107,7 +1176,7 @@
                     {
                         "name": "ly",
                         "in": "query",
-                        "description": "Maximum jump range in light years",
+                        "description": "Maximum jump range in light years (min: 1, max: 500)",
                         "required": true,
                         "schema": {
                             "type": "number",
@@ -1141,14 +1210,14 @@
                 }
             }
         },
-        "/system/search/information": {
+        "/systems/search/information": {
             "get": {
                 "tags": [
                     "System Search"
                 ],
                 "summary": "Search systems by political and demographic attributes",
                 "description": "Filters systems by population (minimum), security, government, allegiance, and economy. All text filters are partial-match.",
-                "operationId": "f1f7569a650ccea46b5af6a5f6b217f8",
+                "operationId": "4dcab4488d1eafca0dd463a9eda8208e",
                 "parameters": [
                     {
                         "name": "population",
@@ -1268,14 +1337,14 @@
                 }
             }
         },
-        "/system/id64s": {
+        "/systems/id64s": {
             "get": {
                 "tags": [
-                    "System Search"
+                    "Systems"
                 ],
                 "summary": "Stream the full id64 list for all systems",
                 "description": "Returns a streaming JSON array of every system id64. Delivered in chunks to avoid memory limits. Intended for consumers that need the full system index.",
-                "operationId": "e9e867beb76394d4d27c7d2bfd91c31c",
+                "operationId": "ae321687d11a3b3f9aaba66972784077",
                 "responses": {
                     "200": {
                         "description": "Streamed JSON array: [id64, ...]",
@@ -1340,6 +1409,24 @@
                 },
                 "type": "object"
             },
+            "FrontierUser": {
+                "properties": {
+                    "frontier_id": {
+                        "type": "string",
+                        "example": "F123456",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "properties": {
                     "id": {
@@ -1359,6 +1446,14 @@
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/Commander"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "frontier_user": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/FrontierUser"
                             }
                         ],
                         "nullable": true
@@ -1404,17 +1499,30 @@
                 "properties": {
                     "data": {
                         "properties": {
-                            "systems": {
-                                "type": "integer",
-                                "example": 123456
+                            "cartographical": {
+                                "properties": {
+                                    "systems": {
+                                        "type": "integer",
+                                        "example": 123456
+                                    },
+                                    "bodies": {
+                                        "type": "integer",
+                                        "example": 789012
+                                    },
+                                    "stars": {
+                                        "type": "integer",
+                                        "example": 45678
+                                    },
+                                    "orbiting": {
+                                        "type": "integer",
+                                        "example": 23456
+                                    }
+                                },
+                                "type": "object"
                             },
-                            "bodies": {
+                            "commanders": {
                                 "type": "integer",
-                                "example": 789012
-                            },
-                            "stations": {
-                                "type": "integer",
-                                "example": 34567
+                                "example": 1234
                             }
                         },
                         "type": "object"
@@ -1999,6 +2107,10 @@
         {
             "name": "GalNet",
             "description": "In-game GalNet news articles"
+        },
+        {
+            "name": "Commander",
+            "description": "Authenticated commander profile management"
         },
         {
             "name": "Statistics",

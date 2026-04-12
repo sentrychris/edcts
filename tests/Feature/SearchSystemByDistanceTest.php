@@ -16,7 +16,7 @@ class SearchSystemByDistanceTest extends TestCase
         $near = System::factory()->atCoords(10, 0, 0)->create();
         System::factory()->atCoords(500, 0, 0)->create();
 
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $response->assertOk();
         $response->assertJsonFragment(['name' => $origin->name]);
@@ -29,7 +29,7 @@ class SearchSystemByDistanceTest extends TestCase
         $near = System::factory()->atCoords(10, 0, 0)->create();
         System::factory()->atCoords(500, 0, 0)->create();
 
-        $response = $this->getJson("/api/system/search/distance?slug={$origin->slug}&ly=50");
+        $response = $this->getJson("/api/systems/search/distance?slug={$origin->slug}&ly=50");
 
         $response->assertOk();
         $response->assertJsonFragment(['name' => $origin->name]);
@@ -41,8 +41,8 @@ class SearchSystemByDistanceTest extends TestCase
         $origin = System::factory()->atCoords(0, 0, 0)->create();
         System::factory()->atCoords(10, 0, 0)->create();
 
-        $bySlug = $this->getJson("/api/system/search/distance?slug={$origin->slug}&ly=50");
-        $byCoords = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50');
+        $bySlug = $this->getJson("/api/systems/search/distance?slug={$origin->slug}&ly=50");
+        $byCoords = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $bySlug->assertOk();
         $byCoords->assertOk();
@@ -54,7 +54,7 @@ class SearchSystemByDistanceTest extends TestCase
         System::factory()->atCoords(0, 0, 0)->create();
         $far = System::factory()->atCoords(200, 0, 0)->create();
 
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $response->assertOk();
         $response->assertJsonMissing(['name' => $far->name]);
@@ -66,7 +66,7 @@ class SearchSystemByDistanceTest extends TestCase
         $farther = System::factory()->atCoords(20, 0, 0)->create();
         $nearer = System::factory()->atCoords(5, 0, 0)->create();
 
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $response->assertOk();
         $data = $response->json('data');
@@ -80,7 +80,7 @@ class SearchSystemByDistanceTest extends TestCase
         System::factory()->atCoords(0, 0, 0)->create();
         System::factory()->atCoords(30, 0, 0)->create();
 
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50');
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -93,7 +93,7 @@ class SearchSystemByDistanceTest extends TestCase
 
     public function test_validates_that_coordinates_are_required_without_slug(): void
     {
-        $response = $this->getJson('/api/system/search/distance?ly=50');
+        $response = $this->getJson('/api/systems/search/distance?ly=50');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['x', 'y', 'z']);
@@ -101,7 +101,7 @@ class SearchSystemByDistanceTest extends TestCase
 
     public function test_validates_that_slug_must_exist(): void
     {
-        $response = $this->getJson('/api/system/search/distance?slug=nonexistent-slug&ly=50');
+        $response = $this->getJson('/api/systems/search/distance?slug=nonexistent-slug&ly=50');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['slug']);
@@ -111,7 +111,7 @@ class SearchSystemByDistanceTest extends TestCase
     {
         $system = System::factory()->atCoords(0, 0, 0)->create();
 
-        $response = $this->getJson("/api/system/search/distance?slug={$system->slug}&ly=50");
+        $response = $this->getJson("/api/systems/search/distance?slug={$system->slug}&ly=50");
 
         $response->assertOk();
         $response->assertJsonMissingValidationErrors(['x', 'y', 'z']);
@@ -119,7 +119,7 @@ class SearchSystemByDistanceTest extends TestCase
 
     public function test_validates_ly_maximum(): void
     {
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=9999');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=9999');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['ly']);
@@ -127,7 +127,7 @@ class SearchSystemByDistanceTest extends TestCase
 
     public function test_validates_limit_maximum(): void
     {
-        $response = $this->getJson('/api/system/search/distance?x=0&y=0&z=0&ly=50&limit=9999');
+        $response = $this->getJson('/api/systems/search/distance?x=0&y=0&z=0&ly=50&limit=9999');
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['limit']);

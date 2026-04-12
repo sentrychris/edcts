@@ -16,7 +16,7 @@ class MarketController extends Controller
      * @param  string  $slug  - The slug of the station.
      */
     #[OA\Get(
-        path: '/station/{slug}/market',
+        path: '/stations/{slug}/market',
         summary: 'Get live commodity market data for a station',
         description: 'Returns real-time commodity prices for a station sourced from EDDN. Data is stored in Redis as it arrives from the network. Commodity internal names are mapped to human-readable display names.',
         tags: ['Market'],

@@ -469,12 +469,12 @@
       "name": "System",
       "item": [
         {
-          "name": "/system/id64s",
+          "name": "/systems/id64s",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/id64s",
+              "raw": "{{url}}/systems/id64s",
               "host": [
                 "{{url}}"
               ],
@@ -487,12 +487,12 @@
           "response": []
         },
         {
-          "name": "/system/last-updated",
+          "name": "/systems/last-updated",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/last-updated",
+              "raw": "{{url}}/systems/last-updated",
               "host": [
                 "{{url}}"
               ],
@@ -505,12 +505,12 @@
           "response": []
         },
         {
-          "name": "/system/search/distance",
+          "name": "/systems/search/distance",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/search/distance?x=0.00&y=0&z=0&ly=100",
+              "raw": "{{url}}/systems/search/distance?x=0.00&y=0&z=0&ly=100",
               "host": [
                 "{{url}}"
               ],
@@ -546,12 +546,12 @@
           "response": []
         },
         {
-          "name": "/system/search/route",
+          "name": "/systems/search/route",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/search/route?from=8216113749-maia&to=670685668665-pleiades-sector-ag-n-b7-0&ly=40",
+              "raw": "{{url}}/systems/search/route?from=8216113749-maia&to=670685668665-pleiades-sector-ag-n-b7-0&ly=40",
               "host": [
                 "{{url}}"
               ],
@@ -582,12 +582,12 @@
           "response": []
         },
         {
-          "name": "/system/search/information",
+          "name": "/systems/search/information",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/system/search/information?population=5000000000&security=high&government=Dictato&withInformation=1&withBodies=1",
+              "raw": "{{url}}/systems/search/information?population=5000000000&security=high&government=Dictato&withInformation=1&withBodies=1",
               "host": [
                 "{{url}}"
               ],
@@ -710,17 +710,17 @@
       "name": "Station",
       "item": [
         {
-          "name": "/station/:slug/market",
+          "name": "/stations/:slug/market",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/station/128016384-daedalus/market",
+              "raw": "{{url}}/stations/128016384-daedalus/market",
               "host": [
                 "{{url}}"
               ],
               "path": [
-                "station",
+                "stations",
                 "128016384-daedalus",
                 "market"
               ]
