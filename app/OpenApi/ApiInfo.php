@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Frontier Auth', description: 'Frontier SSO OAuth 2.0 PKCE authentication')]
 #[OA\Tag(name: 'Frontier CAPI', description: 'Frontier Companion API — authenticated commander data')]
 #[OA\Tag(name: 'GalNet', description: 'In-game GalNet news articles')]
+#[OA\Tag(name: 'Commander', description: 'Authenticated commander profile management')]
 #[OA\Tag(name: 'Statistics', description: 'Aggregate database statistics')]
 #[OA\Tag(name: 'Systems', description: 'Star systems across the galaxy')]
 #[OA\Tag(name: 'System Search', description: 'Search and utility endpoints for systems')]

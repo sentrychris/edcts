@@ -32,11 +32,18 @@ class StatisticsController extends Controller
         tags: ['Statistics'],
         parameters: [
             new OA\Parameter(
-                name: 'resetCache',
+                name: 'flushCache',
                 in: 'query',
                 required: false,
-                description: 'Pass 1 to force a cache refresh',
+                description: 'Pass 1 to flush the cache and force a fresh calculation',
                 schema: new OA\Schema(type: 'integer', enum: [0, 1], example: 1)
+            ),
+            new OA\Parameter(
+                name: 'ttl',
+                in: 'query',
+                required: false,
+                description: 'Cache lifetime in seconds (default: 3600)',
+                schema: new OA\Schema(type: 'integer', example: 3600)
             ),
         ],
         responses: [

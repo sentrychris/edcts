@@ -28,12 +28,21 @@ use OpenApi\Attributes as OA;
     ]
 )]
 #[OA\Schema(
+    schema: 'FrontierUser',
+    properties: [
+        new OA\Property(property: 'frontier_id', type: 'string', nullable: true, example: 'F123456'),
+        new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+        new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
+    ]
+)]
+#[OA\Schema(
     schema: 'User',
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 1),
         new OA\Property(property: 'name', type: 'string', example: 'Chris Rowles'),
         new OA\Property(property: 'email', type: 'string', format: 'email', example: 'me@rowles.ch'),
         new OA\Property(property: 'commander', ref: '#/components/schemas/Commander', nullable: true),
+        new OA\Property(property: 'frontier_user', ref: '#/components/schemas/FrontierUser', nullable: true),
     ]
 )]
 #[OA\Schema(
@@ -54,9 +63,17 @@ use OpenApi\Attributes as OA;
         new OA\Property(
             property: 'data',
             properties: [
-                new OA\Property(property: 'systems', type: 'integer', example: 123456),
-                new OA\Property(property: 'bodies', type: 'integer', example: 789012),
-                new OA\Property(property: 'stations', type: 'integer', example: 34567),
+                new OA\Property(
+                    property: 'cartographical',
+                    properties: [
+                        new OA\Property(property: 'systems', type: 'integer', example: 123456),
+                        new OA\Property(property: 'bodies', type: 'integer', example: 789012),
+                        new OA\Property(property: 'stars', type: 'integer', example: 45678),
+                        new OA\Property(property: 'orbiting', type: 'integer', example: 23456),
+                    ],
+                    type: 'object'
+                ),
+                new OA\Property(property: 'commanders', type: 'integer', example: 1234),
             ],
             type: 'object'
         ),

@@ -279,8 +279,8 @@ class SystemController extends Controller
             new OA\Parameter(name: 'x', in: 'query', required: false, description: 'Galactic X coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
             new OA\Parameter(name: 'y', in: 'query', required: false, description: 'Galactic Y coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
             new OA\Parameter(name: 'z', in: 'query', required: false, description: 'Galactic Z coordinate (required when slug is not provided)', schema: new OA\Schema(type: 'number', format: 'float', example: 0.0)),
-            new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Search radius in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 100.0)),
-            new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Maximum results to return', schema: new OA\Schema(type: 'integer', example: 20)),
+            new OA\Parameter(name: 'ly', in: 'query', required: false, description: 'Search radius in light years (default: 100, max: 5000)', schema: new OA\Schema(type: 'number', format: 'float', example: 100.0)),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, description: 'Maximum results per page (max: 1000)', schema: new OA\Schema(type: 'integer', example: 20)),
             new OA\Parameter(name: 'page', in: 'query', required: false, description: 'Page number', schema: new OA\Schema(type: 'integer', example: 1)),
         ],
         responses: [
@@ -337,7 +337,7 @@ class SystemController extends Controller
         parameters: [
             new OA\Parameter(name: 'from', in: 'query', required: true, description: 'Origin system slug ({id64}-{name})', schema: new OA\Schema(type: 'string', example: '8216113749-maia')),
             new OA\Parameter(name: 'to', in: 'query', required: true, description: 'Destination system slug ({id64}-{name})', schema: new OA\Schema(type: 'string', example: '670685668665-pleiades-sector-ag-n-b7-0')),
-            new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Maximum jump range in light years', schema: new OA\Schema(type: 'number', format: 'float', example: 40.0)),
+            new OA\Parameter(name: 'ly', in: 'query', required: true, description: 'Maximum jump range in light years (min: 1, max: 500)', schema: new OA\Schema(type: 'number', format: 'float', example: 40.0)),
         ],
         responses: [
             new OA\Response(

@@ -91,7 +91,6 @@ class GalnetNewsController extends Controller
     #[OA\Delete(
         path: '/galnet/news/{id}',
         summary: 'Delete a GalNet news article',
-        security: [['sanctum' => []]],
         tags: ['GalNet'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, description: 'Article ID', schema: new OA\Schema(type: 'integer', example: 42)),
